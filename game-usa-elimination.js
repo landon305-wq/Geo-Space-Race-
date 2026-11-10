@@ -11,14 +11,37 @@ window.usaEliminationGame = (() => {
     const USA_QUESTION_TIME = 60;
 
     // ============================================
-    // ONLINE CLOUD LEADERBOARD CONFIGURATION (OPTIONAL)
-    // To make it live online across cities:
-    // 1. Create a free project on https://supabase.com
-    // 2. Create a table named 'usa_leaderboard' with columns: name (text, primary key), clears (int8), updated_at (timestamp)
-    // 3. Paste your Project URL and Anon Public Key below. Leave blank to use local storage.
+    // ONLINE CLOUD LEADERBOARD CONFIGURATION
     // ============================================
     const SUPABASE_URL = 'https://ccjlpsapefnnikbschpj.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_q1GbjeHYP7X3Z3DTz4Eftg_9L2tokW0';
+
+    // Initialize Supabase Client
+    let supabaseClient = null;
+    let currentUserId = null;
+    let playerCallsign = localStorage.getItem('astro_geo_player_callsign') || '';
+
+    if (window.supabase && SUPABASE_URL && SUPABASE_KEY) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        initAuth();
+    }
+
+    async function initAuth() {
+        try {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                currentUserId = session.user.id;
+            } else {
+                const { data, error } = await supabaseClient.auth.signInAnonymously();
+                if (data && data.user) {
+                    currentUserId = data.user.id;
+                }
+            }
+        } catch (err) {
+            console.warn('Anonymous auth initialization failed:', err);
+        }
+    }
+
     let usaMap = null;
     let usaLabelLayer = null;
     let usaEntries = [];
@@ -45,7 +68,6 @@ window.usaEliminationGame = (() => {
     let usaNormalHighScore = Number(localStorage.getItem(USA_NORMAL_KEY)) || 0;
     let usaHardHighScore = Number(localStorage.getItem(USA_HARD_KEY)) || 0;
 
-    // 6 levels spanning 0 to 52 items
     const USA_MILESTONE_STATES = [0, 10, 21, 31, 42, 52];
     const USA_MILESTONE_DATA = [
         { name: 'Earth Surface', miles: '0 mi', icon: '🌍' },
@@ -78,7 +100,6 @@ window.usaEliminationGame = (() => {
     function usaSound(type) {
         const ctx = getAudioContext();
         if (!ctx) return;
-
         const now = ctx.currentTime;
 
         if (type === 'select' || type === 'confirm') {
@@ -98,16 +119,12 @@ window.usaEliminationGame = (() => {
             [150, 225, 300].forEach((baseFreq, i) => {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                
                 osc.type = i === 0 ? 'sine' : 'triangle';
                 osc.frequency.setValueAtTime(baseFreq, now);
                 osc.frequency.exponentialRampToValueAtTime(baseFreq * 2.5, now + 0.8);
-                osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 1.2);
-
                 gain.gain.setValueAtTime(0.01, now);
                 gain.gain.linearRampToValueAtTime(0.1, now + 0.3);
                 gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start(now);
@@ -132,26 +149,19 @@ window.usaEliminationGame = (() => {
         } 
         else if (type === 'win') {
             const notes = [
-                { f: 523.25, t: 0.0, d: 0.15 },
-                { f: 659.25, t: 0.15, d: 0.15 },
-                { f: 783.99, t: 0.3, d: 0.15 },
-                { f: 1046.50, t: 0.45, d: 0.3 },
-                { f: 783.99, t: 0.75, d: 0.15 },
-                { f: 1046.50, t: 0.9, d: 0.6 }
+                { f: 523.25, t: 0.0, d: 0.15 }, { f: 659.25, t: 0.15, d: 0.15 },
+                { f: 783.99, t: 0.3, d: 0.15 }, { f: 1046.50, t: 0.45, d: 0.3 },
+                { f: 783.99, t: 0.75, d: 0.15 }, { f: 1046.50, t: 0.9, d: 0.6 }
             ];
-
             notes.forEach(note => {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 const noteTime = now + note.t;
-
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(note.f, noteTime);
-
                 gain.gain.setValueAtTime(0, noteTime);
                 gain.gain.linearRampToValueAtTime(0.18, noteTime + 0.03);
                 gain.gain.exponentialRampToValueAtTime(0.001, noteTime + note.d);
-
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start(noteTime);
@@ -210,7 +220,6 @@ window.usaEliminationGame = (() => {
         const ctx = getAudioContext();
         if (!ctx) return;
         const now = ctx.currentTime;
-
         [
             { start: 130, end: 90, delay: 0, duration: 0.35 },
             { start: 110, end: 70, delay: 0.38, duration: 0.55 }
@@ -218,15 +227,12 @@ window.usaEliminationGame = (() => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             const t = now + tone.delay;
-
             osc.type = 'sine';
             osc.frequency.setValueAtTime(tone.start, t);
             osc.frequency.exponentialRampToValueAtTime(tone.end, t + tone.duration);
-
             gain.gain.setValueAtTime(0, t);
             gain.gain.linearRampToValueAtTime(0.25, t + 0.05);
             gain.gain.exponentialRampToValueAtTime(0.001, t + tone.duration);
-
             osc.connect(gain);
             gain.connect(ctx.destination);
             osc.start(t);
@@ -240,7 +246,7 @@ window.usaEliminationGame = (() => {
 
 
     // ============================================
-    // CLOUD & LOCAL LEADERBOARD ENGINE
+    // SECURE CLOUD & LOCAL LEADERBOARD ENGINE
     // ============================================
 
     function usaGetLocalLeaderboard() {
@@ -252,76 +258,66 @@ window.usaEliminationGame = (() => {
     }
 
     async function usaGetLeaderboard() {
-        if (SUPABASE_URL && SUPABASE_KEY) {
+        if (supabaseClient) {
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/usa_leaderboard?select=*&order=clears.desc&limit=10`, {
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    }
-                });
-                if (res.ok) {
-                    return await res.json();
-                }
+                const { data, error } = await supabaseClient
+                    .from('usa_leaderboard')
+                    .select('*')
+                    .order('clears', { ascending: false })
+                    .limit(10);
+                if (!error && data) return data;
             } catch (err) {
-                console.warn('Cloud leaderboard fetch failed, falling back to local storage:', err);
+                console.warn('Cloud leaderboard fetch failed:', err);
             }
         }
         return usaGetLocalLeaderboard();
     }
 
-    async function usaRecordHardModeClear(playerName) {
-        if (!playerName || !playerName.trim()) playerName = "Commander Cadet";
-        playerName = playerName.trim();
+    async function usaRecordHardModeClear() {
+        if (!playerCallsign || !playerCallsign.trim()) {
+            let inputName = prompt("🎉 LUNAR LANDING SUCCESS!\nEnter your astronaut callsign for the leaderboard:", "Commander Cadet");
+            playerCallsign = (inputName && inputName.trim()) ? inputName.trim() : "Commander Cadet";
+            localStorage.setItem('astro_geo_player_callsign', playerCallsign);
+        }
+
+        if (!currentUserId && supabaseClient) {
+            const { data } = await supabaseClient.auth.getSession();
+            if (data && data.session) currentUserId = data.session.user.id;
+        }
+
         const currentDate = new Date().toLocaleDateString();
 
-        // 1. Update Local Storage fallback
         let board = usaGetLocalLeaderboard();
-        let existing = board.find(entry => entry.name.toLowerCase() === playerName.toLowerCase());
+        let existing = board.find(entry => entry.name.toLowerCase() === playerCallsign.toLowerCase());
         if (existing) {
             existing.clears += 1;
             existing.date = currentDate;
         } else {
-            board.push({ name: playerName, clears: 1, date: currentDate });
+            board.push({ name: playerCallsign, clears: 1, date: currentDate });
         }
         board.sort((a, b) => b.clears - a.clears);
         localStorage.setItem(USA_LOCAL_LB_KEY, JSON.stringify(board));
 
-        // 2. Sync to Cloud Supabase if configured
-        if (SUPABASE_URL && SUPABASE_KEY) {
+        if (supabaseClient && currentUserId) {
             try {
-                // Check if user exists in cloud
-                const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/usa_leaderboard?name=eq.${encodeURIComponent(playerName)}&select=clears`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-                const rows = checkRes.ok ? await checkRes.json() : [];
+                const { data: rows } = await supabaseClient
+                    .from('usa_leaderboard')
+                    .select('clears')
+                    .eq('user_id', currentUserId);
 
-                if (rows.length > 0) {
+                if (rows && rows.length > 0) {
                     const newClears = rows[0].clears + 1;
-                    await fetch(`${SUPABASE_URL}/rest/v1/usa_leaderboard?name=eq.${encodeURIComponent(playerName)}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({ clears: newClears, updated_at: new Date() })
-                    });
+                    await supabaseClient
+                        .from('usa_leaderboard')
+                        .update({ clears: newClears, name: playerCallsign, updated_at: new Date() })
+                        .eq('user_id', currentUserId);
                 } else {
-                    await fetch(`${SUPABASE_URL}/rest/v1/usa_leaderboard`, {
-                        method: 'POST',
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({ name: playerName, clears: 1, updated_at: new Date() })
-                    });
+                    await supabaseClient
+                        .from('usa_leaderboard')
+                        .insert([{ user_id: currentUserId, name: playerCallsign, clears: 1, updated_at: new Date() }]);
                 }
             } catch (err) {
-                console.warn('Failed to sync score to cloud database:', err);
+                console.warn('Failed to sync score securely to cloud:', err);
             }
         }
 
@@ -339,7 +335,6 @@ window.usaEliminationGame = (() => {
                 homeCard.appendChild(container);
             }
         }
-
         if (!container) return;
 
         container.innerHTML = '<h4 style="font-family: Orbitron, sans-serif; font-size: 0.95rem; color: #38bdf8; margin-bottom: 8px; text-align: center;">🏆 Hard Mode Leaderboard</h4><p style="font-size: 0.8rem; color: #94a3b8; text-align: center;">Loading scores...</p>';
@@ -375,7 +370,6 @@ window.usaEliminationGame = (() => {
     function usaApplyMilestones() {
         const track = document.querySelector('.space-track');
         if (!track) return;
-
         let items = Array.from(track.querySelectorAll('.milestone'));
 
         if (!usaOriginalMilestones) {
@@ -393,16 +387,11 @@ window.usaEliminationGame = (() => {
 
         while (track.querySelectorAll('.milestone').length < USA_MILESTONE_STATES.length) {
             const templateEl = track.querySelector('.milestone');
-            if (templateEl) {
-                const clone = templateEl.cloneNode(true);
-                track.appendChild(clone);
-            } else {
-                break;
-            }
+            if (templateEl) track.appendChild(templateEl.cloneNode(true));
+            else break;
         }
 
         items = Array.from(track.querySelectorAll('.milestone'));
-
         items.forEach((el, i) => {
             const target = USA_MILESTONE_STATES[i];
             const data = USA_MILESTONE_DATA[i];
@@ -410,7 +399,6 @@ window.usaEliminationGame = (() => {
 
             el.style.display = 'flex';
             el.setAttribute('data-score', String(target));
-
             const pts = el.querySelector('.pts');
             if (pts) pts.textContent = `(${target})`;
 
@@ -426,7 +414,6 @@ window.usaEliminationGame = (() => {
         if (!usaOriginalMilestones) return;
         const track = document.querySelector('.space-track');
         if (!track) return;
-
         track.innerHTML = usaOriginalMilestones.map(m => m.outerHTML).join('');
         usaOriginalMilestones = null;
     }
@@ -438,9 +425,7 @@ window.usaEliminationGame = (() => {
 
     function usaSetRewardPanelVisible(visible) {
         const panel = document.querySelector('.right-sidebar');
-        if (panel) {
-            panel.style.display = visible ? '' : 'none';
-        }
+        if (panel) panel.style.display = visible ? '' : 'none';
     }
 
     function usaEnsureHomeButtonInGame() {
@@ -463,9 +448,7 @@ window.usaEliminationGame = (() => {
                     homeScreen.classList.remove('hidden');
                     homeScreen.style.cssText = 'display: flex !important;';
                 }
-                if (window.refreshHomeHighScore) {
-                    window.refreshHomeHighScore();
-                }
+                if (window.refreshHomeHighScore) window.refreshHomeHighScore();
             };
             hud.appendChild(homeBtn);
         }
@@ -494,23 +477,14 @@ window.usaEliminationGame = (() => {
 
     function usaNormalizeState(value) {
         if (value === null || value === undefined) return '';
-
         const text = String(value).trim();
         const upper = text.toUpperCase();
-
-        if (usaStateAliases[upper]) {
-            return usaStateAliases[upper].toLowerCase();
-        }
-
+        if (usaStateAliases[upper]) return usaStateAliases[upper].toLowerCase();
         const cleaned = text.toLowerCase().replace(/[^a-z]/g, '');
-
         for (const key in usaStateAliases) {
             const fullName = usaStateAliases[key].toLowerCase();
-            if (fullName.replace(/[^a-z]/g, '') === cleaned) {
-                return fullName;
-            }
+            if (fullName.replace(/[^a-z]/g, '') === cleaned) return fullName;
         }
-
         return text.toLowerCase();
     }
 
@@ -525,9 +499,7 @@ window.usaEliminationGame = (() => {
     function usaAbbreviationFromName(name) {
         const normalized = usaNormalizeState(name);
         for (const abbreviation in usaStateAliases) {
-            if (usaStateAliases[abbreviation].toLowerCase() === normalized) {
-                return abbreviation;
-            }
+            if (usaStateAliases[abbreviation].toLowerCase() === normalized) return abbreviation;
         }
         return '';
     }
@@ -562,42 +534,35 @@ window.usaEliminationGame = (() => {
         const labelIcon = abbreviation => L.divIcon({
             className: 'usa-state-label-icon',
             html: `<span class="usa-state-label">${abbreviation}</span>`,
-            iconSize: [28, 20],
-            iconAnchor: [14, 10]
+            iconSize: [28, 20], iconAnchor: [14, 10]
         });
 
         const outsideLabelIcon = abbreviation => L.divIcon({
             className: 'usa-state-label-icon',
             html: `<span class="usa-state-label usa-callout-label">${abbreviation}</span>`,
-            iconSize: [40, 20],
-            iconAnchor: [0, 10]
+            iconSize: [40, 20], iconAnchor: [0, 10]
         });
 
         const northernLabelIcon = abbreviation => L.divIcon({
             className: 'usa-state-label-icon',
             html: `<span class="usa-state-label">${abbreviation}</span>`,
-            iconSize: [28, 20],
-            iconAnchor: [14, 20]
+            iconSize: [28, 20], iconAnchor: [14, 20]
         });
 
         function addCalloutElements(labelPosition, targetPosition, direction = 'down') {
             const group = L.layerGroup();
             L.polyline([labelPosition, targetPosition], { color: '#94a3b8', weight: 1.2, opacity: 0.95, interactive: false }).addTo(group);
-
             let borderStyle = 'border-top: 8px solid #94a3b8; border-left: 5px solid transparent; border-right: 5px solid transparent;';
             let anchor = [5, 0];
             if (direction === 'left') {
                 borderStyle = 'border-right: 8px solid #94a3b8; border-top: 5px solid transparent; border-bottom: 5px solid transparent;';
                 anchor = [0, 5];
             }
-
             const arrowIcon = L.divIcon({
                 className: 'usa-label-arrow-icon',
                 html: `<div style="width: 0; height: 0; ${borderStyle}"></div>`,
-                iconSize: [10, 8],
-                iconAnchor: anchor
+                iconSize: [10, 8], iconAnchor: anchor
             });
-
             L.marker(targetPosition, { icon: arrowIcon, interactive: false, keyboard: false, zIndexOffset: 1100 }).addTo(group);
             return group;
         }
@@ -606,10 +571,8 @@ window.usaEliminationGame = (() => {
             usaEntries.forEach(entry => {
                 const abbreviation = entry.abbr || usaAbbreviationFromName(entry.name);
                 if (!abbreviation) return;
-
                 const key = abbreviation.toUpperCase();
                 if (key === 'HI' || key === 'PR') return;
-
                 placed.add(key);
                 const entryGroup = L.layerGroup();
 
@@ -621,7 +584,6 @@ window.usaEliminationGame = (() => {
                     entryGroup.addTo(usaLabelLayer);
                     return;
                 }
-
                 if (usaNortheastCallouts[key]) {
                     const callout = usaNortheastCallouts[key];
                     addCalloutElements(L.latLng(...callout.label), L.latLng(...callout.target), 'left').addTo(entryGroup);
@@ -650,18 +612,15 @@ window.usaEliminationGame = (() => {
                 if (dcEntry) dcEntry.labelGroup = dcGroup;
             }
         }
-
         usaAddIslandCircles();
     }
 
     function usaAddIslandCircles() {
         if (!usaMap || !usaLabelLayer) return;
-
         const labelIcon = abbreviation => L.divIcon({
             className: 'usa-state-label-icon',
             html: `<span class="usa-state-label">${abbreviation}</span>`,
-            iconSize: [28, 20],
-            iconAnchor: [14, 10]
+            iconSize: [28, 20], iconAnchor: [14, 10]
         });
 
         usaEntries.forEach(entry => {
@@ -669,7 +628,6 @@ window.usaEliminationGame = (() => {
             if (abbr === 'HI' || abbr === 'PR') {
                 const center = abbr === 'HI' ? L.latLng(20.35, -157.55) : L.latLng(18.22, -66.45);
                 const circleRadius = abbr === 'HI' ? 30 : 24;
-
                 const circleMarker = L.circleMarker(center, {
                     radius: circleRadius, color: '#38bdf8', weight: 1.8,
                     fillColor: '#1e293b', fillOpacity: 0.1, interactive: true, className: 'usa-island-circle'
@@ -678,11 +636,9 @@ window.usaEliminationGame = (() => {
                 entry.circleMarker = circleMarker;
                 const labelPos = abbr === 'HI' ? L.latLng(center.lat + 4.2, center.lng) : L.latLng(center.lat + 3.8, center.lng);
                 const entryGroup = L.layerGroup();
-                
                 if (!usaHardMode) {
                     L.marker(labelPos, { icon: labelIcon(abbr), interactive: false, keyboard: false, zIndexOffset: 1000 }).addTo(entryGroup);
                 }
-                
                 entryGroup.addTo(usaLabelLayer);
                 entry.labelGroup = entryGroup;
 
@@ -706,20 +662,12 @@ window.usaEliminationGame = (() => {
                 circleMarker.on('click', (e) => {
                     L.DomEvent.stopPropagation(e);
                     const norm = usaNormalizeState(entry.name);
-                    if (!eliminatedStates.has(norm)) {
-                        usaHandleStateClick(entry);
-                    }
+                    if (!eliminatedStates.has(norm)) usaHandleStateClick(entry);
                 });
-
                 circleMarker.addTo(usaLabelLayer);
             }
         });
     }
-
-
-    // ============================================
-    // QUESTION PREPARATION & HIGH SCORE
-    // ============================================
 
     function usaGetAnswers(question) {
         const list = question.rule?.list || [];
@@ -729,7 +677,6 @@ window.usaEliminationGame = (() => {
     function usaPrepareQuestions(bank) {
         const rawQuestions = Array.isArray(bank) ? bank : bank.questions;
         if (!Array.isArray(rawQuestions) || !rawQuestions.length) throw new Error('No questions found.');
-
         return rawQuestions.map(question => {
             if (!question.prompt || !question.rule?.list) return null;
             const answers = usaGetAnswers(question);
@@ -747,23 +694,11 @@ window.usaEliminationGame = (() => {
         return usaHardMode ? usaHardHighScore : usaNormalHighScore;
     }
 
-
-    // ============================================
-    // START GAME
-    // ============================================
-
     function usaStartGame() {
         const home = usaGet('home-screen');
         const game = usaGet('game-screen');
-
-        if (home) {
-            home.classList.add('hidden');
-            home.style.display = 'none';
-        }
-        if (game) {
-            game.classList.add('active');
-            game.style.display = 'flex';
-        }
+        if (home) { home.classList.add('hidden'); home.style.display = 'none'; }
+        if (game) { game.classList.add('active'); game.style.display = 'flex'; }
 
         usaSound('blastOff');
         usaEnsureTimerElement();
@@ -771,34 +706,23 @@ window.usaEliminationGame = (() => {
         usaApplyMilestones();
         usaSetRewardPanelVisible(false);
 
-        if (!usaMap) {
-            usaInitializeGame();
-        } else if (usaQuestions.length) {
+        if (!usaMap) usaInitializeGame();
+        else if (usaQuestions.length) {
             usaResetGame();
             setTimeout(() => usaMap.invalidateSize(), 150);
-        } else {
-            usaLoadQuestions();
-        }
+        } else usaLoadQuestions();
     }
-
-
-    // ============================================
-    // INITIALIZE MAP & QUESTIONS
-    // ============================================
 
     async function usaInitializeGame() {
         try {
             usaSetPrompt('Loading Elimination USA map...');
             const response = await fetch(USA_MAP_FILE);
             if (!response.ok) throw new Error('Could not load us-states.geojson.');
-
             const geoData = await response.json();
             if (!Array.isArray(geoData.features)) throw new Error('Invalid GeoJSON.');
-
             usaCreateMap(geoData);
             await usaLoadQuestions();
         } catch (error) {
-            console.error('Elimination USA Error:', error);
             usaStopTimer();
             usaSetPrompt('ERROR: ' + error.message);
         }
@@ -807,10 +731,8 @@ window.usaEliminationGame = (() => {
     function usaCreateMap(geoData) {
         if (!window.L) throw new Error('Leaflet not loaded.');
         if (usaMap) return;
-
         usaEntries = [];
         usaMap = L.map('map', { center: [37.8, -96], zoom: 4, minZoom: 3, maxZoom: 7, zoomControl: true, attributionControl: false });
-
         const normalStyle = { color: '#38bdf8', weight: 1.2, fillColor: '#1e293b', fillOpacity: 0.95 };
 
         L.geoJSON(geoData, {
@@ -837,13 +759,10 @@ window.usaEliminationGame = (() => {
 
                 layer.on('click', () => {
                     const norm = usaNormalizeState(entry.name);
-                    if (!eliminatedStates.has(norm)) {
-                        usaHandleStateClick(entry);
-                    }
+                    if (!eliminatedStates.has(norm)) usaHandleStateClick(entry);
                 });
             }
         }).addTo(usaMap);
-
         usaCreateStateLabels();
     }
 
@@ -852,23 +771,15 @@ window.usaEliminationGame = (() => {
             usaSetPrompt('Loading Elimination questions...');
             const response = await fetch(USA_QUESTION_FILE + '?v=' + Date.now());
             if (!response.ok) throw new Error('Could not load questions.');
-
             const bank = await response.json();
             usaQuestions = usaPrepareQuestions(bank);
             usaResetGame();
-
             setTimeout(() => { if (usaMap) usaMap.invalidateSize(); }, 150);
         } catch (error) {
-            console.error('Question Error:', error);
             usaStopTimer();
             usaSetPrompt('ERROR: ' + error.message);
         }
     }
-
-
-    // ============================================
-    // DECK SHUFFLING
-    // ============================================
 
     function usaShuffle(array) {
         const result = [...array];
@@ -901,18 +812,12 @@ window.usaEliminationGame = (() => {
         return null;
     }
 
-
-    // ============================================
-    // RESET & GAMEPLAY
-    // ============================================
-
     function usaResetGame() {
         usaStopTimer();
         usaLives = usaHardMode ? USA_HARD_LIVES : USA_NORMAL_LIVES;
         usaLocked = false;
         usaSelectedEntry = null;
         eliminatedStates.clear();
-
         usaResetMapColors();
         usaResetDeck();
         usaUpdateStatus();
@@ -920,46 +825,16 @@ window.usaEliminationGame = (() => {
     }
 
     function usaResetMapColors() {
-        if (usaMap && usaEntries.length && !usaLabelLayer) {
-            usaCreateStateLabels();
-        }
-
+        if (usaMap && usaEntries.length && !usaLabelLayer) usaCreateStateLabels();
         usaEntries.forEach(entry => {
             const norm = usaNormalizeState(entry.name);
             const isElim = eliminatedStates.has(norm);
-
             entry.layer.setStyle({
                 color: isElim ? '#0f172a' : '#38bdf8',
                 weight: isElim ? 1 : 1.2,
                 fillColor: isElim ? '#090d16' : '#1e293b',
                 fillOpacity: isElim ? 0.3 : 0.95
             });
-
-            if (entry.circleMarker) {
-                entry.circleMarker.setStyle({
-                    color: isElim ? '#0f172a' : '#38bdf8',
-                    weight: 1.8,
-                    fillColor: isElim ? '#090d16' : '#1e293b',
-                    fillOpacity: isElim ? 0.05 : 0.1
-                });
-            }
-
-            if (usaLabelLayer) {
-                if (entry.labelGroup) {
-                    if (isElim) {
-                        if (usaLabelLayer.hasLayer(entry.labelGroup)) usaLabelLayer.removeLayer(entry.labelGroup);
-                    } else {
-                        if (!usaLabelLayer.hasLayer(entry.labelGroup)) usaLabelLayer.addLayer(entry.labelGroup);
-                    }
-                }
-                if (entry.circleMarker) {
-                    if (isElim) {
-                        if (usaLabelLayer.hasLayer(entry.circleMarker)) usaLabelLayer.removeLayer(entry.circleMarker);
-                    } else {
-                        if (!usaLabelLayer.hasLayer(entry.circleMarker)) usaLabelLayer.addLayer(entry.circleMarker);
-                    }
-                }
-            }
         });
     }
 
@@ -974,12 +849,9 @@ window.usaEliminationGame = (() => {
         if (!nextQuestion) {
             usaCurrentQuestion = null;
             usaSound('win');
-
             if (usaHardMode) {
-                let playerName = prompt("🎉 LUNAR LANDING SUCCESS!\nEnter your astronaut callsign for the leaderboard:", "Commander Cadet");
-                usaRecordHardModeClear(playerName);
+                usaRecordHardModeClear();
             }
-
             usaShowModal('🎉 LUNAR LANDING SUCCESS!', `Incredible! Items eliminated: ${eliminatedStates.size} / 52 (238,900 Miles Reached!)`, true, true);
             return;
         }
@@ -992,99 +864,59 @@ window.usaEliminationGame = (() => {
 
     function usaSetPrompt(message) {
         const el = usaGet('prompt-text');
-        if (el) {
-            el.textContent = message;
-            const container = el.closest('.prompt-container') || el.parentNode;
-            if (container) {
-                container.style.cssText = 'background: transparent; border: none; box-shadow: none; padding: 10px 20px; margin-top: 5px; text-align: center; font-size: 15px; color: #f8fafc; font-family: inherit; font-weight: 500;';
-            }
-        }
+        if (el) el.textContent = message;
     }
 
     function usaHandleStateClick(entry) {
         if (usaLocked || !usaCurrentQuestion) return;
+        
+        // If the user already had a different state selected, reset its color back to normal first!
+        if (usaSelectedEntry && usaSelectedEntry !== entry) {
+            const prevNorm = usaNormalizeState(usaSelectedEntry.name);
+            if (!eliminatedStates.has(prevNorm)) {
+                usaSelectedEntry.layer.setStyle({ color: '#38bdf8', weight: 1.2, fillColor: '#1e293b', fillOpacity: 0.95 });
+            }
+        }
 
         if (usaSelectedEntry !== entry) {
-            if (usaSelectedEntry) {
-                const prevNorm = usaNormalizeState(usaSelectedEntry.name);
-                if (!eliminatedStates.has(prevNorm)) {
-                    usaSelectedEntry.layer.setStyle({ color: '#38bdf8', weight: 1.2, fillColor: '#1e293b', fillOpacity: 0.95 });
-                    if (usaSelectedEntry.circleMarker) {
-                        usaSelectedEntry.circleMarker.setStyle({ color: '#38bdf8', weight: 1.8, fillColor: '#1e293b', fillOpacity: 0.1 });
-                    }
-                }
-            }
-
             usaSelectedEntry = entry;
             usaSound('select');
-
             entry.layer.setStyle({ color: '#f59e0b', weight: 2.5, fillColor: '#f59e0b', fillOpacity: 0.95 });
-            if (entry.circleMarker) {
-                entry.circleMarker.setStyle({ color: '#f59e0b', weight: 2.5, fillColor: '#f59e0b', fillOpacity: 0.3 });
-            }
-
             usaSetPrompt(usaCurrentQuestion.prompt + ' — Click again to confirm elimination.');
             return;
         }
-
         usaConfirmAnswer();
     }
 
     function usaConfirmAnswer(autoLocked = false) {
         if (!usaSelectedEntry || usaLocked) return;
-
         usaLocked = true;
         usaStopTimer();
         usaSound('confirm');
 
         const selected = usaSelectedEntry;
         const selectedNameNorm = usaNormalizeState(selected.name);
-
-        const correct = usaCurrentQuestion.matchingEntries.some(
-            entry => usaNormalizeState(entry.name) === selectedNameNorm
-        );
-
+        const correct = usaCurrentQuestion.matchingEntries.some(entry => usaNormalizeState(entry.name) === selectedNameNorm);
         const autoNote = autoLocked ? 'Time ran out! ' : '';
 
         if (correct) {
             eliminatedStates.add(selectedNameNorm);
-
             selected.layer.setStyle({ color: '#22c55e', weight: 2.5, fillColor: '#22c55e', fillOpacity: 1 });
-            if (selected.circleMarker) {
-                selected.circleMarker.setStyle({ color: '#22c55e', weight: 2.5, fillColor: '#22c55e', fillOpacity: 1 });
-            }
-
-            if (usaLabelLayer) {
-                if (selected.labelGroup && usaLabelLayer.hasLayer(selected.labelGroup)) {
-                    usaLabelLayer.removeLayer(selected.labelGroup);
-                }
-                if (selected.circleMarker && usaLabelLayer.hasLayer(selected.circleMarker)) {
-                    usaLabelLayer.removeLayer(selected.circleMarker);
-                }
-            }
-
             usaUpdateStatus();
 
             if (eliminatedStates.size >= 52) {
                 usaSound('win');
                 if (usaHardMode) {
-                    let playerName = prompt("🎉 LUNAR LANDING SUCCESS!\nEnter your astronaut callsign for the leaderboard:", "Commander Cadet");
-                    usaRecordHardModeClear(playerName);
+                    usaRecordHardModeClear();
                 }
-                usaShowModal('🎉 TOUCHDOWN ON THE MOON!', `${autoNote}${selected.name} was correct! You reached the Moon (238,900 mi) by eliminating all 52 locations!`, true, true);
+                usaShowModal('🎉 TOUCHDOWN ON THE MOON!', `${autoNote}${selected.name} was correct! You reached the Moon!`, true, true);
             } else {
                 usaSound('correct');
                 usaShowModal('⚡ Location Eliminated!', `${autoNote}${selected.name} was correct and is now ELIMINATED!`, false, true);
             }
-
         } else {
             usaLives--;
-
             selected.layer.setStyle({ color: '#ef4444', weight: 2.5, fillColor: '#ef4444', fillOpacity: 1 });
-            if (selected.circleMarker) {
-                selected.circleMarker.setStyle({ color: '#ef4444', weight: 2.5, fillColor: '#ef4444', fillOpacity: 1 });
-            }
-
             usaUpdateStatus();
 
             if (usaLives <= 0) {
@@ -1096,11 +928,6 @@ window.usaEliminationGame = (() => {
             }
         }
     }
-
-
-    // ============================================
-    // TIMER ENGINE
-    // ============================================
 
     function usaEnsureTimerElement() {
         let container = usaGet('question-timer');
@@ -1118,10 +945,7 @@ window.usaEliminationGame = (() => {
 
     function usaUpdateTimer() {
         let value = usaGet('timer-val');
-        if (!value) {
-            usaEnsureTimerElement();
-            value = usaGet('timer-val');
-        }
+        if (!value) { usaEnsureTimerElement(); value = usaGet('timer-val'); }
         const container = usaGet('question-timer');
         if (value) value.textContent = usaTimeLeft;
         if (container) container.classList.toggle('timer-warning', usaTimeLeft <= 5);
@@ -1131,45 +955,26 @@ window.usaEliminationGame = (() => {
         usaStopTimer();
         usaTimeLeft = USA_QUESTION_TIME;
         usaUpdateTimer();
-
         usaTimer = setInterval(() => {
-            if (usaLocked) {
-                usaStopTimer();
-                return;
-            }
-
+            if (usaLocked) { usaStopTimer(); return; }
             usaTimeLeft--;
             usaUpdateTimer();
-
-            if (usaTimeLeft >= 1 && usaTimeLeft <= 5) {
-                usaSound(usaTimeLeft <= 2 ? 'tickHigh' : 'tick');
-            }
-
-            if (usaTimeLeft <= 0) {
-                usaTimeExpired();
-            }
+            if (usaTimeLeft >= 1 && usaTimeLeft <= 5) usaSound(usaTimeLeft <= 2 ? 'tickHigh' : 'tick');
+            if (usaTimeLeft <= 0) usaTimeExpired();
         }, 1000);
     }
 
     function usaStopTimer() {
-        if (usaTimer) {
-            clearInterval(usaTimer);
-            usaTimer = null;
-        }
+        if (usaTimer) { clearInterval(usaTimer); usaTimer = null; }
     }
 
     function usaTimeExpired() {
         if (usaLocked || !usaCurrentQuestion) return;
-        if (usaSelectedEntry) {
-            usaConfirmAnswer(true);
-            return;
-        }
-
+        if (usaSelectedEntry) { usaConfirmAnswer(true); return; }
         usaLocked = true;
         usaStopTimer();
         usaLives--;
         usaUpdateStatus();
-
         if (usaLives <= 0) {
             usaSound('gameover');
             usaShowModal("TIME'S UP!", `Time expired.<br>Total states eliminated: ${eliminatedStates.size}`, true, false);
@@ -1179,40 +984,19 @@ window.usaEliminationGame = (() => {
         }
     }
 
-
-    // ============================================
-    // STATUS & ROCKET
-    // ============================================
-
     function usaUpdateStatus() {
         const livesEl = usaGet('lives-val');
         const scoreDisplay = usaGet('score-display');
-
-        if (livesEl) {
-            livesEl.textContent = '❤️'.repeat(Math.max(0, usaLives));
-        }
-
-        if (scoreDisplay) {
-            scoreDisplay.innerHTML = `States Eliminated: <span id="score-val">${eliminatedStates.size}</span> / 52`;
-        }
+        if (livesEl) livesEl.textContent = '❤️'.repeat(Math.max(0, usaLives));
+        if (scoreDisplay) scoreDisplay.innerHTML = `States Eliminated: <span id="score-val">${eliminatedStates.size}</span> / 52`;
 
         const count = eliminatedStates.size;
         if (usaHardMode) {
-            if (count > usaHardHighScore) {
-                usaHardHighScore = count;
-                localStorage.setItem(USA_HARD_KEY, usaHardHighScore);
-            }
+            if (count > usaHardHighScore) { usaHardHighScore = count; localStorage.setItem(USA_HARD_KEY, usaHardHighScore); }
         } else {
-            if (count > usaNormalHighScore) {
-                usaNormalHighScore = count;
-                localStorage.setItem(USA_NORMAL_KEY, usaNormalHighScore);
-            }
+            if (count > usaNormalHighScore) { usaNormalHighScore = count; localStorage.setItem(USA_NORMAL_KEY, usaNormalHighScore); }
         }
-
-        if (window.refreshHomeHighScore) {
-            window.refreshHomeHighScore();
-        }
-
+        if (window.refreshHomeHighScore) window.refreshHomeHighScore();
         usaUpdateRocket();
     }
 
@@ -1220,130 +1004,70 @@ window.usaEliminationGame = (() => {
         const rocket = usaGet('rocket-icon');
         const milestones = Array.from(document.querySelectorAll('.space-track .milestone'));
         let reached = null;
-
         milestones.forEach(milestone => {
             const target = Number(milestone.getAttribute('data-score'));
             const achieved = eliminatedStates.size >= target;
             milestone.classList.toggle('achieved', achieved);
             if (achieved) reached = milestone;
         });
-
         if (rocket && reached) {
-            const center = reached.offsetTop + reached.offsetHeight / 2;
-            rocket.style.top = `${center - rocket.offsetHeight / 2}px`;
+            rocket.style.top = `${reached.offsetTop + reached.offsetHeight / 2 - rocket.offsetHeight / 2}px`;
         }
-    }
-
-
-    // ============================================
-    // MODAL DIALOG
-    // ============================================
-
-    function usaInjectModalStyles() {
-        if (document.getElementById('usa-modal-anim-style')) return;
-        const style = document.createElement('style');
-        style.id = 'usa-modal-anim-style';
-        style.textContent = `
-            @keyframes modalSwoosh {
-                0% { transform: translateY(-80px); opacity: 0; }
-                100% { transform: translateY(0); opacity: 1; }
-            }
-            .usa-modal-content-animated {
-                animation: modalSwoosh 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            }
-        `;
-        document.head.appendChild(style);
     }
 
     function usaShowModal(title, description, gameOver, isCorrect) {
         usaStopTimer();
-        usaInjectModalStyles();
-
-        if (!isCorrect && !gameOver) {
-            usaSound('modalPop');
-        }
-
         let modal = usaGet('feedback-modal');
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'feedback-modal';
             document.body.appendChild(modal);
         }
-
-        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); display: flex !important; align-items: center; justify-content: center; z-index: 99999;';
-
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); display: flex !important; align-items: center; justify-content: center; z-index: 99999; pointer-events: auto;';
         const borderColor = isCorrect ? '#22c55e' : '#ef4444';
-        const glowColor = isCorrect ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)';
 
         modal.innerHTML = `
-            <div class="usa-modal-content-animated" style="background: #0f172a; border: 2px solid ${borderColor}; box-shadow: 0 0 25px ${glowColor}; border-radius: 12px; padding: 30px; text-align: center; max-width: 400px; width: 90%; color: #f8fafc; font-family: inherit;">
-                <h2 id="feedback-title" style="margin-top: 0; color: ${borderColor};">${title}</h2>
-                <p id="feedback-desc" style="margin: 20px 0; color: #cbd5e1; line-height: 1.5;">${description}</p>
+            <div style="background: #0f172a; border: 2px solid ${borderColor}; border-radius: 12px; padding: 30px; text-align: center; max-width: 400px; width: 90%; color: #f8fafc; font-family: inherit;">
+                <h2 style="margin-top: 0; color: ${borderColor};">${title}</h2>
+                <p style="margin: 20px 0; color: #cbd5e1; line-height: 1.5;">${description}</p>
                 <button id="modal-action-btn" style="background: ${borderColor}; color: #0f172a; border: none; padding: 10px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 16px;">${gameOver ? 'Return to Home' : 'Next Question'}</button>
             </div>
         `;
 
-        const btn = modal.querySelector('#modal-action-btn');
-        if (btn) {
-            btn.onclick = () => {
+        const actionBtn = modal.querySelector('#modal-action-btn');
+        if (actionBtn) {
+            actionBtn.onclick = () => {
                 modal.style.display = 'none';
-                modal.classList.add('hidden');
-
+                modal.style.pointerEvents = 'none';
+                
                 if (gameOver || usaLives <= 0) {
-                    usaStopTimer();
                     const gameScreen = usaGet('game-screen');
                     const homeScreen = usaGet('home-screen');
-
-                    if (gameScreen) {
-                        gameScreen.classList.remove('active');
-                        gameScreen.style.cssText = 'display: none !important;';
-                    }
-                    if (homeScreen) {
-                        homeScreen.classList.remove('hidden');
-                        homeScreen.style.cssText = 'display: flex !important;';
-                    }
-                    if (window.refreshHomeHighScore) {
-                        window.refreshHomeHighScore();
-                    }
+                    if (gameScreen) { gameScreen.classList.remove('active'); gameScreen.style.cssText = 'display: none !important;'; }
+                    if (homeScreen) { homeScreen.classList.remove('hidden'); homeScreen.style.cssText = 'display: flex !important;'; }
+                    if (window.refreshHomeHighScore) window.refreshHomeHighScore();
                 } else {
                     usaNextQuestion();
                 }
             };
         }
-
-        modal.classList.remove('hidden');
     }
 
-
-    // Render leaderboard on script initialization
     document.addEventListener('DOMContentLoaded', () => {
         usaRenderLeaderboard();
     });
 
-
-    // Publicly Exposed API
     return {
         setHardMode(on) {
             usaHardMode = !!on;
-            if (window.refreshHomeHighScore) {
-                window.refreshHomeHighScore();
-            }
-            if (usaMap) {
-                usaCreateStateLabels();
-            }
+            if (window.refreshHomeHighScore) window.refreshHomeHighScore();
+            if (usaMap) usaCreateStateLabels();
         },
-        getHighScore() {
-            return usaGetHighScore();
-        },
-        start() {
-            usaStartGame();
-        },
+        getHighScore() { return usaGetHighScore(); },
+        start() { usaStartGame(); },
         destroy() {
             usaStopTimer();
-            if (usaMap) {
-                usaMap.remove();
-                usaMap = null;
-            }
+            if (usaMap) { usaMap.remove(); usaMap = null; }
             usaLabelLayer = null;
             usaEntries = [];
             usaQuestions = [];
