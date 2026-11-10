@@ -1,0 +1,1088 @@
+:root {
+    --space-bg: #030712;
+    --card-bg: rgba(15, 23, 42, 0.85);
+    --border-color: #38bdf8;
+    --accent-glow: #0284c7;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --danger: #ef4444;
+    --success: #22c55e;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+body {
+    background-color: var(--space-bg);
+    color: var(--text-main);
+    overflow: hidden;
+    height: 100vh;
+}
+
+.screen {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.screen.active {
+    display: flex;
+}
+
+
+/* ==========================================
+   HOME SCREEN
+========================================== */
+
+#home-screen {
+    justify-content: center;
+    align-items: center;
+
+    background: radial-gradient(
+        circle at center,
+        #0f172a 0%,
+        #020617 100%
+    );
+
+    position: relative;
+    overflow: hidden;
+}
+
+#home-screen.hidden {
+    display: none !important;
+}
+
+
+/* ==========================================
+   MAIN MENU CARD
+========================================== */
+
+.home-card {
+    background: var(--card-bg);
+
+    border: 2px solid var(--border-color);
+
+    box-shadow:
+        0 0 30px rgba(56, 189, 248, 0.3),
+        0 0 80px rgba(2, 132, 199, 0.12);
+
+    padding: 40px;
+
+    border-radius: 16px;
+
+    text-align: center;
+
+    max-width: 720px;
+    width: 90%;
+
+    z-index: 10;
+    position: relative;
+
+    backdrop-filter: blur(10px);
+}
+
+.glow-title {
+    font-family: 'Orbitron', sans-serif;
+
+    font-size: clamp(2rem, 4vw, 3.2rem);
+
+    font-weight: 900;
+
+    color: var(--text-main);
+
+    text-shadow:
+        0 0 15px var(--border-color),
+        0 0 35px rgba(56, 189, 248, 0.5);
+
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 1.3rem;
+
+    color: var(--border-color);
+
+    margin-bottom: 28px;
+
+    font-weight: 700;
+
+    letter-spacing: 3px;
+}
+
+.home-stats {
+    font-size: 1.1rem;
+
+    color: var(--text-muted);
+
+    margin-bottom: 25px;
+}
+
+#home-highscore {
+    color: var(--success);
+    font-weight: 700;
+}
+
+.game-desc {
+    font-size: 1.15rem;
+
+    color: var(--text-muted);
+
+    line-height: 1.55;
+
+    margin: 0 auto 30px;
+
+    max-width: 620px;
+}
+
+
+/* ==========================================
+   BUTTONS
+========================================== */
+
+.space-btn {
+    background: linear-gradient(
+        135deg,
+        #0284c7 0%,
+        #0369a1 100%
+    );
+
+    border: 1px solid var(--border-color);
+
+    color: white;
+
+    font-family: 'Orbitron', sans-serif;
+
+    font-size: 1rem;
+
+    font-weight: 700;
+
+    padding: 14px 30px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+
+    box-shadow:
+        0 0 15px rgba(56, 189, 248, 0.4);
+
+    width: 100%;
+
+    margin-bottom: 12px;
+}
+
+.space-btn:hover {
+    background: linear-gradient(
+        135deg,
+        #0369a1 0%,
+        #075985 100%
+    );
+
+    box-shadow:
+        0 0 25px rgba(56, 189, 248, 0.8);
+
+    transform: translateY(-2px);
+}
+
+.space-btn:active {
+    transform: translateY(0);
+}
+
+.secondary-btn {
+    background: rgba(15, 23, 42, 0.9);
+
+    border: 1px solid var(--text-muted);
+
+    color: var(--text-muted);
+
+    box-shadow: none;
+
+    margin-bottom: 0;
+}
+
+.secondary-btn:hover {
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+.secondary-btn.active-hard {
+    border-color: var(--danger);
+
+    color: var(--danger);
+
+    background: rgba(239, 68, 68, 0.1);
+
+    box-shadow:
+        0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+
+/* ==========================================
+   GAME SCREEN
+========================================== */
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+
+    width: 100vw;
+    height: 100vh;
+}
+
+.hud {
+    height: 70px;
+
+    background: var(--card-bg);
+
+    border-bottom: 2px solid var(--border-color);
+
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 30px;
+
+    z-index: 5;
+}
+
+.hud-item {
+    font-family: 'Orbitron', sans-serif;
+
+    font-size: 1.1rem;
+
+    font-weight: 700;
+}
+
+.timer-display {
+    color: var(--border-color);
+}
+
+.timer-warning {
+    color: var(--danger) !important;
+
+    animation: pulse-warn 0.5s infinite alternate;
+}
+
+@keyframes pulse-warn {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0.4;
+    }
+}
+
+.prompt-box {
+    background: rgba(2, 6, 23, 0.9);
+
+    border: 1px solid var(--border-color);
+
+    padding: 10px 20px;
+
+    border-radius: 8px;
+
+    font-size: 1.1rem;
+
+    font-weight: 600;
+
+    text-align: center;
+
+    max-width: 600px;
+
+    box-shadow:
+        inset 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.workspace {
+    display: flex;
+
+    flex: 1;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+#map {
+    flex: 1;
+
+    height: 100%;
+
+    min-height: 400px;
+
+    background: #020617;
+
+    position: relative;
+
+    z-index: 1;
+}
+
+
+/* ==========================================
+   SIDEBARS
+========================================== */
+
+.space-sidebar,
+.right-sidebar {
+    width: 260px;
+
+    background: var(--card-bg);
+
+    border-right: 2px solid var(--border-color);
+
+    display: flex;
+
+    flex-direction: column;
+
+    padding: 20px;
+
+    z-index: 5;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+.right-sidebar {
+    border-right: none;
+
+    border-left: 2px solid var(--border-color);
+}
+
+.space-sidebar h3,
+.right-sidebar h3 {
+    font-family: 'Orbitron', sans-serif;
+
+    font-size: 1.1rem;
+
+    margin-bottom: 15px;
+
+    text-align: center;
+
+    color: var(--border-color);
+}
+
+
+/* ==========================================
+   ORBITAL ASCENT
+========================================== */
+
+.space-track {
+    position: relative;
+
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+
+    padding-left: 20px;
+}
+
+.space-line {
+    position: absolute;
+
+    left: 27px;
+
+    top: 10px;
+
+    bottom: 10px;
+
+    width: 3px;
+
+    background: #1e293b;
+}
+
+.rocket-marker {
+    position: absolute;
+
+    left: 13px;
+
+    font-size: 1.5rem;
+
+    transition: top 0.4s ease;
+
+    z-index: 3;
+}
+
+.milestone {
+    display: flex;
+
+    align-items: center;
+
+    font-size: 0.95rem;
+
+    color: var(--text-muted);
+
+    position: relative;
+
+    z-index: 2;
+}
+
+.milestone .dot {
+    width: 10px;
+    height: 10px;
+
+    background: #1e293b;
+
+    border: 2px solid var(--text-muted);
+
+    border-radius: 50%;
+
+    margin-right: 15px;
+
+    position: relative;
+
+    left: -13px;
+
+    transition: all 0.3s ease;
+}
+
+.milestone.achieved {
+    color: var(--text-main);
+
+    font-weight: 700;
+}
+
+.milestone.achieved .dot {
+    background: var(--border-color);
+
+    border-color: var(--border-color);
+
+    box-shadow: 0 0 10px var(--border-color);
+}
+
+.milestone .pts {
+    margin-left: auto;
+
+    font-size: 0.8rem;
+
+    color: var(--text-muted);
+}
+
+
+/* ==========================================
+   MISSION LOG
+========================================== */
+
+.rewards-table {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.reward-row {
+    background: rgba(2, 6, 23, 0.6);
+
+    border: 1px solid #1e293b;
+
+    border-radius: 6px;
+
+    padding: 10px;
+}
+
+.reward-name {
+    font-size: 0.9rem;
+
+    font-weight: 700;
+
+    margin-bottom: 4px;
+}
+
+.reward-desc {
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 0.8rem;
+
+    color: var(--text-muted);
+}
+
+.reward-desc .pts {
+    color: var(--border-color);
+
+    font-weight: 700;
+}
+
+
+/* ==========================================
+   FEEDBACK MODAL
+========================================== */
+
+.modal {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    background: rgba(2, 6, 23, 0.85);
+
+    backdrop-filter: blur(5px);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 9999;
+}
+
+.modal.hidden {
+    display: none !important;
+
+    pointer-events: none;
+}
+
+.modal-content {
+    background: var(--card-bg);
+
+    border: 2px solid var(--border-color);
+
+    box-shadow:
+        0 0 40px rgba(56, 189, 248, 0.4);
+
+    padding: 40px;
+
+    border-radius: 16px;
+
+    text-align: center;
+
+    max-width: 450px;
+
+    width: 90%;
+
+    z-index: 10000;
+}
+
+.modal-content h2 {
+    font-family: 'Orbitron', sans-serif;
+
+    font-size: 1.8rem;
+
+    margin-bottom: 15px;
+
+    color: var(--text-main);
+}
+
+.modal-content p {
+    font-size: 1.1rem;
+
+    color: var(--text-muted);
+
+    margin-bottom: 25px;
+
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   STARFIELD
+========================================== */
+
+.space-starfield {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+
+    z-index: 0;
+}
+
+.star {
+    position: absolute;
+
+    background: #ffffff;
+
+    border-radius: 50%;
+
+    animation: twinkle var(--duration, 3s) infinite ease-in-out;
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.2;
+
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+
+        transform: scale(1.2);
+    }
+}
+
+.star.s1 {
+    top: 10%;
+    left: 15%;
+    width: 2px;
+    height: 2px;
+    --duration: 2.5s;
+}
+
+.star.s2 {
+    top: 20%;
+    left: 80%;
+    width: 3px;
+    height: 3px;
+    --duration: 4s;
+}
+
+.star.s3 {
+    top: 75%;
+    left: 10%;
+    width: 2px;
+    height: 2px;
+    --duration: 3s;
+}
+
+.star.s4 {
+    top: 60%;
+    left: 85%;
+    width: 3px;
+    height: 3px;
+    --duration: 3.5s;
+}
+
+.star.s5 {
+    top: 35%;
+    left: 45%;
+    width: 1px;
+    height: 1px;
+    --duration: 2s;
+}
+
+.star.s6 {
+    top: 85%;
+    left: 50%;
+    width: 2px;
+    height: 2px;
+    --duration: 4.5s;
+}
+
+.star.s7 {
+    top: 15%;
+    left: 40%;
+    width: 2px;
+    height: 2px;
+    --duration: 3.2s;
+}
+
+.star.s8 {
+    top: 50%;
+    left: 20%;
+    width: 3px;
+    height: 3px;
+    --duration: 2.8s;
+}
+
+.star.s9 {
+    top: 30%;
+    left: 90%;
+    width: 2px;
+    height: 2px;
+    --duration: 3.8s;
+}
+
+.star.s10 {
+    top: 90%;
+    left: 80%;
+    width: 1px;
+    height: 1px;
+    --duration: 2.2s;
+}
+
+.star.s11 {
+    top: 5%;
+    left: 65%;
+    width: 2px;
+    height: 2px;
+    --duration: 4.1s;
+}
+
+.star.s12 {
+    top: 65%;
+    left: 35%;
+    width: 2px;
+    height: 2px;
+    --duration: 3.3s;
+}
+
+.star.s13 {
+    top: 45%;
+    left: 75%;
+    width: 3px;
+    height: 3px;
+    --duration: 2.9s;
+}
+
+.star.s14 {
+    top: 80%;
+    left: 25%;
+    width: 2px;
+    height: 2px;
+    --duration: 3.6s;
+}
+
+.star.s15 {
+    top: 25%;
+    left: 25%;
+    width: 2px;
+    height: 2px;
+    --duration: 2.7s;
+}
+
+.stars-overlay {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background-image: radial-gradient(
+        white 1px,
+        transparent 0
+    );
+
+    background-size: 30px 30px;
+
+    opacity: 0.05;
+
+    pointer-events: none;
+
+    z-index: 0;
+}
+
+
+/* ==========================================
+   MAP STATE LABELS
+========================================== */
+
+.usa-state-label-icon {
+    background: transparent !important;
+
+    border: 0 !important;
+
+    pointer-events: none !important;
+}
+
+.usa-state-label {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 28px;
+    height: 20px;
+
+    color: #f8fafc;
+
+    font-family: 'Orbitron', sans-serif;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    line-height: 1;
+
+    letter-spacing: 0.2px;
+
+    text-shadow:
+        -1px -1px 2px #020617,
+         1px -1px 2px #020617,
+        -1px  1px 2px #020617,
+         1px  1px 2px #020617,
+         0 0 5px rgba(2, 6, 23, 0.95);
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    user-select: none;
+}
+
+.usa-callout-label {
+    text-align: left;
+
+    justify-content: flex-start;
+
+    padding-left: 4px;
+}
+
+.usa-island-circle {
+    transition: all 0.2s ease;
+}
+
+.leaflet-marker-icon.usa-state-label-icon {
+    pointer-events: none !important;
+}
+
+
+/* ==========================================
+   LUNAR ARTWORK
+========================================== */
+
+.lunar-scene {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    z-index: 2;
+}
+
+.lunar-art {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: visible;
+}
+
+
+/* ==========================================
+   SUN ANIMATION
+========================================== */
+
+.sun-object {
+    transform-origin: 210px 230px;
+
+    animation: sunPulse 8s ease-in-out infinite;
+}
+
+@keyframes sunPulse {
+    0%, 100% {
+        opacity: 0.9;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+
+/* ==========================================
+   EARTH ANIMATION
+========================================== */
+
+.earth-object {
+    transform-origin: 1350px 240px;
+
+    animation: earthFloat 8s ease-in-out infinite;
+}
+
+@keyframes earthFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-9px);
+    }
+}
+
+
+/* ==========================================
+   AMERICAN FLAG ANIMATION
+========================================== */
+
+.flag-object {
+    transform-origin: 300px 435px;
+
+    animation: flagWave 4s ease-in-out infinite;
+}
+
+@keyframes flagWave {
+    0%, 100% {
+        transform: skewY(0deg);
+    }
+
+    50% {
+        transform: skewY(-1deg);
+    }
+}
+
+
+/* ==========================================
+   ROCKET ANIMATION
+========================================== */
+
+.rocket-object {
+    transform-origin: 1290px 650px;
+
+    animation: rocketHover 3s ease-in-out infinite;
+}
+
+@keyframes rocketHover {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+
+/* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
+
+@media (max-width: 1100px) {
+
+    .home-card {
+        max-width: 620px;
+
+        padding: 32px;
+    }
+
+    .game-desc {
+        font-size: 1.05rem;
+    }
+
+    .lunar-art {
+        width: 115%;
+
+        max-width: none;
+
+        margin-left: -7.5%;
+    }
+
+}
+
+
+@media (max-width: 900px) {
+
+    .lunar-art {
+        width: 135%;
+
+        max-width: none;
+
+        margin-left: -17.5%;
+    }
+
+    .home-card {
+        max-width: 550px;
+
+        width: 85%;
+
+        padding: 28px;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+    }
+
+    .game-desc {
+        font-size: 1rem;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .lunar-art {
+        width: 170%;
+
+        max-width: none;
+
+        margin-left: -35%;
+    }
+
+    .home-card {
+        padding: 22px;
+
+        max-width: 420px;
+
+        width: 90%;
+    }
+
+    .glow-title {
+        font-size: 1.8rem;
+    }
+
+    .subtitle {
+        font-size: 0.95rem;
+
+        letter-spacing: 2px;
+
+        margin-bottom: 18px;
+    }
+
+    .game-desc {
+        font-size: 0.95rem;
+
+        line-height: 1.4;
+
+        margin-bottom: 20px;
+    }
+
+    .home-stats {
+        font-size: 0.95rem;
+    }
+
+    .space-btn {
+        font-size: 0.85rem;
+
+        padding: 12px 18px;
+    }
+
+}
+
+
+/* ==========================================
+   FINAL MENU AND ARTWORK LAYERING
+========================================== */
+
+.lunar-scene {
+    z-index: 2;
+
+    pointer-events: none;
+}
+
+.home-card {
+    z-index: 10;
+
+    position: relative;
+}
+
+.flag-object,
+.astronaut-object,
+.rocket-object {
+    pointer-events: none;
+}

@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO-SPACERACE | USA State Trivia</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="style-usa-elimination.css">
+</head>
+
+<body>
+
+<!-- HOME SCREEN -->
+<div id="home-screen" class="screen active">
+
+    <div class="stars-overlay"></div>
+
+    <div class="space-starfield">
+        <div class="star s1"></div>
+        <div class="star s2"></div>
+        <div class="star s3"></div>
+        <div class="star s4"></div>
+        <div class="star s5"></div>
+        <div class="star s6"></div>
+        <div class="star s7"></div>
+        <div class="star s8"></div>
+        <div class="star s9"></div>
+        <div class="star s10"></div>
+        <div class="star s11"></div>
+        <div class="star s12"></div>
+        <div class="star s13"></div>
+        <div class="star s14"></div>
+        <div class="star s15"></div>
+    </div>
+
+    <!-- SPACE ARTWORK -->
+    <div class="lunar-scene" aria-hidden="true">
+
+        <svg class="lunar-art"
+             viewBox="0 0 1600 900"
+             preserveAspectRatio="xMidYMid slice"
+             xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+
+                <radialGradient id="sunGradient">
+                    <stop offset="0%" stop-color="#fffde7"/>
+                    <stop offset="55%" stop-color="#ffd27c"/>
+                    <stop offset="100%" stop-color="#f28b38"/>
+                </radialGradient>
+
+                <radialGradient id="earthGradient" cx="35%" cy="30%">
+                    <stop offset="0%" stop-color="#8be5ff"/>
+                    <stop offset="60%" stop-color="#0878d5"/>
+                    <stop offset="100%" stop-color="#082b67"/>
+                </radialGradient>
+
+                <linearGradient id="suitGradient" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="100%" stop-color="#a3b2c5"/>
+                </linearGradient>
+
+                <linearGradient id="moonGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#aab8ca"/>
+                    <stop offset="100%" stop-color="#263449"/>
+                </linearGradient>
+
+                <linearGradient id="rocketGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#94a3b8"/>
+                    <stop offset="50%" stop-color="#ffffff"/>
+                    <stop offset="100%" stop-color="#94a3b8"/>
+                </linearGradient>
+
+                <filter id="spaceGlow">
+                    <feGaussianBlur stdDeviation="15"/>
+                </filter>
+
+                <!-- Individual five-point American flag star -->
+                <g id="flagStar">
+                    <path d="M0,-3 L0.9,-0.9 L3,-0.9 L1.3,0.5 L2,2.8 L0,1.5 L-2,2.8 L-1.3,0.5 L-3,-0.9 L-0.9,-0.9 Z"
+                          fill="#ffffff"/>
+                </g>
+
+                <!-- 50 stars in nine alternating rows -->
+                <g id="flagStars50">
+
+                    <g transform="translate(0 3)">
+                        <use href="#flagStar" x="4"/>
+                        <use href="#flagStar" x="17"/>
+                        <use href="#flagStar" x="30"/>
+                        <use href="#flagStar" x="43"/>
+                        <use href="#flagStar" x="56"/>
+                        <use href="#flagStar" x="69"/>
+                    </g>
+
+                    <g transform="translate(0 8.8)">
+                        <use href="#flagStar" x="10.5"/>
+                        <use href="#flagStar" x="23.5"/>
+                        <use href="#flagStar" x="36.5"/>
+                        <use href="#flagStar" x="49.5"/>
+                        <use href="#flagStar" x="62.5"/>
+                    </g>
+
+                    <g transform="translate(0 14.6)">
+                        <use href="#flagStar" x="4"/>
+                        <use href="#flagStar" x="17"/>
+                        <use href="#flagStar" x="30"/>
+                        <use href="#flagStar" x="43"/>
+                        <use href="#flagStar" x="56"/>
+                        <use href="#flagStar" x="69"/>
+                    </g>
+
+                    <g transform="translate(0 20.4)">
+                        <use href="#flagStar" x="10.5"/>
+                        <use href="#flagStar" x="23.5"/>
+                        <use href="#flagStar" x="36.5"/>
+                        <use href="#flagStar" x="49.5"/>
+                        <use href="#flagStar" x="62.5"/>
+                    </g>
+
+                    <g transform="translate(0 26.2)">
+                        <use href="#flagStar" x="4"/>
+                        <use href="#flagStar" x="17"/>
+                        <use href="#flagStar" x="30"/>
+                        <use href="#flagStar" x="43"/>
+                        <use href="#flagStar" x="56"/>
+                        <use href="#flagStar" x="69"/>
+                    </g>
+
+                    <g transform="translate(0 32)">
+                        <use href="#flagStar" x="10.5"/>
+                        <use href="#flagStar" x="23.5"/>
+                        <use href="#flagStar" x="36.5"/>
+                        <use href="#flagStar" x="49.5"/>
+                        <use href="#flagStar" x="62.5"/>
+                    </g>
+
+                    <g transform="translate(0 37.8)">
+                        <use href="#flagStar" x="4"/>
+                        <use href="#flagStar" x="17"/>
+                        <use href="#flagStar" x="30"/>
+                        <use href="#flagStar" x="43"/>
+                        <use href="#flagStar" x="56"/>
+                        <use href="#flagStar" x="69"/>
+                    </g>
+
+                    <g transform="translate(0 43.6)">
+                        <use href="#flagStar" x="10.5"/>
+                        <use href="#flagStar" x="23.5"/>
+                        <use href="#flagStar" x="36.5"/>
+                        <use href="#flagStar" x="49.5"/>
+                        <use href="#flagStar" x="62.5"/>
+                    </g>
+
+                    <g transform="translate(0 49.4)">
+                        <use href="#flagStar" x="4"/>
+                        <use href="#flagStar" x="17"/>
+                        <use href="#flagStar" x="30"/>
+                        <use href="#flagStar" x="43"/>
+                        <use href="#flagStar" x="56"/>
+                        <use href="#flagStar" x="69"/>
+                    </g>
+
+                </g>
+
+                <!-- Reusable accurate American flag -->
+                <g id="usFlag">
+
+                    <rect width="190" height="100" fill="#ffffff"/>
+
+                    <path d="
+                        M0 0 H190 V7.692 H0 Z
+                        M0 15.384 H190 V23.076 H0 Z
+                        M0 30.768 H190 V38.460 H0 Z
+                        M0 46.152 H190 V53.844 H0 Z
+                        M0 61.536 H190 V69.228 H0 Z
+                        M0 76.920 H190 V84.612 H0 Z
+                        M0 92.304 H190 V100 H0 Z"
+                        fill="#b22234"/>
+
+                    <rect width="76" height="53.846" fill="#3c3b6e"/>
+
+                    <use href="#flagStars50" transform="translate(0 0)"/>
+
+                </g>
+
+            </defs>
+
+
+            <!-- SUN -->
+            <g class="sun-object">
+
+                <circle cx="210" cy="230" r="125"
+                        fill="#ffb45c"
+                        opacity=".15"
+                        filter="url(#spaceGlow)"/>
+
+                <circle cx="210" cy="230" r="65"
+                        fill="url(#sunGradient)"/>
+
+                <circle cx="210" cy="230" r="75"
+                        fill="none"
+                        stroke="#ffc879"
+                        stroke-width="3"
+                        opacity=".4"/>
+
+            </g>
+
+
+            <!-- EARTH -->
+            <g class="earth-object">
+
+                <circle cx="1350" cy="240" r="100"
+                        fill="#168cff"
+                        opacity=".2"
+                        filter="url(#spaceGlow)"/>
+
+                <circle cx="1350" cy="240" r="68"
+                        fill="url(#earthGradient)"
+                        stroke="#70dfff"
+                        stroke-width="3"/>
+
+                <path d="
+                    M1305 205
+                    L1325 183
+                    L1350 195
+                    L1362 215
+                    L1387 220
+                    L1396 243
+                    L1378 265
+                    L1355 260
+                    L1338 290
+                    L1318 275
+                    L1307 248 Z"
+                    fill="#62c58c"/>
+
+                <path d="
+                    M1360 190
+                    L1380 200
+                    L1390 218
+                    L1374 232
+                    L1360 218 Z"
+                    fill="#9bdfa4"/>
+
+                <path d="M1278 240 Q1350 165 1422 240"
+                      fill="none"
+                      stroke="#d4f4ff"
+                      stroke-width="4"
+                      opacity=".5"/>
+
+                <circle cx="1350" cy="240" r="74"
+                        fill="none"
+                        stroke="#38bdf8"
+                        stroke-width="3"
+                        opacity=".6"/>
+
+            </g>
+
+
+            <!-- STARS -->
+            <g fill="#ffffff" opacity=".85">
+                <circle cx="430" cy="170" r="2"/>
+                <circle cx="540" cy="290" r="1.5"/>
+                <circle cx="1150" cy="150" r="2"/>
+                <circle cx="1480" cy="380" r="2"/>
+                <circle cx="310" cy="400" r="1.5"/>
+                <circle cx="1030" cy="350" r="1.5"/>
+                <circle cx="900" cy="160" r="1.5"/>
+                <circle cx="700" cy="260" r="2"/>
+                <circle cx="1200" cy="440" r="1.5"/>
+            </g>
+
+
+            <!-- DISTANT MOON HILLS -->
+            <path d="
+                M0 740
+                L120 695
+                L220 720
+                L340 665
+                L450 720
+                L570 680
+                L690 715
+                L810 670
+                L950 720
+                L1080 675
+                L1210 715
+                L1330 660
+                L1450 710
+                L1600 680
+                L1600 900
+                L0 900 Z"
+                fill="#374357"/>
+
+
+            <!-- MOON SURFACE -->
+            <path d="
+                M0 785
+                Q120 720 250 765
+                Q380 800 500 750
+                Q650 710 790 770
+                Q920 820 1060 750
+                Q1210 710 1350 760
+                Q1480 800 1600 735
+                L1600 900
+                L0 900 Z"
+                fill="url(#moonGradient)"/>
+
+            <path d="
+                M0 785
+                Q120 720 250 765
+                Q380 800 500 750
+                Q650 710 790 770
+                Q920 820 1060 750
+                Q1210 710 1350 760"
+                fill="none"
+                stroke="#cbd5e1"
+                stroke-width="3"
+                opacity=".3"/>
+
+
+            <!-- MOON CRATERS -->
+            <g fill="#202b3d" opacity=".8">
+                <ellipse cx="100" cy="820" rx="75" ry="18"/>
+                <ellipse cx="470" cy="830" rx="55" ry="13"/>
+                <ellipse cx="780" cy="850" rx="90" ry="20"/>
+                <ellipse cx="1110" cy="815" rx="65" ry="16"/>
+                <ellipse cx="1490" cy="830" rx="85" ry="20"/>
+            </g>
+
+
+            <!-- AMERICAN FLAG: MOVED LEFT -->
+            <g transform="translate(-130 0)">
+
+                <g class="flag-object">
+
+                    <path d="M300 745 L300 425"
+                          stroke="#dbeafe"
+                          stroke-width="7"
+                          stroke-linecap="round"/>
+
+                    <use href="#usFlag"
+                         transform="translate(303 435)"/>
+
+                </g>
+
+            </g>
+
+
+            <!-- ASTRONAUT: MOVED LEFT -->
+            <g transform="translate(-130 0)">
+
+                <g class="astronaut-object">
+
+                    <!-- BACKPACK -->
+                    <rect x="370" y="620"
+                          width="48" height="100"
+                          rx="13"
+                          fill="#64748b"
+                          stroke="#dbeafe"
+                          stroke-width="4"/>
+
+                    <rect x="379" y="640"
+                          width="30" height="48"
+                          rx="5"
+                          fill="#334155"/>
+
+                    <path d="M385 650 H403 M385 660 H403"
+                          stroke="#38bdf8"
+                          stroke-width="3"/>
+
+
+                    <!-- LEGS -->
+                    <path d="
+                        M375 685
+                        L365 770
+                        L400 770
+                        L414 690"
+                        fill="url(#suitGradient)"
+                        stroke="#64748b"
+                        stroke-width="4"/>
+
+                    <path d="
+                        M414 685
+                        L425 765
+                        L460 765
+                        L448 680"
+                        fill="url(#suitGradient)"
+                        stroke="#64748b"
+                        stroke-width="4"/>
+
+
+                    <!-- BOOTS -->
+                    <path d="
+                        M363 757
+                        L365 780
+                        L405 780
+                        L405 765 Z"
+                        fill="#dbeafe"
+                        stroke="#64748b"
+                        stroke-width="4"/>
+
+                    <path d="
+                        M423 755
+                        L425 780
+                        L465 780
+                        L460 763 Z"
+                        fill="#dbeafe"
+                        stroke="#64748b"
+                        stroke-width="4"/>
+
+
+                    <!-- BODY -->
+                    <path d="
+                        M370 555
+                        Q350 560 350 590
+                        L360 685
+                        Q400 710 450 685
+                        L455 590
+                        Q450 555 425 550 Z"
+                        fill="url(#suitGradient)"
+                        stroke="#64748b"
+                        stroke-width="5"/>
+
+
+                    <!-- CHEST CONTROLS -->
+                    <rect x="382" y="590"
+                          width="47" height="38"
+                          rx="5"
+                          fill="#334155"
+                          stroke="#38bdf8"
+                          stroke-width="2"/>
+
+                    <circle cx="394" cy="602" r="5" fill="#22c55e"/>
+                    <circle cx="414" cy="602" r="5" fill="#38bdf8"/>
+
+
+                    <!-- ACCURATE AMERICAN FLAG PATCH -->
+                    <use href="#usFlag"
+                         transform="translate(360 640) scale(.20 .17)"/>
+
+
+                    <!-- LEFT ARM -->
+                    <path d="
+                        M365 575
+                        Q330 590 325 535"
+                        fill="none"
+                        stroke="url(#suitGradient)"
+                        stroke-width="24"
+                        stroke-linecap="round"/>
+
+
+                    <!-- RIGHT ARM -->
+                    <path d="
+                        M442 575
+                        Q470 585 480 545"
+                        fill="none"
+                        stroke="url(#suitGradient)"
+                        stroke-width="24"
+                        stroke-linecap="round"/>
+
+
+                    <!-- GLOVES -->
+                    <circle cx="325" cy="530" r="15" fill="#e2e8f0"/>
+                    <circle cx="480" cy="540" r="15" fill="#e2e8f0"/>
+
+
+                    <!-- HELMET -->
+                    <circle cx="405" cy="520"
+                            r="48"
+                            fill="url(#suitGradient)"
+                            stroke="#64748b"
+                            stroke-width="5"/>
+
+                    <ellipse cx="405" cy="520"
+                             rx="34" ry="34"
+                             fill="#102b4b"
+                             stroke="#38bdf8"
+                             stroke-width="3"/>
+
+                    <path d="M382 498 Q400 482 425 500"
+                          fill="none"
+                          stroke="#a5e7ff"
+                          stroke-width="5"
+                          opacity=".65"/>
+
+                </g>
+
+            </g>
+
+
+            <!-- ROCKET -->
+            <g class="rocket-object">
+
+                <ellipse cx="1290" cy="765"
+                         rx="50" ry="18"
+                         fill="#ffb347"
+                         opacity=".5"
+                         filter="url(#spaceGlow)"/>
+
+
+                <!-- ROCKET BODY -->
+                <path d="
+                    M1260 690
+                    L1260 575
+                    Q1290 505 1320 575
+                    L1320 690 Z"
+                    fill="url(#rocketGradient)"
+                    stroke="#94a3b8"
+                    stroke-width="4"/>
+
+
+                <!-- NOSE -->
+                <path d="
+                    M1260 575
+                    Q1290 505 1320 575 Z"
+                    fill="#f8fafc"
+                    stroke="#94a3b8"
+                    stroke-width="3"/>
+
+
+                <!-- WINDOW -->
+                <circle cx="1290" cy="605"
+                        r="18"
+                        fill="#075985"
+                        stroke="#38bdf8"
+                        stroke-width="5"/>
+
+
+                <!-- ROCKET DECORATION -->
+                <path d="M1270 645 H1310"
+                      stroke="#b22234"
+                      stroke-width="7"/>
+
+
+                <!-- AMERICAN FLAG ROCKET DECAL -->
+                <use href="#usFlag"
+                     transform="translate(1270 660) scale(.21 .13)"/>
+
+
+                <!-- FINS -->
+                <path d="
+                    M1260 655
+                    L1228 710
+                    L1260 697 Z"
+                    fill="#38bdf8"
+                    stroke="#94a3b8"
+                    stroke-width="3"/>
+
+                <path d="
+                    M1320 655
+                    L1352 710
+                    L1320 697 Z"
+                    fill="#38bdf8"
+                    stroke="#94a3b8"
+                    stroke-width="3"/>
+
+
+                <!-- ENGINE -->
+                <path d="
+                    M1275 690
+                    L1280 725
+                    L1300 725
+                    L1305 690"
+                    fill="#64748b"/>
+
+
+                <!-- FLAME -->
+                <path d="
+                    M1280 725
+                    Q1290 790 1300 725"
+                    fill="#ff9f43"/>
+
+                <path d="
+                    M1287 725
+                    Q1290 765 1293 725"
+                    fill="#fff4b0"/>
+
+            </g>
+
+
+            <!-- MOON ROCKS -->
+            <g fill="#aab5c5" opacity=".55">
+                <path d="M540 795 L560 780 L585 795 L577 807 H547 Z"/>
+                <path d="M980 790 L995 770 L1025 780 L1030 795 Z"/>
+                <path d="M1430 785 L1452 767 L1477 782 L1467 800 Z"/>
+                <path d="M185 765 L199 753 L219 765 L214 775 Z"/>
+            </g>
+
+        </svg>
+
+    </div>
+
+
+    <!-- MAIN MENU -->
+    <div class="home-card">
+
+        <h1 class="glow-title">GEO-SPACERACE</h1>
+
+        <div class="subtitle">
+            USA STATE TRIVIA GAME
+        </div>
+
+        <p class="game-desc">
+            The race to the Moon is on! Compete against the
+            Soviet space program in an epic race to make
+            history. Answer U.S. state trivia correctly to
+            eliminate states from the map, advance your
+            mission, and launch America toward the Moon
+            before the Soviets get there first!
+        </p>
+
+        <div class="home-stats">
+            Personal Best:
+            <span id="home-highscore">0</span>
+            STATES
+        </div>
+
+        <button id="start-btn" class="space-btn">
+            INITIATE LAUNCH
+        </button>
+
+        <button id="hard-mode-btn" class="space-btn secondary-btn">
+            HARD MODE: OFF
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen">
+
+    <div class="game-container">
+
+        <header class="hud">
+
+            <div class="hud-item timer-display">
+                LIVES:
+                <span id="lives-val">❤️❤️❤️</span>
+            </div>
+
+            <div class="prompt-box" id="prompt-box">
+                <span id="prompt-text">
+                    Targeting: Locate requested sector.
+                </span>
+            </div>
+
+            <div class="hud-item score-display" id="score-display">
+                States Eliminated:
+                <span id="score-val">0</span>
+            </div>
+
+        </header>
+
+
+        <div class="workspace">
+
+            <!-- LEFT SIDEBAR -->
+            <aside class="space-sidebar">
+
+                <h3>ORBITAL ASCENT</h3>
+
+                <div class="space-track">
+
+                    <div class="space-line"></div>
+
+                    <div class="rocket-marker" id="rocket-icon">
+                        🚀
+                    </div>
+
+                    <div class="milestone achieved" data-score="0">
+                        <span class="dot"></span>
+                        Troposphere
+                        <span class="pts">(0)</span>
+                    </div>
+
+                    <div class="milestone" data-score="10">
+                        <span class="dot"></span>
+                        Stratosphere
+                        <span class="pts">(10)</span>
+                    </div>
+
+                    <div class="milestone" data-score="20">
+                        <span class="dot"></span>
+                        Mesosphere
+                        <span class="pts">(20)</span>
+                    </div>
+
+                    <div class="milestone" data-score="35">
+                        <span class="dot"></span>
+                        Thermosphere
+                        <span class="pts">(35)</span>
+                    </div>
+
+                    <div class="milestone" data-score="50">
+                        <span class="dot"></span>
+                        Outer Rim
+                        <span class="pts">(50)</span>
+                    </div>
+
+                </div>
+
+            </aside>
+
+
+            <!-- MAP -->
+            <main id="map"></main>
+
+
+            <!-- RIGHT SIDEBAR -->
+            <aside class="right-sidebar">
+
+                <h3>MISSION LOG</h3>
+
+                <div class="rewards-table">
+
+                    <div class="reward-row">
+
+                        <div class="reward-name">
+                            Active Sector
+                        </div>
+
+                        <div class="reward-desc">
+                            <span>Status:</span>
+
+                            <span class="pts" id="status-sector">
+                                Active
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- FEEDBACK MODAL -->
+<div id="feedback-modal" class="modal hidden">
+
+    <div class="modal-content">
+
+        <h2 id="feedback-title">
+            MISSION TERMINATED
+        </h2>
+
+        <p id="feedback-desc">
+            Fuel reserves depleted or incorrect sector breached.
+        </p>
+
+        <button id="modal-action-btn" class="space-btn">
+            RE-ENGAGE THRUSTERS
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- LEAFLET -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+<!-- AUDIO ENGINE -->
+<script>
+
+let audioCtx = null;
+
+function initAudio() {
+
+    if (!audioCtx) {
+
+        audioCtx = new (
+            window.AudioContext ||
+            window.webkitAudioContext
+        )();
+
+    } else if (audioCtx.state === 'suspended') {
+
+        audioCtx.resume();
+
+    }
+
+}
+
+
+function playSound(type) {
+
+    initAudio();
+
+    if (!audioCtx) return;
+
+    const now = audioCtx.currentTime;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+
+    if (type === 'correct') {
+
+        osc.type = 'triangle';
+
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.08);
+        osc.frequency.setValueAtTime(783.99, now + 0.16);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+    } else if (type === 'wrong') {
+
+        osc.type = 'sawtooth';
+
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.2);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+    } else if (type === 'confirm') {
+
+        osc.type = 'sine';
+
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(900, now + 0.1);
+
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+
+    } else {
+
+        osc.type = 'sine';
+
+        osc.frequency.setValueAtTime(440, now);
+
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+    }
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.3);
+
+}
+
+
+// HIGH SCORE
+window.refreshHomeHighScore = function() {
+
+    const highscoreEl =
+        document.getElementById('home-highscore');
+
+    if (highscoreEl && window.usaEliminationGame) {
+
+        highscoreEl.textContent =
+            window.usaEliminationGame.getHighScore();
+
+    }
+
+};
+
+
+// HARD MODE
+let isHard = false;
+
+const hardBtn =
+    document.getElementById('hard-mode-btn');
+
+hardBtn.addEventListener('click', () => {
+
+    initAudio();
+
+    isHard = !isHard;
+
+    if (isHard) {
+
+        hardBtn.textContent = "HARD MODE: ON";
+        hardBtn.classList.add('active-hard');
+
+    } else {
+
+        hardBtn.textContent = "HARD MODE: OFF";
+        hardBtn.classList.remove('active-hard');
+
+    }
+
+    if (window.usaEliminationGame) {
+
+        window.usaEliminationGame.setHardMode(isHard);
+
+    }
+
+    window.refreshHomeHighScore();
+
+});
+
+
+// LAUNCH GAME
+document.getElementById('start-btn')
+    .addEventListener('click', () => {
+
+        initAudio();
+
+        playSound('confirm');
+
+        if (window.usaEliminationGame) {
+
+            window.usaEliminationGame.setHardMode(isHard);
+
+            window.usaEliminationGame.start();
+
+        } else {
+
+            console.error(
+                "usaEliminationGame is not loaded!"
+            );
+
+        }
+
+    });
+
+</script>
+
+
+<!-- GAME ENGINE -->
+<script src="game-usa-elimination.js"></script>
+
+</body>
+</html>

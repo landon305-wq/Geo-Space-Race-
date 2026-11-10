@@ -1,0 +1,488 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "category": "National Parks",
+      "prompt": "Click a state, district, or territory in containing at least one officially designated National Park.",
+      "rule": { "list": ["Alaska", "Arizona", "Arkansas", "California", "Colorado", "Florida", "Hawaii", "Idaho", "Indiana", "Kentucky", "Maine", "Michigan", "Minnesota", "Missouri", "Montana", "Nevada", "New Mexico", "North Carolina", "North Dakota", "Ohio", "Oregon", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Virginia", "Washington", "West Virginia", "Wyoming", "District of Columbia"] }
+    },
+    {
+      "id": 2,
+      "category": "Professional Sports",
+      "prompt": "Click a state, district, or territory with professional franchises in all four major leagues (NFL, NBA, MLB, NHL).",
+      "rule": { "list": ["California", "Colorado", "Florida", "Illinois", "Massachusetts", "Michigan", "Minnesota", "New York", "Ohio", "Pennsylvania", "Texas", "District of Columbia"] }
+    },
+    {
+      "id": 3,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory with a max elevation above 14,000 feet (4,267 meters).",
+      "rule": { "list": ["California", "Colorado", "Alaska", "Washington"] }
+    },
+    {
+      "id": 4,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory with a max elevation below 1,000 feet (305 meters).",
+      "rule": { "list": ["Delaware", "Florida", "District of Columbia", "Louisiana","Mississippi"] }
+    },
+    {
+      "id": 5,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that voted for Barack Obama in the 2008 presidential election.",
+      "rule": { "list": ["California", "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", "Hawaii", "Illinois", "Indiana", "Iowa", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "Ohio", "Oregon", "Pennsylvania", "Rhode Island", "Vermont", "Virginia", "Washington"] }
+    },
+    {
+      "id": 6,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that ranks within the top ten for average snowfall.",
+      "rule": { "list": ["Alaska", "Vermont", "New Hampshire", "Maine", "Montana", "New York", "Michigan", "Wisconsin", "Colorado", "Wyoming"] }
+    },
+    {
+      "id": 7,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that ranks within the top ten for average annual rainfall.",
+      "rule": { "list": ["Hawaii", "Louisiana", "Mississippi", "Alabama", "Florida", "Georgia", "Puerto Rico", "North Carolina", "Tennessee", "Arkansas"] }
+    },
+    {
+      "id": 8,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that has hosted the olympic games.",
+      "rule": { "list": ["Georgia", "California", "Utah", "Missouri", "New York"] }
+    },
+    {
+      "id": 9,
+      "category": "US Sports",
+      "prompt": "Click a state, district, or territory that has hosted the Super Bowl.",
+      "rule": { "list": ["California", "New Jersey", "Florida", "Arizona", "Texas", "Louisiana", "Georgia", "Nevada", "Minnesota", "Indiana", "Michigan"] }
+    },
+    {
+      "id": 10,
+      "category": "US Highways",
+      "prompt": "click on a state the interstae I-35 passes through.",
+      "rule": { "list": ["Texas", "Oklahoma", "Kansas", "Missouri", "Iowa", "Minnesota"] }
+    },
+    {
+      "id": 11,
+      "category": "US Highways",
+      "prompt": "click on a state, district, or territory the interstae I-90 passes through.",
+      "rule": { "list": ["Washington", "Idaho", "Montana", "Wyoming", "South Dakota", "Minnesota", "Wisconsin", "Illinois", "Indiana", "Ohio", "Pennsylvania", "New York", "Massachusetts"] }
+    },
+    {
+      "id": 12,
+      "category": "US Highways",
+      "prompt": "click on a state, district, or territory the interstae I-10 passes through.",
+      "rule": { "list": ["California", "Arizona", "New Mexico", "Texas", "Louisiana", "Mississippi", "Alabama", "Florida"] }
+    },
+    {
+      "id": 13,
+      "category": "US lakes",
+      "prompt": "click on a state, district, or territory that ranks among the top ten for most lakes.",
+      "rule": { "list": ["Alaska", "Minnesota", "Kansas", "Wisconsin", "Michigan", "Washington", "New York", "Florida", "Texas", "Colorado"] }
+    },
+    {"id": 14,
+      "category": "Race",
+      "prompt": "click on a state, district, or territory that ranks top 10 in most immigrant populations.",
+      "rule": { "list": ["California", "Texas", "Florida", "New York", "New Jersey", "Illinois", "Massachusetts", "Georgia", "Virginia", "Washington"] }
+    },
+    {
+      "id": 15,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that has a tropical climate.",
+      "rule": { "list": ["Hawaii", "Florida", "Puerto Rico"]}
+    },
+    {
+      "id": 16,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that has a desert climate.(Hot or Cold)",
+      "rule": { "list": ["Arizona", "Nevada", "California", "Colorado", "Idaho", "Texas", "Utah", "Oregon", "Washington", "New Mexico", "Wyoming" ] }
+    },
+    {
+      "id": 17,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory where spanish is NOT the second most used language.",
+      "rule": { "list": ["Alaska", "Maine", "Hawaii", "Puerto Rico"] }
+    },
+    {
+      "id": 18,
+      "category": "US Sports",
+      "prompt": "click on a state, district, or territory that has a NBA team.",
+      "rule": { "list": ["Oregon", "California", "Arizona", "Colorado", "Florida", "Texas", "Tennessee", "New York", "Michigan", "Ohio", "Indiana", "District of Columbia", "Illinois", "Minnesota", "Wisconsin", "North Carolina", "Georgia", "Louisiana", "Oklahoma", "Massachusetts", "Pennsylvania", "Utah"] }
+    },
+    {
+      "id": 19,
+      "category": "US population",
+      "prompt": "click on a state, district, or territory that ranks among the top 10 least populous.",
+      "rule": { "list": ["Wyoming", "Vermont", "District of Columbia", "Alaska", "North Dakota", "South Dakota", "Delaware", "Montana", "Rhode Island", "Maine"] }
+    },
+    {
+      "id": 20,
+      "category": "US population",
+      "prompt": "click on a state, district, or territory that ranks among the top 10 most populous.",
+      "rule": { "list": ["California", "Texas", "Florida", "New York", "Pennsylvania", "Illinois", "Ohio", "Georgia", "North Carolina", "Michigan"] }
+    },
+    {
+      "id": 21,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory whos state bird is a cardinal.",
+      "rule": { "list": ["Illinois", "Ohio", "West Virginia", "Virginia", "Kentucky", "Indiana", "North Carolina"] }
+    },
+    {
+      "id": 22,
+      "category": "US Animals",
+      "prompt": "click on a state, district, or territory where Grizzly bears live in the wild.",
+      "rule": { "list": ["Wyoming", "Washington", "Montana", "Idaho", "Alaska"] }
+    },
+    { 
+      "id": 23,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that is among the top ten closest to africa.",
+      "rule": { "list": ["Maine", "Massachusetts", "New York", "New Jersey", "Delaware", "New Hampshire", "Connecticut", "Rhode Island", "Maryland", "Virginia"] }
+    },
+    {
+      "id": 24,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that is among the top 10 most southern.",
+      "rule": { "list": ["Florida", "Georgia", "Louisiana", "Mississippi", "Puerto Rico", "Hawaii", "Alabama", "Texas", "New Mexico", "Arizona"] }
+    },
+    {
+      "id": 25,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that is among the top 10 most northern.",
+      "rule": { "list": ["Alaska", "North Dakota", "Minnesota", "Maine", "Montana", "Vermont", "New Hampshire", "Washington", "Idaho", "Wyoming"] }
+    },
+    {
+      "id": 26,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that is among the top 5 most visitied by tourists.",
+      "rule": { "list": ["California", "Florida", "Nevada", "New York", "Texas"] }
+    },
+    {
+      "id": 27,
+      "category": "US Animals",
+      "prompt": "click on a state, district, or territory where Moose live in the wild.",
+      "rule": { "list": ["Alaska", "Maine", "New Hampshire", "Vermont", "Massachusetts", "Connecticut", "New York", "Minnesota", "Michigan", "Wisconsin", "North Dakota", "Colorado", "Idaho", "Montana", "Wyoming", "Utah", "Washington", "Oregon", "Nevada"] }
+    },
+    {
+      "id": 28,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that has a NASA facility.",
+      "rule": { "list": ["California", "Ohio", "Maryland", "New York", "Texas", "West Virginia", "Florida", "Virginia", "Alabama", "Mississippi", "New Mexico", "District of Columbia"] }
+    },
+    {
+      "id": 29,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory whose state tree is a type of oak tree.",
+      "rule": { "list": ["Connecticut", "Georgia", "Illinois", "Iowa", "Maryland", "New Jersey", "District of Columbia"] }
+    },
+    {
+      "id": 30,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory whose state animal is an aquatic animal.",
+      "rule": { "list": ["Connecticut", "Hawaii", "Puerto Rico", "New York", "Oregon", "Wisconsin"] }
+    },
+    {
+      "id": 31,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory whose state that is among the top 10 with the most ski resorts.",
+      "rule": { "list": ["Colorado", "New York", "Michigan", "Wisconsin", "New Hampshire", "Vermont", "California", "Maine", "Minnesota", "Pennsylvania"] }
+    },
+    {
+      "id": 32,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory whose state that is among the top 5 with the most lighthouses.",
+      "rule": { "list": ["Michigan", "New York", "Texas", "Massachusetts", "Maine"] }
+    },
+    {
+      "id": 33,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory whose state did NOT vote for Ronald Reagan in 1980 or 1984.",
+      "rule": { "list": ["Minnesota", "Georgia", "West Virginia", "District of Columbia", "Maryland", "Rhode Island", "Hawaii"] }
+    },
+    {
+      "id": 34,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that succeeded from the union in the Civil War.",
+      "rule": { "list": ["Florida", "Texas", "South Carolina", "Mississippi", "Alabama", "Louisiana", "Georgia", "Virginia", "Arkansas", "Tennessee", "North Carolina"] }
+    },
+    {
+      "id": 35,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory whose state has had an earthquake in the top 5 highest magnitudes in USA history.",
+      "rule": { "list": ["Arkansas", "South Carolina", "Alaska", "California", "Hawaii"] }
+    },
+    {
+      "id": 36,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory whose state has had an F-5 or an EF-5 Tornado.",
+      "rule": { "list": ["Alabama", "Indiana", "Iowa", "Kansas", "Louisiana", "Michigan", "Mississippi", "Missouri", "Nebraska", "Oklahoma", "Ohio", "Pennsylvania", "South Dakota", "Tennessee", "Texas", "Wisconsin"] }
+    },
+    {
+      "id": 37,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that has a Bo-jangels.",
+      "rule": { "list": ["Alabama", "Arizona", "Arkansas", "Colorado", "Florida", "Georgia", "Kentucky", "Louisiana", "Maryland", "Mississippi", "Nevada", "New Jersey", "New York", "North Carolina", "Ohio", "Oklahoma", "Pennsylvania", "South Carolina", "Tennessee", "Texas", "Virginia", "West Virginia"] }
+    },
+    {
+      "id": 38,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory whose flag has a star on it.",
+      "rule": { "list": ["California", "Arizona", "Alaska", "Arkansas", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Kansas", "Maine", "Massachusetts", "Minnesota", "Mississippi", "Missouri", "Nevada", "New Hampshire", "North Carolina", "North Dakota", "Ohio", "Oregon", "Rhode Island", "South Dakota", "Tennessee", "Texas", "Utah", "District of Columbia", "Puerto Rico"] }
+    },
+    {
+      "id": 39,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory with the top 5 highest percentage of German Population.",
+      "rule": { "list": ["North Dakota", "South Dakota", "Nebraska", "Iowa", "Wisconsin"] }
+    },
+    {
+      "id": 40,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that the show 'Breaking Bad' took place in.",
+      "rule": { "list": ["New Mexico", "New Hampshire", "Utah", "Colorado", "Arizona", "California", "Texas"] }
+    },
+    {
+      "id": 41,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that has a Mideaval Times (Resturant Theater Show) location.",
+      "rule": { "list": ["Georgia", "Maryland", "California", "Illinois", "Texas", "New Jersey", "South Carolina", "Florida", "Arizona"] }
+    },
+    {
+      "id": 42,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that has a water fall larger than 150 feet.",
+      "rule": { "list": ["Alaska", "Arizona", "California", "Georgia", "Hawaii", "Idaho", "Massachusetts", "New York", "Oregon", "Virginia", "Washington", "Wisconsin", "Puerto Rico"]}
+    },
+    {
+      "id": 43,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that has a city with a population over 1 million.",
+      "rule": { "list": ["California", "Texas", "Florida", "New York", "Illinois", "Pennsylvania", "Arizona"] }
+    },
+    {
+      "id": 44,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that joined the union after Colorado did in 1876.",
+      "rule": { "list": ["North Dakota", "South Dakota", "Montana", "Washington", "Idaho", "Wyoming", "Utah", "Oklahoma", "New Mexico", "Alaska", "Hawaii", "Arizona"] }
+    },
+    {
+      "id": 45,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that ranks among the top 5 that drink the most beer.",
+      "rule": { "list": ["New Hampshire", "Montana", "North Dakota", "Oregon", "Vermont"] }
+    },
+    {
+      "id": 46,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that ranks among the top 5 that produce the most corn.",
+      "rule": { "list": ["Iowa", "Illinois", "Nebraska", "Minnesota", "Indiana"] }
+    },
+    {
+      "id": 47,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that ranks among the top 5 that produce the most potatoes.",
+      "rule": { "list": ["Idaho", "Washington", "Wisconsin", "North Dakota", "Oregon"] }
+    },
+    {
+      "id": 48,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that ranks among the top 10 highest GDP.",
+      "rule": { "list": ["California", "Texas", "New York", "Florida", "Pennsylvania", "Illinois", "Ohio", "Georgia", "North Carolina", "Washington"] }
+    },
+    {
+      "id": 49,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that ranks among the top 10 lowest GDP.",
+      "rule": { "list": ["Vermont", "Wyoming", "Alaska", "Montana", "South Dakota", "North Dakota", "Rhode Island", "Maine", "West Virginia", "Delaware"] }
+    },
+    {
+      "id": 50,
+      "category": "US Geography",
+      "prompt": "click on a state, district, or territory that ranks among the top 10 highest population density.",
+      "rule": { "list": ["New Jersey", "Rhode Island", "Massachusetts", "Connecticut", "Maryland", "Delaware", "New York", "District of Columbia", "Florida", "Puerto Rico"] }
+    },
+    {
+      "id": 51,
+      "category": "US flags",
+      "prompt": "click on a state, district, or territory whose flag has an animal on it.",
+      "rule": { "list": ["California", "Delaware", "Illinois", "Iowa", "Kansas", "Louisiana", "Maine", "Michigan", "Missouri", "New Jersey", "New York", "Oregon", "North Dakota", "Pennsylvania", "Vermont", "Wisconsin", "Wyoming"] }
+    },
+    {"id": 52,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that contains an active volcano.",
+      "rule": { "list": ["Alaska", "California", "Hawaii", "Oregon", "Washington", "Utah", "New Mexico", "Idaho", "Arizona"] }
+    },
+    {
+      "id": 56,
+      "category": "US Sports",
+      "prompt": "Click a state, district, or territory that have a Roller Coaster taller than 299 feet.",
+      "rule": { "list": ["Ohio", "Texas", "South Carolina", "Virginia"] }
+    },
+    {
+      "id": 57,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that has a Six flags / Cedar Fair amusment Park.",
+      "rule": { "list": ["California", "North Carolina", "South Carolina", "Ohio", "Pennsylvania", "Oklahoma", "Virginia", "New York", "Texas", "New Jersey", "Illinois", "Massachusetts", "Georgia"] }
+    },
+    {
+      "id": 58,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 5 producers of Crab.",
+      "rule": { "list": ["Alaska", "Maryland", "Louisiana", "Florida", "Washington"] }
+    },
+    {
+      "id": 59,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 5 producers of Lobster.",
+      "rule": { "list": ["Maine", "Massachusetts", "New Hampshire", "Rhode Island", "Florida"] }
+    },
+    {
+      "id": 60,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 5 producers of Beef.",
+      "rule": { "list": ["Texas", "Nebraska", "California", "Kansas", "Iowa"] }
+    },
+    {
+      "id": 61,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 5 producers of Chicken.",
+      "rule": { "list": ["Georgia", "Arkansas", "Alabama", "North Carolina", "Texas"] }
+    },
+    {
+      "id": 62,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 5 coldest states.",
+      "rule": { "list": ["Alaska", "North Dakota", "Minnesota", "Maine", "Idaho"] }
+    },
+    {
+      "id": 63,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 5 hottest states.",
+      "rule": { "list": ["Florida", "Texas", "Puerto Rico", "Georgia", "Louisiana"] }
+    },
+    {
+      "id": 64,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 5 most forested states.",
+      "rule": { "list": ["Maine", "New Hampshire", "West Virginia", "Vermont", "Alabama"] }
+    },
+    {
+      "id": 65,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 6 tallest states. (Average height of the population)",
+      "rule": { "list": ["Montana", "South Dakota", "Utah", "Nebraska", "Kansas", "Iowa"] }
+    },
+    {
+      "id": 66,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 5 highest average elevation.",
+      "rule": { "list": ["Colorado", "Wyoming", "Utah", "New Mexico", "Nevada"] }
+    },
+    {
+      "id": 67,
+      "category": "US Geography",
+      "prompt": "Click a state, district, or territory that rank among the top 10 smallest by land area.",
+      "rule": { "list": ["Rhode Island", "District of Columbia", "Delaware", "Connecticut", "Vermont", "New Hampshire", "Massachusetts", "Puerto Rico", "Hawaii", "New Jersey"] }
+    },
+    {
+      "id": 68,
+      "category": "National Parks",
+      "prompt": "Click a state, district, or territory that mints the USA Dollar.",
+      "rule": { "list": ["Pennsylvania", "Colorado", "California", "New York"] }
+    },
+    {
+      "id": 69,
+      "category":"US Animals",
+      "prompt": "click on a state, district, or territory where Mountain Lions live in the wild.",
+      "rule": { "list": ["Texas", "Montana", "Washington", "California", "Colorado", "New Mexico", "Oregon", "Idaho", "Nevada", "Wyoming", "Utah", "Arizona", "Florida", "South Carolina", "Arkansas", "North Dakota", "Nebraska"]}
+    },
+    {
+      "id": 70,
+      "category":"US trains",
+      "prompt": "click on a state, district, or territory that have a subway or Heavy Rail Rapid Transit System.",
+      "rule": { "list": ["Ohio", "District of Columbia", "New York", "Pennsylvania", "Hawaii", "Illinois", "Massachusetts", "Virginia", "Maryland","New Jersey", "California", "Georgia", "Florida", "Puerto Rico"] }
+    },
+    {
+      "id": 71,
+      "category":"US public land",
+      "prompt": "click on a state, district, or territory that rank among the top 5 with the most public land.",
+      "rule": { "list": ["Alaska", "Nevada", "California","Utah", "Idaho"] }
+    },
+    {
+      "id": 72,
+      "category":"US Sports",
+      "prompt": "Click a state, district, or territory that that ranks among the top 5 producers of NFL players as of 2026.",
+      "rule": { "list": ["Texas","Florida", "Ohio", "Alabama", "California"]}
+    },
+    {
+      "id": 73,
+      "category":"US food",
+      "prompt": "Click a state, district, or territory that that ranks among the top 5 for having the most Costcos.",
+      "rule": { "list": ["Texas","Florida", "Washington", "Illinois", "California"]}
+    },
+    {
+      "id": 74,
+      "category":"US food",
+      "prompt": "Click a state, district, or territory that that ranks among the top 5 rated for having the best food. (Acording to Studyfinds)",
+      "rule": { "list": ["Texas", "California", "New York", "Louisiana", "Florida"]}
+    },
+    {
+      "id": 75,
+      "category":"US facts",
+      "prompt": "Click a state, district, or territory that that ranks among the top 5 in public education",
+      "rule": { "list": ["New York","Massachusetts", "Connecticut", "New Jersey", "Washington"]}
+    },
+    {
+    "id": 76,
+      "category":"US sports",
+      "prompt": "Click a state, district, or territory that that ranks among the top 5 producers of NBA players as of 2026.",
+      "rule": { "list": ["New Jersey","Pennsylvania", "Illinois", "New York", "California"]}
+    },
+    {
+      "id": 77,
+      "category":"US Population",
+      "prompt": "Click a state, district, or territory that ranks among the top 5 for Amish population.",
+      "rule": { "list": ["Pennsylvania","Ohio", "Indiana", "Wisconsin", "New York"]}
+    },
+    {
+      "id": 78,
+      "category":"US Population",
+      "prompt": "Click a state, district, or territory that was apart of the Louisiana Purchase.",
+      "rule": { "list": ["Louisiana", "Arkansas", "Missouri", "Colorado", "Iowa", "Kansas", "Minnesota", "Montana", "Nebraska", "North Dakota", "New Mexico", "Oklahoma", "South Dakota", "Texas", "Wyoming"] }
+    },
+    {
+      "id": 79,
+      "category":"US Population",
+      "prompt": "Click a state, district, or territory that ranks among the top 5 for Jewish population.",
+      "rule": { "list": ["New York", "California", "New Jersey", "Florida", "Pennsylvania"] }
+    },
+    {
+      "id": 80,
+      "category":"US Population",
+      "prompt": "Click a state, district, or territory that has a 3 Michelin Star Resturant.",
+      "rule": { "list": ["California", "Nevada", "New York", "Illinois"]}
+    },
+    {
+      "id": 81,
+      "category":"US Sports",
+      "prompt": "Click a state, district, or territory that is home to one of the top 10 zoos.",
+      "rule": { "list": ["Kansas", "California", "North Carolina", "Texas", "Missouri", "Florida", "Ohio", "Colorado", "Nebraska"] }
+    },
+    {
+      "id": 82,
+      "category":"US Population",
+      "prompt": "Click a state, district, or territory that ranks top 5 in crime rate per capita.",
+      "rule": { "list": ["District of Columbia", "Alaska", "New Mexico", "Tennessee", "Arkansas" ]}
+    },
+    {
+      "id": 83,
+      "category":"US Population",
+      "prompt": "Click a state, district, or territory that ranks among the top 10 for most counties.",
+      "rule": { "list": ["Texas", "Virginia", "Georgia", "Kentucky", "Missouri", "Kansas", "Illinois", "Iowa", "Tennessee", "North Carolina"] }
+    },
+    {
+      "id": 84,
+      "category":"US Population",
+      "prompt": "Click a state, district, or territory that has over 4 FBS division 1 college football universities (As of 2026).",
+      "rule": { "list": ["Ohio", "California", "Texas", "Florida", "Louisiana", "Michigan", "North Carolina"] }
+    }
+  ]
+}

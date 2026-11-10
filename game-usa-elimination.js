@@ -1,0 +1,1298 @@
+window.usaEliminationGame = (() => {
+    // ============================================
+    // GEO-ODYSSEY: USA ELIMINATION MODE ENGINE
+    // ============================================
+
+    const USA_MAP_FILE = 'us-states.geojson';
+    const USA_QUESTION_FILE = 'questions-usa-elimination.json';
+
+    const USA_NORMAL_LIVES = 3;
+    const USA_HARD_LIVES = 1;
+    const USA_QUESTION_TIME = 60;
+
+    let usaMap = null;
+    let usaLabelLayer = null;
+    let usaEntries = [];
+    let usaQuestions = [];
+    let usaQuestionDeck = [];
+
+    let eliminatedStates = new Set();
+
+    let usaCurrentQuestion = null;
+    let usaSelectedEntry = null;
+
+    let usaLives = USA_NORMAL_LIVES;
+    let usaHardMode = false;
+    let usaLocked = false;
+
+    let usaTimer = null;
+    let usaTimeLeft = USA_QUESTION_TIME;
+
+    const USA_NORMAL_KEY = 'astro_geo_usa_elim_states_highscore';
+    const USA_HARD_KEY = 'astro_geo_usa_elim_states_hard_highscore';
+
+    let usaNormalHighScore = Number(localStorage.getItem(USA_NORMAL_KEY)) || 0;
+    let usaHardHighScore = Number(localStorage.getItem(USA_HARD_KEY)) || 0;
+
+    // 6 levels spanning 0 to 52 items (50 States + DC + PR, ending at the Moon ~238,900 miles)
+    const USA_MILESTONE_STATES = [0, 10, 21, 31, 42, 52];
+    const USA_MILESTONE_DATA = [
+        { name: 'Earth Surface', miles: '0 mi', icon: '🌍' },
+        { name: 'Low Orbit', miles: '45,940 mi', icon: '🛰️' },
+        { name: 'High Orbit', miles: '96,470 mi', icon: '🔭' },
+        { name: 'Deep Space', miles: '142,410 mi', icon: '🚀' },
+        { name: 'Lunar Approach', miles: '192,940 mi', icon: '🌠' },
+        { name: 'The Moon', miles: '238,900 mi', icon: '🌙' }
+    ];
+    let usaOriginalMilestones = null;
+
+
+    // ============================================
+    // CUSTOM SYNTHESIZED SOUND ENGINE
+    // ============================================
+
+    let audioCtx = null;
+
+    function getAudioContext() {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) audioCtx = new AudioContext();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    function usaSound(type) {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+
+        if (type === 'select' || type === 'confirm') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.08);
+        } 
+        else if (type === 'blastOff') {
+            [150, 225, 300].forEach((baseFreq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = i === 0 ? 'sine' : 'triangle';
+                osc.frequency.setValueAtTime(baseFreq, now);
+                osc.frequency.exponentialRampToValueAtTime(baseFreq * 2.5, now + 0.8);
+                osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 1.2);
+
+                gain.gain.setValueAtTime(0.01, now);
+                gain.gain.linearRampToValueAtTime(0.1, now + 0.3);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 1.2);
+            });
+        }
+        else if (type === 'correct') {
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const noteTime = now + i * 0.08;
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, noteTime);
+                gain.gain.setValueAtTime(0, noteTime);
+                gain.gain.linearRampToValueAtTime(0.15, noteTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.25);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(noteTime);
+                osc.stop(noteTime + 0.25);
+            });
+        } 
+        else if (type === 'win') {
+            // Uplifting, cheerful victory melody
+            const notes = [
+                { f: 523.25, t: 0.0, d: 0.15 }, // C5
+                { f: 659.25, t: 0.15, d: 0.15 }, // E5
+                { f: 783.99, t: 0.3, d: 0.15 }, // G5
+                { f: 1046.50, t: 0.45, d: 0.3 }, // C6
+                { f: 783.99, t: 0.75, d: 0.15 }, // G5
+                { f: 1046.50, t: 0.9, d: 0.6 }   // C6 sustained triumph note
+            ];
+
+            notes.forEach(note => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const noteTime = now + note.t;
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(note.f, noteTime);
+
+                gain.gain.setValueAtTime(0, noteTime);
+                gain.gain.linearRampToValueAtTime(0.18, noteTime + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, noteTime + note.d);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(noteTime);
+                osc.stop(noteTime + note.d);
+            });
+        }
+        else if (type === 'wrong') {
+            usaPlayWrongSound();
+        } 
+        else if (type === 'modalPop') {
+            [300, 450].forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const t = now + i * 0.08;
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq, t);
+                gain.gain.setValueAtTime(0.08, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.15);
+            });
+        }
+        else if (type === 'gameover') {
+            [440, 415.3, 369.99, 329.63].forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const noteTime = now + i * 0.15;
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, noteTime);
+                gain.gain.setValueAtTime(0, noteTime);
+                gain.gain.linearRampToValueAtTime(0.18, noteTime + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.3);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(noteTime);
+                osc.stop(noteTime + 0.3);
+            });
+        }
+        else if (type === 'tick' || type === 'tickHigh') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(type === 'tickHigh' ? 880 : 440, now);
+            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.05);
+        }
+    }
+
+    function usaPlayWrongSound() {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        [
+            { start: 130, end: 90, delay: 0, duration: 0.35 },
+            { start: 110, end: 70, delay: 0.38, duration: 0.55 }
+        ].forEach(tone => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const t = now + tone.delay;
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(tone.start, t);
+            osc.frequency.exponentialRampToValueAtTime(tone.end, t + tone.duration);
+
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.25, t + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + tone.duration);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + tone.duration);
+        });
+    }
+
+    function usaGet(id) {
+        return document.getElementById(id);
+    }
+
+
+    // ============================================
+    // MILES TO THE MOON MILESTONES WITH ART
+    // ============================================
+
+    function usaApplyMilestones() {
+        const track = document.querySelector('.space-track');
+        if (!track) return;
+
+        let items = Array.from(track.querySelectorAll('.milestone'));
+
+        if (!usaOriginalMilestones) {
+            usaOriginalMilestones = items.map(el => {
+                const pts = el.querySelector('.pts');
+                const labelNode = el.childNodes[el.childNodes.length - 1];
+                return {
+                    score: el.getAttribute('data-score'),
+                    label: pts ? pts.textContent : '',
+                    text: labelNode ? labelNode.textContent.trim() : '',
+                    outerHTML: el.outerHTML
+                };
+            });
+        }
+
+        while (track.querySelectorAll('.milestone').length < USA_MILESTONE_STATES.length) {
+            const templateEl = track.querySelector('.milestone');
+            if (templateEl) {
+                const clone = templateEl.cloneNode(true);
+                track.appendChild(clone);
+            } else {
+                break;
+            }
+        }
+
+        items = Array.from(track.querySelectorAll('.milestone'));
+
+        items.forEach((el, i) => {
+            const target = USA_MILESTONE_STATES[i];
+            const data = USA_MILESTONE_DATA[i];
+            if (target === undefined || !data) return;
+
+            el.style.display = 'flex';
+            el.setAttribute('data-score', String(target));
+
+            const pts = el.querySelector('.pts');
+            if (pts) pts.textContent = `(${target})`;
+
+            Array.from(el.childNodes).forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0) {
+                    node.textContent = ` ${data.icon} ${data.name} — ${data.miles}`;
+                }
+            });
+        });
+    }
+
+    function usaRestoreMilestones() {
+        if (!usaOriginalMilestones) return;
+        const track = document.querySelector('.space-track');
+        if (!track) return;
+
+        track.innerHTML = usaOriginalMilestones.map(m => m.outerHTML).join('');
+        usaOriginalMilestones = null;
+    }
+
+
+    // ============================================
+    // RIGHT SIDEBAR
+    // ============================================
+
+    function usaSetRewardPanelVisible(visible) {
+        const panel = document.querySelector('.right-sidebar');
+
+        if (panel) {
+            panel.style.display = visible ? '' : 'none';
+        }
+    }
+
+
+    // ============================================
+    // STATE ABBREVIATIONS & ALIASES
+    // ============================================
+
+    const usaStateAliases = {
+        AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas',
+        CA: 'California', CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware',
+        FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', ID: 'Idaho',
+        IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas',
+        KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
+        MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi',
+        MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada',
+        NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York',
+        NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio', OK: 'Oklahoma',
+        OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina',
+        SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah',
+        VT: 'Vermont', VA: 'Virginia', WA: 'Washington', WV: 'West Virginia',
+        WI: 'Wisconsin', WY: 'Wyoming', DC: 'District of Columbia', PR: 'Puerto Rico'
+    };
+
+    function usaNormalizeState(value) {
+        if (value === null || value === undefined) return '';
+
+        const text = String(value).trim();
+        const upper = text.toUpperCase();
+
+        if (usaStateAliases[upper]) {
+            return usaStateAliases[upper].toLowerCase();
+        }
+
+        const cleaned = text.toLowerCase().replace(/[^a-z]/g, '');
+
+        for (const key in usaStateAliases) {
+            const fullName = usaStateAliases[key].toLowerCase();
+
+            if (fullName.replace(/[^a-z]/g, '') === cleaned) {
+                return fullName;
+            }
+        }
+
+        return text.toLowerCase();
+    }
+
+    function usaGetStateName(properties) {
+        return properties.name ||
+            properties.NAME ||
+            properties.STATE_NAME ||
+            properties.state ||
+            properties.State ||
+            '';
+    }
+
+    function usaGetStateAbbreviation(properties) {
+        return properties.abbr ||
+            properties.STUSPS ||
+            properties.postal ||
+            properties.code ||
+            properties.STATE_ABBR ||
+            '';
+    }
+
+
+    // ============================================
+    // STATE LABELS & CALLOUTS
+    // ============================================
+
+    function usaAbbreviationFromName(name) {
+        const normalized = usaNormalizeState(name);
+
+        for (const abbreviation in usaStateAliases) {
+            if (usaStateAliases[abbreviation].toLowerCase() === normalized) {
+                return abbreviation;
+            }
+        }
+
+        return '';
+    }
+
+    const usaNortheastCallouts = {
+        MD: { label: [39.8, -67.4], target: [39.0, -76.6] },
+        DE: { label: [38.9, -67.4], target: [39.0, -75.5] },
+        DC: { label: [37.8, -67.4], target: [38.9, -77.0] },
+        RI: { label: [41.9, -67.4], target: [41.6, -71.5] }
+    };
+
+    const usaNorthernCallouts = {
+        VT: { label: [45.75, -72.7], target: [44.25, -72.7] },
+        NH: { label: [45.75, -71.55], target: [44.15, -71.55] }
+    };
+
+    const usaLabelPositionOverrides = {
+        AK: [64.5, -152.5],
+        MA: [42.25, -71.8],
+        CT: [41.55, -72.7],
+        NJ: [40.1, -74.5],
+        ID: [43.4, -114.3],
+        OK: [35.5, -96.5],
+        LA: [30.95, -92.0],
+        FL: [27.6, -81.0],
+        MI: [43.6, -84.8],
+        MS: [32.9, -89.4],
+        VA: [37.6, -78.2],
+        KY: [37.5, -85.3],
+        MN: [46.0, -94.8],
+        NC: [35.7, -78.4]
+    };
+
+    function usaCreateStateLabels() {
+        if (!usaMap) return;
+
+        if (usaLabelLayer) usaLabelLayer.remove();
+
+        usaLabelLayer = L.layerGroup().addTo(usaMap);
+
+        const placed = new Set();
+
+        const labelIcon = abbreviation => L.divIcon({
+            className: 'usa-state-label-icon',
+            html: `<span class="usa-state-label">${abbreviation}</span>`,
+            iconSize: [28, 20],
+            iconAnchor: [14, 10]
+        });
+
+        const outsideLabelIcon = abbreviation => L.divIcon({
+            className: 'usa-state-label-icon',
+            html: `<span class="usa-state-label usa-callout-label">${abbreviation}</span>`,
+            iconSize: [40, 20],
+            iconAnchor: [0, 10]
+        });
+
+        const northernLabelIcon = abbreviation => L.divIcon({
+            className: 'usa-state-label-icon',
+            html: `<span class="usa-state-label">${abbreviation}</span>`,
+            iconSize: [28, 20],
+            iconAnchor: [14, 20]
+        });
+
+        function addCalloutElements(labelPosition, targetPosition, direction = 'down') {
+            const group = L.layerGroup();
+
+            L.polyline([labelPosition, targetPosition], {
+                color: '#94a3b8',
+                weight: 1.2,
+                opacity: 0.95,
+                interactive: false
+            }).addTo(group);
+
+            let borderStyle = 'border-top: 8px solid #94a3b8; border-left: 5px solid transparent; border-right: 5px solid transparent;';
+            let anchor = [5, 0];
+
+            if (direction === 'left') {
+                borderStyle = 'border-right: 8px solid #94a3b8; border-top: 5px solid transparent; border-bottom: 5px solid transparent;';
+                anchor = [0, 5];
+            }
+
+            const arrowIcon = L.divIcon({
+                className: 'usa-label-arrow-icon',
+                html: `<div style="width: 0; height: 0; ${borderStyle}"></div>`,
+                iconSize: [10, 8],
+                iconAnchor: anchor
+            });
+
+            L.marker(targetPosition, {
+                icon: arrowIcon,
+                interactive: false,
+                keyboard: false,
+                zIndexOffset: 1100
+            }).addTo(group);
+
+            return group;
+        }
+
+        if (!usaHardMode) {
+            usaEntries.forEach(entry => {
+                const abbreviation = entry.abbr || usaAbbreviationFromName(entry.name);
+                if (!abbreviation) return;
+
+                const key = abbreviation.toUpperCase();
+                if (key === 'HI' || key === 'PR') return;
+
+                placed.add(key);
+
+                const entryGroup = L.layerGroup();
+
+                if (usaNorthernCallouts[key]) {
+                    const callout = usaNorthernCallouts[key];
+                    const calloutElements = addCalloutElements(L.latLng(...callout.label), L.latLng(...callout.target), 'down');
+                    calloutElements.addTo(entryGroup);
+
+                    const marker = L.marker(callout.label, { icon: northernLabelIcon(key), interactive: false, keyboard: false, zIndexOffset: 1200 });
+                    marker.addTo(entryGroup);
+
+                    entry.labelGroup = entryGroup;
+                    entryGroup.addTo(usaLabelLayer);
+                    return;
+                }
+
+                if (usaNortheastCallouts[key]) {
+                    const callout = usaNortheastCallouts[key];
+                    const calloutElements = addCalloutElements(L.latLng(...callout.label), L.latLng(...callout.target), 'left');
+                    calloutElements.addTo(entryGroup);
+
+                    const marker = L.marker(callout.label, { icon: outsideLabelIcon(key), interactive: false, keyboard: false, zIndexOffset: 1200 });
+                    marker.addTo(entryGroup);
+
+                    entry.labelGroup = entryGroup;
+                    entryGroup.addTo(usaLabelLayer);
+                    return;
+                }
+
+                const statePosition = usaLabelPositionOverrides[key]
+                    ? L.latLng(...usaLabelPositionOverrides[key])
+                    : entry.layer.getBounds().getCenter();
+
+                const marker = L.marker(statePosition, {
+                    icon: labelIcon(key),
+                    interactive: false,
+                    keyboard: false,
+                    zIndexOffset: 1000
+                });
+                marker.addTo(entryGroup);
+
+                entry.labelGroup = entryGroup;
+                entryGroup.addTo(usaLabelLayer);
+            });
+
+            if (!placed.has('DC')) {
+                const dcEntry = usaEntries.find(e => (e.abbr || usaAbbreviationFromName(e.name)).toUpperCase() === 'DC');
+                const dcCallout = usaNortheastCallouts.DC;
+                const dcGroup = L.layerGroup();
+
+                const calloutElements = addCalloutElements(L.latLng(...dcCallout.label), L.latLng(...dcCallout.target), 'left');
+                calloutElements.addTo(dcGroup);
+
+                const dcMarker = L.marker(dcCallout.label, { icon: outsideLabelIcon('DC'), interactive: false, keyboard: false, zIndexOffset: 1200 });
+                dcMarker.addTo(dcGroup);
+
+                dcGroup.addTo(usaLabelLayer);
+                if (dcEntry) {
+                    dcEntry.labelGroup = dcGroup;
+                }
+            }
+        }
+
+        usaAddIslandCircles();
+    }
+
+    function usaAddIslandCircles() {
+        if (!usaMap || !usaLabelLayer) return;
+
+        const labelIcon = abbreviation => L.divIcon({
+            className: 'usa-state-label-icon',
+            html: `<span class="usa-state-label">${abbreviation}</span>`,
+            iconSize: [28, 20],
+            iconAnchor: [14, 10]
+        });
+
+        usaEntries.forEach(entry => {
+            const abbr = (entry.abbr || usaAbbreviationFromName(entry.name)).toUpperCase();
+            if (abbr === 'HI' || abbr === 'PR') {
+                const center = abbr === 'HI' ? L.latLng(20.35, -157.55) : L.latLng(18.22, -66.45);
+                const circleRadius = abbr === 'HI' ? 30 : 24;
+
+                const circleMarker = L.circleMarker(center, {
+                    radius: circleRadius,
+                    color: '#38bdf8',
+                    weight: 1.8,
+                    fillColor: '#1e293b',
+                    fillOpacity: 0.1,
+                    interactive: true,
+                    className: 'usa-island-circle'
+                });
+
+                entry.circleMarker = circleMarker;
+
+                const labelPos = abbr === 'HI' 
+                    ? L.latLng(center.lat + 4.2, center.lng) 
+                    : L.latLng(center.lat + 3.8, center.lng);
+
+                const entryGroup = L.layerGroup();
+                
+                if (!usaHardMode) {
+                    const labelMarker = L.marker(labelPos, {
+                        icon: labelIcon(abbr),
+                        interactive: false,
+                        keyboard: false,
+                        zIndexOffset: 1000
+                    });
+                    labelMarker.addTo(entryGroup);
+                }
+                
+                entryGroup.addTo(usaLabelLayer);
+                entry.labelGroup = entryGroup;
+
+                circleMarker.on('mouseover', () => {
+                    const norm = usaNormalizeState(entry.name);
+                    if (!usaLocked && !eliminatedStates.has(norm) && usaSelectedEntry !== entry) {
+                        circleMarker.setStyle({ color: '#67e8f9', weight: 2.5, fillColor: '#334155', fillOpacity: 0.25 });
+                        entry.layer.setStyle({ color: '#67e8f9', weight: 2 });
+                    }
+                });
+
+                circleMarker.on('mouseout', () => {
+                    const norm = usaNormalizeState(entry.name);
+                    if (!usaLocked && !eliminatedStates.has(norm) && usaSelectedEntry !== entry) {
+                        const isElim = eliminatedStates.has(norm);
+                        circleMarker.setStyle({
+                            color: isElim ? '#0f172a' : '#38bdf8',
+                            weight: 1.8,
+                            fillColor: isElim ? '#090d16' : '#1e293b',
+                            fillOpacity: isElim ? 0.05 : 0.1
+                        });
+                        entry.layer.setStyle({ color: isElim ? '#0f172a' : '#38bdf8', weight: 1.2 });
+                    }
+                });
+
+                circleMarker.on('click', (e) => {
+                    L.DomEvent.stopPropagation(e);
+                    const norm = usaNormalizeState(entry.name);
+                    if (!eliminatedStates.has(norm)) {
+                        usaHandleStateClick(entry);
+                    }
+                });
+
+                circleMarker.addTo(usaLabelLayer);
+            }
+        });
+    }
+
+
+    // ============================================
+    // QUESTION PREPARATION
+    // ============================================
+
+    function usaGetAnswers(question) {
+        const list = question.rule?.list || [];
+        return (Array.isArray(list) ? list : [list]).map(usaNormalizeState).filter(Boolean);
+    }
+
+    function usaPrepareQuestions(bank) {
+        const rawQuestions = Array.isArray(bank) ? bank : bank.questions;
+
+        if (!Array.isArray(rawQuestions) || !rawQuestions.length) {
+            throw new Error('No questions found in questions-usa-elimination.json.');
+        }
+
+        return rawQuestions.map(question => {
+            if (!question.prompt || !question.rule?.list) return null;
+
+            const answers = usaGetAnswers(question);
+
+            const matchingEntries = usaEntries.filter(entry => {
+                const normName = usaNormalizeState(entry.name);
+                const normAbbr = usaNormalizeState(entry.abbr);
+                return answers.includes(normName) || answers.includes(normAbbr);
+            });
+
+            if (!matchingEntries.length) return null;
+
+            return { ...question, matchingEntries };
+        }).filter(Boolean);
+    }
+
+
+    // ============================================
+    // HIGH SCORES
+    // ============================================
+
+    function usaGetHighScore() {
+        return usaHardMode ? usaHardHighScore : usaNormalHighScore;
+    }
+
+
+    // ============================================
+    // START GAME
+    // ============================================
+
+    function usaStartGame() {
+        const home = usaGet('home-screen');
+        const game = usaGet('game-screen');
+
+        if (home) {
+            home.classList.add('hidden');
+            home.style.display = 'none';
+        }
+
+        if (game) {
+            game.classList.add('active');
+            game.style.display = 'flex';
+        }
+
+        usaSound('blastOff');
+
+        usaEnsureTimerElement();
+        usaApplyMilestones();
+        usaSetRewardPanelVisible(false);
+
+        if (!usaMap) {
+            usaInitializeGame();
+        } else if (usaQuestions.length) {
+            usaResetGame();
+            setTimeout(() => usaMap.invalidateSize(), 150);
+        } else {
+            usaLoadQuestions();
+        }
+    }
+
+
+    // ============================================
+    // INITIALIZE MAP & QUESTIONS
+    // ============================================
+
+    async function usaInitializeGame() {
+        try {
+            usaSetPrompt('Loading Elimination USA map...');
+
+            const response = await fetch(USA_MAP_FILE);
+            if (!response.ok) throw new Error('Could not load us-states.geojson.');
+
+            const geoData = await response.json();
+            if (!Array.isArray(geoData.features)) throw new Error('Invalid GeoJSON.');
+
+            usaCreateMap(geoData);
+            await usaLoadQuestions();
+
+        } catch (error) {
+            console.error('Elimination USA Error:', error);
+            usaStopTimer();
+            usaSetPrompt('ERROR: ' + error.message);
+        }
+    }
+
+    function usaCreateMap(geoData) {
+        if (!window.L) throw new Error('Leaflet not loaded.');
+        if (usaMap) return;
+
+        usaEntries = [];
+
+        usaMap = L.map('map', {
+            center: [37.8, -96],
+            zoom: 4,
+            minZoom: 3,
+            maxZoom: 7,
+            zoomControl: true,
+            attributionControl: false
+        });
+
+        const normalStyle = {
+            color: '#38bdf8',
+            weight: 1.2,
+            fillColor: '#1e293b',
+            fillOpacity: 0.95
+        };
+
+        L.geoJSON(geoData, {
+            style: () => normalStyle,
+
+            onEachFeature: (feature, layer) => {
+                const properties = feature.properties || {};
+                const entry = {
+                    name: usaGetStateName(properties),
+                    abbr: usaGetStateAbbreviation(properties),
+                    layer
+                };
+
+                if (!entry.name) return;
+                usaEntries.push(entry);
+
+                layer.on('mouseover', () => {
+                    const norm = usaNormalizeState(entry.name);
+                    if (!usaLocked && !eliminatedStates.has(norm) && usaSelectedEntry !== entry) {
+                        layer.setStyle({ color: '#67e8f9', weight: 2, fillColor: '#334155', fillOpacity: 1 });
+                    }
+                });
+
+                layer.on('mouseout', () => {
+                    const norm = usaNormalizeState(entry.name);
+                    if (!usaLocked && !eliminatedStates.has(norm) && usaSelectedEntry !== entry) {
+                        layer.setStyle(normalStyle);
+                    }
+                });
+
+                layer.on('click', () => {
+                    const norm = usaNormalizeState(entry.name);
+                    if (!eliminatedStates.has(norm)) {
+                        usaHandleStateClick(entry);
+                    }
+                });
+            }
+        }).addTo(usaMap);
+
+        usaCreateStateLabels();
+    }
+
+    async function usaLoadQuestions() {
+        try {
+            usaSetPrompt('Loading Elimination questions...');
+
+            const response = await fetch(USA_QUESTION_FILE + '?v=' + Date.now());
+            if (!response.ok) throw new Error('Could not load questions-usa-elimination.json.');
+
+            const bank = await response.json();
+            usaQuestions = usaPrepareQuestions(bank);
+            usaResetGame();
+
+            setTimeout(() => {
+                if (usaMap) usaMap.invalidateSize();
+            }, 150);
+
+        } catch (error) {
+            console.error('Question Error:', error);
+            usaStopTimer();
+            usaSetPrompt('ERROR: ' + error.message);
+        }
+    }
+
+
+    // ============================================
+    // DECK SHUFFLING
+    // ============================================
+
+    function usaShuffle(array) {
+        const result = [...array];
+        for (let i = result.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [result[i], result[j]] = [result[j], result[i]];
+        }
+        return result;
+    }
+
+    function usaHasRemainingAnswer(question) {
+        if (!question || !question.matchingEntries || !question.matchingEntries.length) return false;
+        return question.matchingEntries.some(entry => !eliminatedStates.has(usaNormalizeState(entry.name)));
+    }
+
+    function usaResetDeck() {
+        usaQuestionDeck = usaShuffle(usaQuestions.filter(usaHasRemainingAnswer));
+    }
+
+    function usaPickNextQuestion() {
+        while (usaQuestionDeck.length) {
+            const candidate = usaQuestionDeck.pop();
+            if (usaHasRemainingAnswer(candidate)) return candidate;
+        }
+
+        usaResetDeck();
+
+        while (usaQuestionDeck.length) {
+            const candidate = usaQuestionDeck.pop();
+            if (usaHasRemainingAnswer(candidate)) return candidate;
+        }
+
+        return null;
+    }
+
+
+    // ============================================
+    // RESET & GAMEPLAY
+    // ============================================
+
+    function usaResetGame() {
+        usaStopTimer();
+        usaLives = usaHardMode ? USA_HARD_LIVES : USA_NORMAL_LIVES;
+        usaLocked = false;
+        usaSelectedEntry = null;
+        eliminatedStates.clear();
+
+        usaResetMapColors();
+        usaResetDeck();
+        usaUpdateStatus();
+        usaNextQuestion();
+    }
+
+    function usaResetMapColors() {
+        if (usaMap && usaEntries.length && !usaLabelLayer) {
+            usaCreateStateLabels();
+        }
+
+        usaEntries.forEach(entry => {
+            const norm = usaNormalizeState(entry.name);
+            const isElim = eliminatedStates.has(norm);
+
+            entry.layer.setStyle({
+                color: isElim ? '#0f172a' : '#38bdf8',
+                weight: isElim ? 1 : 1.2,
+                fillColor: isElim ? '#090d16' : '#1e293b',
+                fillOpacity: isElim ? 0.3 : 0.95
+            });
+
+            if (entry.circleMarker) {
+                entry.circleMarker.setStyle({
+                    color: isElim ? '#0f172a' : '#38bdf8',
+                    weight: 1.8,
+                    fillColor: isElim ? '#090d16' : '#1e293b',
+                    fillOpacity: isElim ? 0.05 : 0.1
+                });
+            }
+
+            if (usaLabelLayer) {
+                if (entry.labelGroup) {
+                    if (isElim) {
+                        if (usaLabelLayer.hasLayer(entry.labelGroup)) usaLabelLayer.removeLayer(entry.labelGroup);
+                    } else {
+                        if (!usaLabelLayer.hasLayer(entry.labelGroup)) usaLabelLayer.addLayer(entry.labelGroup);
+                    }
+                }
+                if (entry.circleMarker) {
+                    if (isElim) {
+                        if (usaLabelLayer.hasLayer(entry.circleMarker)) usaLabelLayer.removeLayer(entry.circleMarker);
+                    } else {
+                        if (!usaLabelLayer.hasLayer(entry.circleMarker)) usaLabelLayer.addLayer(entry.circleMarker);
+                    }
+                }
+            }
+        });
+    }
+
+    function usaNextQuestion() {
+        usaStopTimer();
+        usaLocked = false;
+        usaSelectedEntry = null;
+        usaResetMapColors();
+
+        const nextQuestion = eliminatedStates.size >= 52 ? null : usaPickNextQuestion();
+
+        if (!nextQuestion) {
+            usaCurrentQuestion = null;
+            usaSound('win');
+            usaShowModal('🎉 LUNAR LANDING SUCCESS!', `Incredible! Items eliminated: ${eliminatedStates.size} / 52 (238,900 Miles Reached!)`, true, true);
+            return;
+        }
+
+        usaCurrentQuestion = nextQuestion;
+        usaSetPrompt(usaCurrentQuestion.prompt);
+        usaUpdateStatus();
+        usaStartTimer();
+    }
+
+    function usaSetPrompt(message) {
+        const el = usaGet('prompt-text');
+        if (el) {
+            el.textContent = message;
+            const container = el.closest('.prompt-container') || el.parentNode;
+            if (container) {
+                container.style.cssText = 'background: transparent; border: none; box-shadow: none; padding: 10px 20px; margin-top: 5px; text-align: center; font-size: 15px; color: #f8fafc; font-family: inherit; font-weight: 500;';
+            }
+        }
+    }
+
+    function usaHandleStateClick(entry) {
+        if (usaLocked || !usaCurrentQuestion) return;
+
+        if (usaSelectedEntry !== entry) {
+            if (usaSelectedEntry) {
+                const prevNorm = usaNormalizeState(usaSelectedEntry.name);
+                if (!eliminatedStates.has(prevNorm)) {
+                    usaSelectedEntry.layer.setStyle({ color: '#38bdf8', weight: 1.2, fillColor: '#1e293b', fillOpacity: 0.95 });
+                    if (usaSelectedEntry.circleMarker) {
+                        usaSelectedEntry.circleMarker.setStyle({ color: '#38bdf8', weight: 1.8, fillColor: '#1e293b', fillOpacity: 0.1 });
+                    }
+                }
+            }
+
+            usaSelectedEntry = entry;
+            usaSound('select');
+
+            entry.layer.setStyle({ color: '#f59e0b', weight: 2.5, fillColor: '#f59e0b', fillOpacity: 0.95 });
+            if (entry.circleMarker) {
+                entry.circleMarker.setStyle({ color: '#f59e0b', weight: 2.5, fillColor: '#f59e0b', fillOpacity: 0.3 });
+            }
+
+            usaSetPrompt(usaCurrentQuestion.prompt + ' — Click again to confirm elimination.');
+            return;
+        }
+
+        usaConfirmAnswer();
+    }
+
+    function usaConfirmAnswer(autoLocked = false) {
+        if (!usaSelectedEntry || usaLocked) return;
+
+        usaLocked = true;
+        usaStopTimer();
+        usaSound('confirm');
+
+        const selected = usaSelectedEntry;
+        const selectedNameNorm = usaNormalizeState(selected.name);
+
+        const correct = usaCurrentQuestion.matchingEntries.some(
+            entry => usaNormalizeState(entry.name) === selectedNameNorm
+        );
+
+        const autoNote = autoLocked ? 'Time ran out! ' : '';
+
+        if (correct) {
+            eliminatedStates.add(selectedNameNorm);
+
+            selected.layer.setStyle({ color: '#22c55e', weight: 2.5, fillColor: '#22c55e', fillOpacity: 1 });
+            if (selected.circleMarker) {
+                selected.circleMarker.setStyle({ color: '#22c55e', weight: 2.5, fillColor: '#22c55e', fillOpacity: 1 });
+            }
+
+            if (usaLabelLayer) {
+                if (selected.labelGroup && usaLabelLayer.hasLayer(selected.labelGroup)) {
+                    usaLabelLayer.removeLayer(selected.labelGroup);
+                }
+                if (selected.circleMarker && usaLabelLayer.hasLayer(selected.circleMarker)) {
+                    usaLabelLayer.removeLayer(selected.circleMarker);
+                }
+            }
+
+            usaUpdateStatus();
+
+            if (eliminatedStates.size >= 52) {
+                usaSound('win');
+                usaShowModal('🎉 TOUCHDOWN ON THE MOON!', `${autoNote}${selected.name} was correct! You reached the Moon (238,900 mi) by eliminating all 52 locations!`, true, true);
+            } else {
+                usaSound('correct');
+                usaShowModal('⚡ Location Eliminated!', `${autoNote}${selected.name} was correct and is now ELIMINATED!`, false, true);
+            }
+
+        } else {
+            usaLives--;
+
+            selected.layer.setStyle({ color: '#ef4444', weight: 2.5, fillColor: '#ef4444', fillOpacity: 1 });
+            if (selected.circleMarker) {
+                selected.circleMarker.setStyle({ color: '#ef4444', weight: 2.5, fillColor: '#ef4444', fillOpacity: 1 });
+            }
+
+            usaUpdateStatus();
+
+            if (usaLives <= 0) {
+                usaSound('gameover');
+                usaShowModal('MISSION FAILED', `${autoNote}${selected.name} was incorrect.<br>Total states eliminated: ${eliminatedStates.size}`, true, false);
+            } else {
+                usaSound('wrong');
+                usaShowModal('INCORRECT ANSWER', `${autoNote}${selected.name} was incorrect. Lives left: ${usaLives}`, false, false);
+            }
+        }
+    }
+
+
+    // ============================================
+    // TIMER ENGINE
+    // ============================================
+
+    function usaEnsureTimerElement() {
+        let container = usaGet('question-timer');
+        if (!container) {
+            const livesDisplay = document.querySelector('.lives-display') || document.querySelector('#lives-val')?.parentNode;
+            if (livesDisplay) {
+                container = document.createElement('div');
+                container.id = 'question-timer';
+                container.style.cssText = 'display: inline-flex; align-items: center; margin-top: 6px; font-weight: bold; font-family: inherit; font-size: 13px; color: #38bdf8; background: rgba(15, 23, 42, 0.85); padding: 3px 10px; border: 1px solid #38bdf8; border-radius: 4px; width: fit-content;';
+                container.innerHTML = '⏱️ Time: <span id="timer-val" style="margin-left: 4px;">60</span>s';
+                livesDisplay.parentNode.insertBefore(container, livesDisplay.nextSibling);
+            }
+        }
+    }
+
+    function usaUpdateTimer() {
+        let value = usaGet('timer-val');
+        if (!value) {
+            usaEnsureTimerElement();
+            value = usaGet('timer-val');
+        }
+        const container = usaGet('question-timer');
+        if (value) value.textContent = usaTimeLeft;
+        if (container) container.classList.toggle('timer-warning', usaTimeLeft <= 5);
+    }
+
+    function usaStartTimer() {
+        usaStopTimer();
+        usaTimeLeft = USA_QUESTION_TIME;
+        usaUpdateTimer();
+
+        usaTimer = setInterval(() => {
+            if (usaLocked) {
+                usaStopTimer();
+                return;
+            }
+
+            usaTimeLeft--;
+            usaUpdateTimer();
+
+            if (usaTimeLeft >= 1 && usaTimeLeft <= 5) {
+                usaSound(usaTimeLeft <= 2 ? 'tickHigh' : 'tick');
+            }
+
+            if (usaTimeLeft <= 0) {
+                usaTimeExpired();
+            }
+        }, 1000);
+    }
+
+    function usaStopTimer() {
+        if (usaTimer) {
+            clearInterval(usaTimer);
+            usaTimer = null;
+        }
+    }
+
+    function usaTimeExpired() {
+        if (usaLocked || !usaCurrentQuestion) return;
+        if (usaSelectedEntry) {
+            usaConfirmAnswer(true);
+            return;
+        }
+
+        usaLocked = true;
+        usaStopTimer();
+        usaLives--;
+        usaUpdateStatus();
+
+        if (usaLives <= 0) {
+            usaSound('gameover');
+            usaShowModal("TIME'S UP!", `Time expired.<br>Total states eliminated: ${eliminatedStates.size}`, true, false);
+        } else {
+            usaSound('wrong');
+            usaShowModal("TIME'S UP!", `Lost a life. Lives left: ${usaLives}`, false, false);
+        }
+    }
+
+
+    // ============================================
+    // STATUS & ROCKET
+    // ============================================
+
+    function usaUpdateStatus() {
+        const livesEl = usaGet('lives-val');
+        const scoreDisplay = usaGet('score-display');
+
+        if (livesEl) {
+            livesEl.textContent = '❤️'.repeat(Math.max(0, usaLives));
+        }
+
+        if (scoreDisplay) {
+            scoreDisplay.innerHTML = `States Eliminated: <span id="score-val">${eliminatedStates.size}</span> / 52`;
+        }
+
+        const count = eliminatedStates.size;
+        if (usaHardMode) {
+            if (count > usaHardHighScore) {
+                usaHardHighScore = count;
+                localStorage.setItem(USA_HARD_KEY, usaHardHighScore);
+            }
+        } else {
+            if (count > usaNormalHighScore) {
+                usaNormalHighScore = count;
+                localStorage.setItem(USA_NORMAL_KEY, usaNormalHighScore);
+            }
+        }
+
+        usaUpdateRocket();
+    }
+
+    function usaUpdateRocket() {
+        const rocket = usaGet('rocket-icon');
+        const milestones = Array.from(document.querySelectorAll('.space-track .milestone'));
+        let reached = null;
+
+        milestones.forEach(milestone => {
+            const target = Number(milestone.getAttribute('data-score'));
+            const achieved = eliminatedStates.size >= target;
+            milestone.classList.toggle('achieved', achieved);
+            if (achieved) reached = milestone;
+        });
+
+        if (rocket && reached) {
+            const center = reached.offsetTop + reached.offsetHeight / 2;
+            rocket.style.top = `${center - rocket.offsetHeight / 2}px`;
+        }
+    }
+
+
+    // ============================================
+    // MODAL DIALOG
+    // ============================================
+
+    function usaInjectModalStyles() {
+        if (document.getElementById('usa-modal-anim-style')) return;
+        const style = document.createElement('style');
+        style.id = 'usa-modal-anim-style';
+        style.textContent = `
+            @keyframes modalSwoosh {
+                0% {
+                    transform: translateY(-80px);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            .usa-modal-content-animated {
+                animation: modalSwoosh 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function usaShowModal(title, description, gameOver, isCorrect) {
+        usaStopTimer();
+        usaInjectModalStyles();
+
+        if (!isCorrect && !gameOver) {
+            usaSound('modalPop');
+        }
+
+        let modal = usaGet('feedback-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'feedback-modal';
+            document.body.appendChild(modal);
+        }
+
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); display: flex !important; align-items: center; justify-content: center; z-index: 99999;';
+
+        const borderColor = isCorrect ? '#22c55e' : '#ef4444';
+        const glowColor = isCorrect ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+
+        modal.innerHTML = `
+            <div class="usa-modal-content-animated" style="background: #0f172a; border: 2px solid ${borderColor}; box-shadow: 0 0 25px ${glowColor}; border-radius: 12px; padding: 30px; text-align: center; max-width: 400px; width: 90%; color: #f8fafc; font-family: inherit;">
+                <h2 id="feedback-title" style="margin-top: 0; color: ${borderColor};">${title}</h2>
+                <p id="feedback-desc" style="margin: 20px 0; color: #cbd5e1; line-height: 1.5;">${description}</p>
+                <button id="modal-action-btn" style="background: ${borderColor}; color: #0f172a; border: none; padding: 10px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 16px;">${gameOver ? 'Return to Home' : 'Next Question'}</button>
+            </div>
+        `;
+
+        const btn = modal.querySelector('#modal-action-btn');
+        if (btn) {
+            btn.onclick = () => {
+                modal.style.display = 'none';
+                modal.classList.add('hidden');
+
+                if (gameOver || usaLives <= 0) {
+                    usaStopTimer();
+                    const gameScreen = usaGet('game-screen');
+                    const homeScreen = usaGet('home-screen');
+
+                    if (gameScreen) {
+                        gameScreen.classList.remove('active');
+                        gameScreen.style.cssText = 'display: none !important;';
+                    }
+                    if (homeScreen) {
+                        homeScreen.classList.remove('hidden');
+                        homeScreen.style.cssText = 'display: flex !important;';
+                    }
+                    if (window.refreshHomeHighScore) {
+                        window.refreshHomeHighScore();
+                    }
+                } else {
+                    usaNextQuestion();
+                }
+            };
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+
+    // Publicly Exposed API
+    return {
+        setHardMode(on) {
+            usaHardMode = !!on;
+            if (usaMap) {
+                usaCreateStateLabels();
+            }
+        },
+        getHighScore() {
+            return usaGetHighScore();
+        },
+        start() {
+            usaStartGame();
+        },
+        destroy() {
+            usaStopTimer();
+            if (usaMap) {
+                usaMap.remove();
+                usaMap = null;
+            }
+            usaLabelLayer = null;
+            usaEntries = [];
+            usaQuestions = [];
+            eliminatedStates.clear();
+            usaRestoreMilestones();
+            usaSetRewardPanelVisible(true);
+        }
+    };
+})();
