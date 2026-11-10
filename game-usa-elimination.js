@@ -870,7 +870,7 @@ window.usaEliminationGame = (() => {
     function usaHandleStateClick(entry) {
         if (usaLocked || !usaCurrentQuestion) return;
         
-        // If the user already had a different state selected, reset its color back to normal first!
+        // Reset color of previously selected state if changed
         if (usaSelectedEntry && usaSelectedEntry !== entry) {
             const prevNorm = usaNormalizeState(usaSelectedEntry.name);
             if (!eliminatedStates.has(prevNorm)) {
@@ -1055,6 +1055,7 @@ window.usaEliminationGame = (() => {
 
     document.addEventListener('DOMContentLoaded', () => {
         usaRenderLeaderboard();
+        if (window.refreshHomeHighScore) window.refreshHomeHighScore(); // Immediately populate high score on load
     });
 
     return {
