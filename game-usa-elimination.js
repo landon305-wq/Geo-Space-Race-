@@ -10,6 +10,15 @@ window.usaEliminationGame = (() => {
     const USA_HARD_LIVES = 1;
     const USA_QUESTION_TIME = 60;
 
+    // ============================================
+    // ONLINE CLOUD LEADERBOARD CONFIGURATION (OPTIONAL)
+    // To make it live online across cities:
+    // 1. Create a free project on https://supabase.com
+    // 2. Create a table named 'usa_leaderboard' with columns: name (text, primary key), clears (int8), updated_at (timestamp)
+    // 3. Paste your Project URL and Anon Public Key below. Leave blank to use local storage.
+    // ============================================
+    const SUPABASE_URL = 'https://ccjlpsapefnnikbschpj.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_q1GbjeHYP7X3Z3DTz4Eftg_9L2tokW0';
     let usaMap = null;
     let usaLabelLayer = null;
     let usaEntries = [];
@@ -28,13 +37,15 @@ window.usaEliminationGame = (() => {
     let usaTimer = null;
     let usaTimeLeft = USA_QUESTION_TIME;
 
+    // Persistent Storage Keys
     const USA_NORMAL_KEY = 'astro_geo_usa_elim_states_highscore';
     const USA_HARD_KEY = 'astro_geo_usa_elim_states_hard_highscore';
+    const USA_LOCAL_LB_KEY = 'astro_geo_usa_elim_leaderboard';
 
     let usaNormalHighScore = Number(localStorage.getItem(USA_NORMAL_KEY)) || 0;
     let usaHardHighScore = Number(localStorage.getItem(USA_HARD_KEY)) || 0;
 
-    // 6 levels spanning 0 to 52 items (50 States + DC + PR, ending at the Moon ~238,900 miles)
+    // 6 levels spanning 0 to 52 items
     const USA_MILESTONE_STATES = [0, 10, 21, 31, 42, 52];
     const USA_MILESTONE_DATA = [
         { name: 'Earth Surface', miles: '0 mi', icon: '🌍' },
@@ -120,14 +131,13 @@ window.usaEliminationGame = (() => {
             });
         } 
         else if (type === 'win') {
-            // Uplifting, cheerful victory melody
             const notes = [
-                { f: 523.25, t: 0.0, d: 0.15 }, // C5
-                { f: 659.25, t: 0.15, d: 0.15 }, // E5
-                { f: 783.99, t: 0.3, d: 0.15 }, // G5
-                { f: 1046.50, t: 0.45, d: 0.3 }, // C6
-                { f: 783.99, t: 0.75, d: 0.15 }, // G5
-                { f: 1046.50, t: 0.9, d: 0.6 }   // C6 sustained triumph note
+                { f: 523.25, t: 0.0, d: 0.15 },
+                { f: 659.25, t: 0.15, d: 0.15 },
+                { f: 783.99, t: 0.3, d: 0.15 },
+                { f: 1046.50, t: 0.45, d: 0.3 },
+                { f: 783.99, t: 0.75, d: 0.15 },
+                { f: 1046.50, t: 0.9, d: 0.6 }
             ];
 
             notes.forEach(note => {
@@ -230,6 +240,135 @@ window.usaEliminationGame = (() => {
 
 
     // ============================================
+    // CLOUD & LOCAL LEADERBOARD ENGINE
+    // ============================================
+
+    function usaGetLocalLeaderboard() {
+        try {
+            return JSON.parse(localStorage.getItem(USA_LOCAL_LB_KEY)) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    async function usaGetLeaderboard() {
+        if (SUPABASE_URL && SUPABASE_KEY) {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/usa_leaderboard?select=*&order=clears.desc&limit=10`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                if (res.ok) {
+                    return await res.json();
+                }
+            } catch (err) {
+                console.warn('Cloud leaderboard fetch failed, falling back to local storage:', err);
+            }
+        }
+        return usaGetLocalLeaderboard();
+    }
+
+    async function usaRecordHardModeClear(playerName) {
+        if (!playerName || !playerName.trim()) playerName = "Commander Cadet";
+        playerName = playerName.trim();
+        const currentDate = new Date().toLocaleDateString();
+
+        // 1. Update Local Storage fallback
+        let board = usaGetLocalLeaderboard();
+        let existing = board.find(entry => entry.name.toLowerCase() === playerName.toLowerCase());
+        if (existing) {
+            existing.clears += 1;
+            existing.date = currentDate;
+        } else {
+            board.push({ name: playerName, clears: 1, date: currentDate });
+        }
+        board.sort((a, b) => b.clears - a.clears);
+        localStorage.setItem(USA_LOCAL_LB_KEY, JSON.stringify(board));
+
+        // 2. Sync to Cloud Supabase if configured
+        if (SUPABASE_URL && SUPABASE_KEY) {
+            try {
+                // Check if user exists in cloud
+                const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/usa_leaderboard?name=eq.${encodeURIComponent(playerName)}&select=clears`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const rows = checkRes.ok ? await checkRes.json() : [];
+
+                if (rows.length > 0) {
+                    const newClears = rows[0].clears + 1;
+                    await fetch(`${SUPABASE_URL}/rest/v1/usa_leaderboard?name=eq.${encodeURIComponent(playerName)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({ clears: newClears, updated_at: new Date() })
+                    });
+                } else {
+                    await fetch(`${SUPABASE_URL}/rest/v1/usa_leaderboard`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({ name: playerName, clears: 1, updated_at: new Date() })
+                    });
+                }
+            } catch (err) {
+                console.warn('Failed to sync score to cloud database:', err);
+            }
+        }
+
+        usaRenderLeaderboard();
+    }
+
+    async function usaRenderLeaderboard() {
+        let container = usaGet('usa-leaderboard-card');
+        if (!container) {
+            const homeCard = document.querySelector('.home-card');
+            if (homeCard) {
+                container = document.createElement('div');
+                container.id = 'usa-leaderboard-card';
+                container.style.cssText = 'margin-top: 20px; background: rgba(2, 6, 23, 0.7); border: 1px solid #38bdf8; border-radius: 8px; padding: 15px; text-align: left; max-height: 180px; overflow-y: auto;';
+                homeCard.appendChild(container);
+            }
+        }
+
+        if (!container) return;
+
+        container.innerHTML = '<h4 style="font-family: Orbitron, sans-serif; font-size: 0.95rem; color: #38bdf8; margin-bottom: 8px; text-align: center;">🏆 Hard Mode Leaderboard</h4><p style="font-size: 0.8rem; color: #94a3b8; text-align: center;">Loading scores...</p>';
+
+        const board = await usaGetLeaderboard();
+        let html = '<h4 style="font-family: Orbitron, sans-serif; font-size: 0.95rem; color: #38bdf8; margin-bottom: 8px; text-align: center;">🏆 Hard Mode Leaderboard</h4>';
+        
+        if (!board || board.length === 0) {
+            html += '<p style="font-size: 0.85rem; color: #94a3b8; text-align: center; margin: 5px 0;">No hard mode moon landings recorded yet.</p>';
+        } else {
+            html += '<table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">';
+            html += '<tr style="color: #38bdf8; border-bottom: 1px solid #1e293b;"><th style="text-align: left; padding: 4px;">Astronaut</th><th style="text-align: right; padding: 4px;">Moon Landings</th></tr>';
+            board.forEach((entry, idx) => {
+                html += `<tr style="border-bottom: 1px solid rgba(30, 41, 59, 0.5);">
+                    <td style="padding: 5px 4px;">${idx + 1}. ${escapeHtml(entry.name)}</td>
+                    <td style="text-align: right; padding: 5px 4px; color: #22c55e; font-weight: bold;">${entry.clears}</td>
+                </tr>`;
+            });
+            html += '</table>';
+        }
+        container.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+
+    // ============================================
     // MILES TO THE MOON MILESTONES WITH ART
     // ============================================
 
@@ -294,14 +433,41 @@ window.usaEliminationGame = (() => {
 
 
     // ============================================
-    // RIGHT SIDEBAR
+    // RIGHT SIDEBAR & HOME RETURN BUTTON
     // ============================================
 
     function usaSetRewardPanelVisible(visible) {
         const panel = document.querySelector('.right-sidebar');
-
         if (panel) {
             panel.style.display = visible ? '' : 'none';
+        }
+    }
+
+    function usaEnsureHomeButtonInGame() {
+        let hud = document.querySelector('.hud');
+        if (hud && !usaGet('game-home-btn')) {
+            const homeBtn = document.createElement('button');
+            homeBtn.id = 'game-home-btn';
+            homeBtn.className = 'space-btn secondary-btn';
+            homeBtn.style.cssText = 'padding: 6px 12px; font-size: 0.8rem; margin: 0; width: auto; cursor: pointer;';
+            homeBtn.textContent = '🏠 Home';
+            homeBtn.onclick = () => {
+                usaStopTimer();
+                const gameScreen = usaGet('game-screen');
+                const homeScreen = usaGet('home-screen');
+                if (gameScreen) {
+                    gameScreen.classList.remove('active');
+                    gameScreen.style.cssText = 'display: none !important;';
+                }
+                if (homeScreen) {
+                    homeScreen.classList.remove('hidden');
+                    homeScreen.style.cssText = 'display: flex !important;';
+                }
+                if (window.refreshHomeHighScore) {
+                    window.refreshHomeHighScore();
+                }
+            };
+            hud.appendChild(homeBtn);
         }
     }
 
@@ -340,7 +506,6 @@ window.usaEliminationGame = (() => {
 
         for (const key in usaStateAliases) {
             const fullName = usaStateAliases[key].toLowerCase();
-
             if (fullName.replace(/[^a-z]/g, '') === cleaned) {
                 return fullName;
             }
@@ -350,37 +515,20 @@ window.usaEliminationGame = (() => {
     }
 
     function usaGetStateName(properties) {
-        return properties.name ||
-            properties.NAME ||
-            properties.STATE_NAME ||
-            properties.state ||
-            properties.State ||
-            '';
+        return properties.name || properties.NAME || properties.STATE_NAME || properties.state || properties.State || '';
     }
 
     function usaGetStateAbbreviation(properties) {
-        return properties.abbr ||
-            properties.STUSPS ||
-            properties.postal ||
-            properties.code ||
-            properties.STATE_ABBR ||
-            '';
+        return properties.abbr || properties.STUSPS || properties.postal || properties.code || properties.STATE_ABBR || '';
     }
-
-
-    // ============================================
-    // STATE LABELS & CALLOUTS
-    // ============================================
 
     function usaAbbreviationFromName(name) {
         const normalized = usaNormalizeState(name);
-
         for (const abbreviation in usaStateAliases) {
             if (usaStateAliases[abbreviation].toLowerCase() === normalized) {
                 return abbreviation;
             }
         }
-
         return '';
     }
 
@@ -397,29 +545,18 @@ window.usaEliminationGame = (() => {
     };
 
     const usaLabelPositionOverrides = {
-        AK: [64.5, -152.5],
-        MA: [42.25, -71.8],
-        CT: [41.55, -72.7],
-        NJ: [40.1, -74.5],
-        ID: [43.4, -114.3],
-        OK: [35.5, -96.5],
-        LA: [30.95, -92.0],
-        FL: [27.6, -81.0],
-        MI: [43.6, -84.8],
-        MS: [32.9, -89.4],
-        VA: [37.6, -78.2],
-        KY: [37.5, -85.3],
-        MN: [46.0, -94.8],
-        NC: [35.7, -78.4]
+        AK: [64.5, -152.5], MA: [42.25, -71.8], CT: [41.55, -72.7],
+        NJ: [40.1, -74.5], ID: [43.4, -114.3], OK: [35.5, -96.5],
+        LA: [30.95, -92.0], FL: [27.6, -81.0], MI: [43.6, -84.8],
+        MS: [32.9, -89.4], VA: [37.6, -78.2], KY: [37.5, -85.3],
+        MN: [46.0, -94.8], NC: [35.7, -78.4]
     };
 
     function usaCreateStateLabels() {
         if (!usaMap) return;
-
         if (usaLabelLayer) usaLabelLayer.remove();
 
         usaLabelLayer = L.layerGroup().addTo(usaMap);
-
         const placed = new Set();
 
         const labelIcon = abbreviation => L.divIcon({
@@ -445,17 +582,10 @@ window.usaEliminationGame = (() => {
 
         function addCalloutElements(labelPosition, targetPosition, direction = 'down') {
             const group = L.layerGroup();
-
-            L.polyline([labelPosition, targetPosition], {
-                color: '#94a3b8',
-                weight: 1.2,
-                opacity: 0.95,
-                interactive: false
-            }).addTo(group);
+            L.polyline([labelPosition, targetPosition], { color: '#94a3b8', weight: 1.2, opacity: 0.95, interactive: false }).addTo(group);
 
             let borderStyle = 'border-top: 8px solid #94a3b8; border-left: 5px solid transparent; border-right: 5px solid transparent;';
             let anchor = [5, 0];
-
             if (direction === 'left') {
                 borderStyle = 'border-right: 8px solid #94a3b8; border-top: 5px solid transparent; border-bottom: 5px solid transparent;';
                 anchor = [0, 5];
@@ -468,13 +598,7 @@ window.usaEliminationGame = (() => {
                 iconAnchor: anchor
             });
 
-            L.marker(targetPosition, {
-                icon: arrowIcon,
-                interactive: false,
-                keyboard: false,
-                zIndexOffset: 1100
-            }).addTo(group);
-
+            L.marker(targetPosition, { icon: arrowIcon, interactive: false, keyboard: false, zIndexOffset: 1100 }).addTo(group);
             return group;
         }
 
@@ -487,17 +611,12 @@ window.usaEliminationGame = (() => {
                 if (key === 'HI' || key === 'PR') return;
 
                 placed.add(key);
-
                 const entryGroup = L.layerGroup();
 
                 if (usaNorthernCallouts[key]) {
                     const callout = usaNorthernCallouts[key];
-                    const calloutElements = addCalloutElements(L.latLng(...callout.label), L.latLng(...callout.target), 'down');
-                    calloutElements.addTo(entryGroup);
-
-                    const marker = L.marker(callout.label, { icon: northernLabelIcon(key), interactive: false, keyboard: false, zIndexOffset: 1200 });
-                    marker.addTo(entryGroup);
-
+                    addCalloutElements(L.latLng(...callout.label), L.latLng(...callout.target), 'down').addTo(entryGroup);
+                    L.marker(callout.label, { icon: northernLabelIcon(key), interactive: false, keyboard: false, zIndexOffset: 1200 }).addTo(entryGroup);
                     entry.labelGroup = entryGroup;
                     entryGroup.addTo(usaLabelLayer);
                     return;
@@ -505,12 +624,8 @@ window.usaEliminationGame = (() => {
 
                 if (usaNortheastCallouts[key]) {
                     const callout = usaNortheastCallouts[key];
-                    const calloutElements = addCalloutElements(L.latLng(...callout.label), L.latLng(...callout.target), 'left');
-                    calloutElements.addTo(entryGroup);
-
-                    const marker = L.marker(callout.label, { icon: outsideLabelIcon(key), interactive: false, keyboard: false, zIndexOffset: 1200 });
-                    marker.addTo(entryGroup);
-
+                    addCalloutElements(L.latLng(...callout.label), L.latLng(...callout.target), 'left').addTo(entryGroup);
+                    L.marker(callout.label, { icon: outsideLabelIcon(key), interactive: false, keyboard: false, zIndexOffset: 1200 }).addTo(entryGroup);
                     entry.labelGroup = entryGroup;
                     entryGroup.addTo(usaLabelLayer);
                     return;
@@ -520,14 +635,7 @@ window.usaEliminationGame = (() => {
                     ? L.latLng(...usaLabelPositionOverrides[key])
                     : entry.layer.getBounds().getCenter();
 
-                const marker = L.marker(statePosition, {
-                    icon: labelIcon(key),
-                    interactive: false,
-                    keyboard: false,
-                    zIndexOffset: 1000
-                });
-                marker.addTo(entryGroup);
-
+                L.marker(statePosition, { icon: labelIcon(key), interactive: false, keyboard: false, zIndexOffset: 1000 }).addTo(entryGroup);
                 entry.labelGroup = entryGroup;
                 entryGroup.addTo(usaLabelLayer);
             });
@@ -536,17 +644,10 @@ window.usaEliminationGame = (() => {
                 const dcEntry = usaEntries.find(e => (e.abbr || usaAbbreviationFromName(e.name)).toUpperCase() === 'DC');
                 const dcCallout = usaNortheastCallouts.DC;
                 const dcGroup = L.layerGroup();
-
-                const calloutElements = addCalloutElements(L.latLng(...dcCallout.label), L.latLng(...dcCallout.target), 'left');
-                calloutElements.addTo(dcGroup);
-
-                const dcMarker = L.marker(dcCallout.label, { icon: outsideLabelIcon('DC'), interactive: false, keyboard: false, zIndexOffset: 1200 });
-                dcMarker.addTo(dcGroup);
-
+                addCalloutElements(L.latLng(...dcCallout.label), L.latLng(...dcCallout.target), 'left').addTo(dcGroup);
+                L.marker(dcCallout.label, { icon: outsideLabelIcon('DC'), interactive: false, keyboard: false, zIndexOffset: 1200 }).addTo(dcGroup);
                 dcGroup.addTo(usaLabelLayer);
-                if (dcEntry) {
-                    dcEntry.labelGroup = dcGroup;
-                }
+                if (dcEntry) dcEntry.labelGroup = dcGroup;
             }
         }
 
@@ -570,31 +671,16 @@ window.usaEliminationGame = (() => {
                 const circleRadius = abbr === 'HI' ? 30 : 24;
 
                 const circleMarker = L.circleMarker(center, {
-                    radius: circleRadius,
-                    color: '#38bdf8',
-                    weight: 1.8,
-                    fillColor: '#1e293b',
-                    fillOpacity: 0.1,
-                    interactive: true,
-                    className: 'usa-island-circle'
+                    radius: circleRadius, color: '#38bdf8', weight: 1.8,
+                    fillColor: '#1e293b', fillOpacity: 0.1, interactive: true, className: 'usa-island-circle'
                 });
 
                 entry.circleMarker = circleMarker;
-
-                const labelPos = abbr === 'HI' 
-                    ? L.latLng(center.lat + 4.2, center.lng) 
-                    : L.latLng(center.lat + 3.8, center.lng);
-
+                const labelPos = abbr === 'HI' ? L.latLng(center.lat + 4.2, center.lng) : L.latLng(center.lat + 3.8, center.lng);
                 const entryGroup = L.layerGroup();
                 
                 if (!usaHardMode) {
-                    const labelMarker = L.marker(labelPos, {
-                        icon: labelIcon(abbr),
-                        interactive: false,
-                        keyboard: false,
-                        zIndexOffset: 1000
-                    });
-                    labelMarker.addTo(entryGroup);
+                    L.marker(labelPos, { icon: labelIcon(abbr), interactive: false, keyboard: false, zIndexOffset: 1000 }).addTo(entryGroup);
                 }
                 
                 entryGroup.addTo(usaLabelLayer);
@@ -612,12 +698,7 @@ window.usaEliminationGame = (() => {
                     const norm = usaNormalizeState(entry.name);
                     if (!usaLocked && !eliminatedStates.has(norm) && usaSelectedEntry !== entry) {
                         const isElim = eliminatedStates.has(norm);
-                        circleMarker.setStyle({
-                            color: isElim ? '#0f172a' : '#38bdf8',
-                            weight: 1.8,
-                            fillColor: isElim ? '#090d16' : '#1e293b',
-                            fillOpacity: isElim ? 0.05 : 0.1
-                        });
+                        circleMarker.setStyle({ color: isElim ? '#0f172a' : '#38bdf8', weight: 1.8, fillColor: isElim ? '#090d16' : '#1e293b', fillOpacity: isElim ? 0.05 : 0.1 });
                         entry.layer.setStyle({ color: isElim ? '#0f172a' : '#38bdf8', weight: 1.2 });
                     }
                 });
@@ -637,7 +718,7 @@ window.usaEliminationGame = (() => {
 
 
     // ============================================
-    // QUESTION PREPARATION
+    // QUESTION PREPARATION & HIGH SCORE
     // ============================================
 
     function usaGetAnswers(question) {
@@ -647,32 +728,20 @@ window.usaEliminationGame = (() => {
 
     function usaPrepareQuestions(bank) {
         const rawQuestions = Array.isArray(bank) ? bank : bank.questions;
-
-        if (!Array.isArray(rawQuestions) || !rawQuestions.length) {
-            throw new Error('No questions found in questions-usa-elimination.json.');
-        }
+        if (!Array.isArray(rawQuestions) || !rawQuestions.length) throw new Error('No questions found.');
 
         return rawQuestions.map(question => {
             if (!question.prompt || !question.rule?.list) return null;
-
             const answers = usaGetAnswers(question);
-
             const matchingEntries = usaEntries.filter(entry => {
                 const normName = usaNormalizeState(entry.name);
                 const normAbbr = usaNormalizeState(entry.abbr);
                 return answers.includes(normName) || answers.includes(normAbbr);
             });
-
             if (!matchingEntries.length) return null;
-
             return { ...question, matchingEntries };
         }).filter(Boolean);
     }
-
-
-    // ============================================
-    // HIGH SCORES
-    // ============================================
 
     function usaGetHighScore() {
         return usaHardMode ? usaHardHighScore : usaNormalHighScore;
@@ -691,15 +760,14 @@ window.usaEliminationGame = (() => {
             home.classList.add('hidden');
             home.style.display = 'none';
         }
-
         if (game) {
             game.classList.add('active');
             game.style.display = 'flex';
         }
 
         usaSound('blastOff');
-
         usaEnsureTimerElement();
+        usaEnsureHomeButtonInGame();
         usaApplyMilestones();
         usaSetRewardPanelVisible(false);
 
@@ -721,7 +789,6 @@ window.usaEliminationGame = (() => {
     async function usaInitializeGame() {
         try {
             usaSetPrompt('Loading Elimination USA map...');
-
             const response = await fetch(USA_MAP_FILE);
             if (!response.ok) throw new Error('Could not load us-states.geojson.');
 
@@ -730,7 +797,6 @@ window.usaEliminationGame = (() => {
 
             usaCreateMap(geoData);
             await usaLoadQuestions();
-
         } catch (error) {
             console.error('Elimination USA Error:', error);
             usaStopTimer();
@@ -743,34 +809,15 @@ window.usaEliminationGame = (() => {
         if (usaMap) return;
 
         usaEntries = [];
+        usaMap = L.map('map', { center: [37.8, -96], zoom: 4, minZoom: 3, maxZoom: 7, zoomControl: true, attributionControl: false });
 
-        usaMap = L.map('map', {
-            center: [37.8, -96],
-            zoom: 4,
-            minZoom: 3,
-            maxZoom: 7,
-            zoomControl: true,
-            attributionControl: false
-        });
-
-        const normalStyle = {
-            color: '#38bdf8',
-            weight: 1.2,
-            fillColor: '#1e293b',
-            fillOpacity: 0.95
-        };
+        const normalStyle = { color: '#38bdf8', weight: 1.2, fillColor: '#1e293b', fillOpacity: 0.95 };
 
         L.geoJSON(geoData, {
             style: () => normalStyle,
-
             onEachFeature: (feature, layer) => {
                 const properties = feature.properties || {};
-                const entry = {
-                    name: usaGetStateName(properties),
-                    abbr: usaGetStateAbbreviation(properties),
-                    layer
-                };
-
+                const entry = { name: usaGetStateName(properties), abbr: usaGetStateAbbreviation(properties), layer };
                 if (!entry.name) return;
                 usaEntries.push(entry);
 
@@ -803,18 +850,14 @@ window.usaEliminationGame = (() => {
     async function usaLoadQuestions() {
         try {
             usaSetPrompt('Loading Elimination questions...');
-
             const response = await fetch(USA_QUESTION_FILE + '?v=' + Date.now());
-            if (!response.ok) throw new Error('Could not load questions-usa-elimination.json.');
+            if (!response.ok) throw new Error('Could not load questions.');
 
             const bank = await response.json();
             usaQuestions = usaPrepareQuestions(bank);
             usaResetGame();
 
-            setTimeout(() => {
-                if (usaMap) usaMap.invalidateSize();
-            }, 150);
-
+            setTimeout(() => { if (usaMap) usaMap.invalidateSize(); }, 150);
         } catch (error) {
             console.error('Question Error:', error);
             usaStopTimer();
@@ -850,14 +893,11 @@ window.usaEliminationGame = (() => {
             const candidate = usaQuestionDeck.pop();
             if (usaHasRemainingAnswer(candidate)) return candidate;
         }
-
         usaResetDeck();
-
         while (usaQuestionDeck.length) {
             const candidate = usaQuestionDeck.pop();
             if (usaHasRemainingAnswer(candidate)) return candidate;
         }
-
         return null;
     }
 
@@ -934,6 +974,12 @@ window.usaEliminationGame = (() => {
         if (!nextQuestion) {
             usaCurrentQuestion = null;
             usaSound('win');
+
+            if (usaHardMode) {
+                let playerName = prompt("🎉 LUNAR LANDING SUCCESS!\nEnter your astronaut callsign for the leaderboard:", "Commander Cadet");
+                usaRecordHardModeClear(playerName);
+            }
+
             usaShowModal('🎉 LUNAR LANDING SUCCESS!', `Incredible! Items eliminated: ${eliminatedStates.size} / 52 (238,900 Miles Reached!)`, true, true);
             return;
         }
@@ -1021,6 +1067,10 @@ window.usaEliminationGame = (() => {
 
             if (eliminatedStates.size >= 52) {
                 usaSound('win');
+                if (usaHardMode) {
+                    let playerName = prompt("🎉 LUNAR LANDING SUCCESS!\nEnter your astronaut callsign for the leaderboard:", "Commander Cadet");
+                    usaRecordHardModeClear(playerName);
+                }
                 usaShowModal('🎉 TOUCHDOWN ON THE MOON!', `${autoNote}${selected.name} was correct! You reached the Moon (238,900 mi) by eliminating all 52 locations!`, true, true);
             } else {
                 usaSound('correct');
@@ -1159,6 +1209,10 @@ window.usaEliminationGame = (() => {
             }
         }
 
+        if (window.refreshHomeHighScore) {
+            window.refreshHomeHighScore();
+        }
+
         usaUpdateRocket();
     }
 
@@ -1191,14 +1245,8 @@ window.usaEliminationGame = (() => {
         style.id = 'usa-modal-anim-style';
         style.textContent = `
             @keyframes modalSwoosh {
-                0% {
-                    transform: translateY(-80px);
-                    opacity: 0;
-                }
-                100% {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
+                0% { transform: translateY(-80px); opacity: 0; }
+                100% { transform: translateY(0); opacity: 1; }
             }
             .usa-modal-content-animated {
                 animation: modalSwoosh 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -1267,10 +1315,19 @@ window.usaEliminationGame = (() => {
     }
 
 
+    // Render leaderboard on script initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        usaRenderLeaderboard();
+    });
+
+
     // Publicly Exposed API
     return {
         setHardMode(on) {
             usaHardMode = !!on;
+            if (window.refreshHomeHighScore) {
+                window.refreshHomeHighScore();
+            }
             if (usaMap) {
                 usaCreateStateLabels();
             }
