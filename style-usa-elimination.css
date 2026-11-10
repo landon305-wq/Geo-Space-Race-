@@ -1086,3 +1086,81 @@ body {
 .rocket-object {
     pointer-events: none;
 }
+
+
+/* ==========================================
+   MOBILE RESPONSIVE OVERRIDES (PHONE VS COMPUTER)
+========================================== */
+
+@media (max-width: 768px) {
+    body {
+        overflow: auto;
+        height: auto;
+    }
+
+    .screen {
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    .workspace {
+        flex-direction: column;
+    }
+
+    /* Hide decorative sidebars on mobile screens to give the map full screen space */
+    .space-sidebar,
+    .right-sidebar {
+        display: none !important;
+    }
+
+    /* Streamline HUD layout for mobile phones */
+    .hud {
+        height: auto;
+        min-height: 60px;
+        padding: 8px 12px;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .hud-item {
+        font-size: 0.9rem;
+    }
+
+    .prompt-box {
+        font-size: 0.95rem;
+        padding: 8px 12px;
+        order: 3;
+        width: 100%;
+        max-width: none;
+    }
+
+    /* Expand map to fill available screen height and width */
+    #map {
+        width: 100vw;
+        flex: 1;
+        min-height: 50vh;
+    }
+
+    /* Adjust modals for mobile device dimensions */
+    .modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+
+    .modal-content h2 {
+        font-size: 1.4rem;
+    }
+
+    /* Home card mobile scaling */
+    .home-card {
+        padding: 20px;
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .glow-title {
+        font-size: 1.8rem;
+    }
+}
