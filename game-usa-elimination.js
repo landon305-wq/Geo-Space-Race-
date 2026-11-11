@@ -16,30 +16,33 @@ window.usaEliminationGame = (() => {
     const SUPABASE_URL = 'https://ccjlpsapefnnikbschpj.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_q1GbjeHYP7X3Z3DTz4Eftg_0L2toKwO';
 
-    // Initialize Supabase Client
     let supabaseClient = null;
     let currentUserId = null;
     let playerCallsign = localStorage.getItem('astro_geo_player_callsign') || '';
 
     if (window.supabase && SUPABASE_URL && SUPABASE_KEY) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        initAuth();
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            initAuth();
+        } catch (e) {
+            console.warn('[Leaderboard] Supabase init warning:', e);
+        }
     }
 
     async function initAuth() {
+        if (!supabaseClient) return;
         try {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 currentUserId = session.user.id;
             } else {
                 const { data, error } = await supabaseClient.auth.signInAnonymously();
-                if (error) console.error('[Leaderboard] Anonymous sign-in failed:', error);
-                if (data && data.user) {
+                if (!error && data && data.user) {
                     currentUserId = data.user.id;
                 }
             }
         } catch (err) {
-            console.warn('Anonymous auth initialization failed:', err);
+            console.warn('Anonymous auth failed:', err);
         }
     }
 
@@ -50,7 +53,6 @@ window.usaEliminationGame = (() => {
     let usaQuestionDeck = [];
 
     let eliminatedStates = new Set();
-
     let usaCurrentQuestion = null;
     let usaSelectedEntry = null;
 
@@ -61,7 +63,6 @@ window.usaEliminationGame = (() => {
     let usaTimer = null;
     let usaTimeLeft = USA_QUESTION_TIME;
 
-    // Persistent Storage Keys
     const USA_NORMAL_KEY = 'astro_geo_usa_elim_states_highscore';
     const USA_HARD_KEY = 'astro_geo_usa_elim_states_hard_highscore';
     const USA_LOCAL_LB_KEY = 'astro_geo_usa_elim_leaderboard';
@@ -80,11 +81,9 @@ window.usaEliminationGame = (() => {
     ];
     let usaOriginalMilestones = null;
 
-
     // ============================================
-    // CUSTOM SYNTHESIZED SOUND ENGINE
+    // SYNTHESIZED SOUND ENGINE
     // ============================================
-
     let audioCtx = null;
 
     function getAudioContext() {
@@ -99,121 +98,110 @@ window.usaEliminationGame = (() => {
     }
 
     function usaSound(type) {
-        const ctx = getAudioContext();
-        if (!ctx) return;
-        const now = ctx.currentTime;
+        try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
 
-        if (type === 'select' || type === 'confirm') {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(440, now);
-            osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-            gain.gain.setValueAtTime(0.12, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.08);
-        } 
-        else if (type === 'blastOff') {
-            [150, 225, 300].forEach((baseFreq, i) => {
+            if (type === 'select' || type === 'confirm') {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                osc.type = i === 0 ? 'sine' : 'triangle';
-                osc.frequency.setValueAtTime(baseFreq, now);
-                osc.frequency.exponentialRampToValueAtTime(baseFreq * 2.5, now + 0.8);
-                gain.gain.setValueAtTime(0.01, now);
-                gain.gain.linearRampToValueAtTime(0.1, now + 0.3);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start(now);
-                osc.stop(now + 1.2);
-            });
-        }
-        else if (type === 'correct') {
-            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                osc.stop(now + 0.08);
+            } 
+            else if (type === 'blastOff') {
+                [150, 225, 300].forEach((baseFreq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = i === 0 ? 'sine' : 'triangle';
+                    osc.frequency.setValueAtTime(baseFreq, now);
+                    osc.frequency.exponentialRampToValueAtTime(baseFreq * 2.5, now + 0.8);
+                    gain.gain.setValueAtTime(0.01, now);
+                    gain.gain.linearRampToValueAtTime(0.1, now + 0.3);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 1.2);
+                });
+            }
+            else if (type === 'correct') {
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const noteTime = now + i * 0.08;
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, noteTime);
+                    gain.gain.setValueAtTime(0, noteTime);
+                    gain.gain.linearRampToValueAtTime(0.15, noteTime + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(noteTime);
+                    osc.stop(noteTime + 0.25);
+                });
+            } 
+            else if (type === 'win') {
+                const notes = [
+                    { f: 523.25, t: 0.0, d: 0.15 }, { f: 659.25, t: 0.15, d: 0.15 },
+                    { f: 783.99, t: 0.3, d: 0.15 }, { f: 1046.50, t: 0.45, d: 0.3 },
+                    { f: 783.99, t: 0.75, d: 0.15 }, { f: 1046.50, t: 0.9, d: 0.6 }
+                ];
+                notes.forEach(note => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const noteTime = now + note.t;
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(note.f, noteTime);
+                    gain.gain.setValueAtTime(0, noteTime);
+                    gain.gain.linearRampToValueAtTime(0.18, noteTime + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.001, noteTime + note.d);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(noteTime);
+                    osc.stop(noteTime + note.d);
+                });
+            }
+            else if (type === 'wrong') {
+                usaPlayWrongSound();
+            } 
+            else if (type === 'gameover') {
+                [440, 415.3, 369.99, 329.63].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const noteTime = now + i * 0.15;
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, noteTime);
+                    gain.gain.setValueAtTime(0, noteTime);
+                    gain.gain.linearRampToValueAtTime(0.18, noteTime + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(noteTime);
+                    osc.stop(noteTime + 0.3);
+                });
+            }
+            else if (type === 'tick' || type === 'tickHigh') {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                const noteTime = now + i * 0.08;
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, noteTime);
-                gain.gain.setValueAtTime(0, noteTime);
-                gain.gain.linearRampToValueAtTime(0.15, noteTime + 0.02);
-                gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.25);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(noteTime);
-                osc.stop(noteTime + 0.25);
-            });
-        } 
-        else if (type === 'win') {
-            const notes = [
-                { f: 523.25, t: 0.0, d: 0.15 }, { f: 659.25, t: 0.15, d: 0.15 },
-                { f: 783.99, t: 0.3, d: 0.15 }, { f: 1046.50, t: 0.45, d: 0.3 },
-                { f: 783.99, t: 0.75, d: 0.15 }, { f: 1046.50, t: 0.9, d: 0.6 }
-            ];
-            notes.forEach(note => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                const noteTime = now + note.t;
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(note.f, noteTime);
-                gain.gain.setValueAtTime(0, noteTime);
-                gain.gain.linearRampToValueAtTime(0.18, noteTime + 0.03);
-                gain.gain.exponentialRampToValueAtTime(0.001, noteTime + note.d);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(noteTime);
-                osc.stop(noteTime + note.d);
-            });
-        }
-        else if (type === 'wrong') {
-            usaPlayWrongSound();
-        } 
-        else if (type === 'modalPop') {
-            [300, 450].forEach((freq, i) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                const t = now + i * 0.08;
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(freq, t);
-                gain.gain.setValueAtTime(0.08, t);
-                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(t);
-                osc.stop(t + 0.15);
-            });
-        }
-        else if (type === 'gameover') {
-            [440, 415.3, 369.99, 329.63].forEach((freq, i) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                const noteTime = now + i * 0.15;
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, noteTime);
-                gain.gain.setValueAtTime(0, noteTime);
-                gain.gain.linearRampToValueAtTime(0.18, noteTime + 0.03);
-                gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.3);
+                osc.frequency.setValueAtTime(type === 'tickHigh' ? 880 : 440, now);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
-                osc.start(noteTime);
-                osc.stop(noteTime + 0.3);
-            });
-        }
-        else if (type === 'tick' || type === 'tickHigh') {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(type === 'tickHigh' ? 880 : 440, now);
-            gain.gain.setValueAtTime(0.05, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            }
+        } catch (e) {
+            // Audio policy fallback
         }
     }
 
@@ -221,35 +209,28 @@ window.usaEliminationGame = (() => {
         const ctx = getAudioContext();
         if (!ctx) return;
         const now = ctx.currentTime;
-        [
-            { start: 130, end: 90, delay: 0, duration: 0.35 },
-            { start: 110, end: 70, delay: 0.38, duration: 0.55 }
-        ].forEach(tone => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            const t = now + tone.delay;
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(tone.start, t);
-            osc.frequency.exponentialRampToValueAtTime(tone.end, t + tone.duration);
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.25, t + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + tone.duration);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(t);
-            osc.stop(t + tone.duration);
-        });
+        // Increased volume gain here (0.4) so it matches the other sound effects cleanly
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(130, now + 0.25);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.4, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.28);
     }
 
     function usaGet(id) {
         return document.getElementById(id);
     }
 
-
     // ============================================
-    // SECURE CLOUD & LOCAL LEADERBOARD ENGINE
+    // LEADERBOARD & STORAGE
     // ============================================
-
     function usaGetLocalLeaderboard() {
         try {
             return JSON.parse(localStorage.getItem(USA_LOCAL_LB_KEY)) || [];
@@ -266,7 +247,6 @@ window.usaEliminationGame = (() => {
                     .select('*')
                     .order('clears', { ascending: false })
                     .limit(10);
-                if (error) console.error('[Leaderboard] Fetch failed:', error);
                 if (!error && data) return data;
             } catch (err) {
                 console.warn('Cloud leaderboard fetch failed:', err);
@@ -283,18 +263,14 @@ window.usaEliminationGame = (() => {
         }
 
         if (!currentUserId && supabaseClient) {
-            const { data } = await supabaseClient.auth.getSession();
-            if (data && data.session) currentUserId = data.session.user.id;
-        }
-        if (!currentUserId && supabaseClient) {
-            await initAuth(); // retry sign-in if it failed earlier
-        }
-        if (!currentUserId) {
-            console.error('[Leaderboard] No user ID - score NOT saved to cloud. Check API key / anonymous sign-ins.');
+            try {
+                const { data } = await supabaseClient.auth.getSession();
+                if (data && data.session) currentUserId = data.session.user.id;
+                else await initAuth();
+            } catch (e) {}
         }
 
         const currentDate = new Date().toLocaleDateString();
-
         let board = usaGetLocalLeaderboard();
         let existing = board.find(entry => entry.name.toLowerCase() === playerCallsign.toLowerCase());
         if (existing) {
@@ -308,29 +284,23 @@ window.usaEliminationGame = (() => {
 
         if (supabaseClient && currentUserId) {
             try {
-                const { data: rows, error: selErr } = await supabaseClient
+                const { data: rows } = await supabaseClient
                     .from('usa_leaderboard')
                     .select('clears')
                     .eq('user_id', currentUserId);
-                if (selErr) console.error('[Leaderboard] Select failed:', selErr);
 
                 if (rows && rows.length > 0) {
-                    const newClears = rows[0].clears + 1;
-                    const { error: updErr } = await supabaseClient
+                    await supabaseClient
                         .from('usa_leaderboard')
-                        .update({ clears: newClears, name: playerCallsign, updated_at: new Date() })
+                        .update({ clears: rows[0].clears + 1, name: playerCallsign, updated_at: new Date() })
                         .eq('user_id', currentUserId);
-                    if (updErr) console.error('[Leaderboard] Update failed:', updErr);
-                    else console.log('[Leaderboard] Score updated in cloud.');
                 } else {
-                    const { error: insErr } = await supabaseClient
+                    await supabaseClient
                         .from('usa_leaderboard')
                         .insert([{ user_id: currentUserId, name: playerCallsign, clears: 1, mode: 'hard', updated_at: new Date() }]);
-                    if (insErr) console.error('[Leaderboard] Insert failed:', insErr);
-                    else console.log('[Leaderboard] New score saved to cloud.');
                 }
             } catch (err) {
-                console.warn('Failed to sync score securely to cloud:', err);
+                console.warn('Cloud sync failed:', err);
             }
         }
     }
@@ -338,14 +308,14 @@ window.usaEliminationGame = (() => {
     async function usaBuildLeaderboardHTML() {
         const board = await usaGetLeaderboard();
         if (!board || board.length === 0) {
-            return '<p style="text-align: center; color: var(--text-muted); margin: 10px 0;">No hard mode moon landings recorded yet.</p>';
+            return '<p style="text-align: center; color: #94a3b8; margin: 10px 0;">No hard mode moon landings recorded yet.</p>';
         }
         let html = '<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">';
         html += '<tr style="color: #38bdf8; border-bottom: 1px solid #1e293b;"><th style="text-align: left; padding: 6px;">Astronaut</th><th style="text-align: right; padding: 6px;">Moon Landings</th></tr>';
         board.forEach((entry, idx) => {
             html += `<tr style="border-bottom: 1px solid rgba(30, 41, 59, 0.5);">
-                <td style="padding: 8px 6px;">${idx + 1}. ${escapeHtml(entry.name)}</td>
-                <td style="text-align: right; padding: 8px 6px; color: #22c55e; font-weight: bold;">${entry.clears}</td>
+                <td style="padding: 8px 6px; color: #f8fafc;">${idx + 1}. ${escapeHtml(entry.name || 'Anonymous')}</td>
+                <td style="text-align: right; padding: 8px 6px; color: #22c55e; font-weight: bold;">${entry.clears || 1}</td>
             </tr>`;
         });
         html += '</table>';
@@ -353,14 +323,12 @@ window.usaEliminationGame = (() => {
     }
 
     function escapeHtml(str) {
-        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-
     // ============================================
-    // MILES TO THE MOON MILESTONES WITH ART
+    // MILESTONES & HUD
     // ============================================
-
     function usaApplyMilestones() {
         const track = document.querySelector('.space-track');
         if (!track) return;
@@ -412,11 +380,6 @@ window.usaEliminationGame = (() => {
         usaOriginalMilestones = null;
     }
 
-
-    // ============================================
-    // RIGHT SIDEBAR & HOME RETURN BUTTON
-    // ============================================
-
     function usaSetRewardPanelVisible(visible) {
         const panel = document.querySelector('.right-sidebar');
         if (panel) panel.style.display = visible ? '' : 'none';
@@ -448,11 +411,9 @@ window.usaEliminationGame = (() => {
         }
     }
 
-
     // ============================================
-    // STATE ABBREVIATIONS & ALIASES
+    // STATE MAPPING & GAME LOGIC
     // ============================================
-
     const usaStateAliases = {
         AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas',
         CA: 'California', CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware',
@@ -526,9 +487,7 @@ window.usaEliminationGame = (() => {
             usaLabelLayer = L.layerGroup().addTo(usaMap);
         }
 
-        // Reset label references on entries
         usaEntries.forEach(e => { e.labelGroup = null; });
-
         const placed = new Set();
 
         const labelIcon = abbreviation => L.divIcon({
@@ -838,7 +797,6 @@ window.usaEliminationGame = (() => {
                 fillOpacity: isElim ? 0.3 : 0.95
             });
 
-            // Hide/remove label & pointer arrows for eliminated states, recreate/show for active ones
             if (entry.labelGroup) {
                 if (isElim || usaHardMode) {
                     if (usaLabelLayer && usaLabelLayer.hasLayer(entry.labelGroup)) {
@@ -885,7 +843,6 @@ window.usaEliminationGame = (() => {
     function usaHandleStateClick(entry) {
         if (usaLocked || !usaCurrentQuestion) return;
         
-        // Reset color of previously selected state if changed
         if (usaSelectedEntry && usaSelectedEntry !== entry) {
             const prevNorm = usaNormalizeState(usaSelectedEntry.name);
             if (!eliminatedStates.has(prevNorm)) {
@@ -919,7 +876,6 @@ window.usaEliminationGame = (() => {
             selected.layer.setStyle({ color: '#22c55e', weight: 2.5, fillColor: '#22c55e', fillOpacity: 1 });
             usaUpdateStatus();
             
-            // Immediately clear out label and arrows upon successful elimination
             if (selected.labelGroup && usaLabelLayer && usaLabelLayer.hasLayer(selected.labelGroup)) {
                 usaLabelLayer.removeLayer(selected.labelGroup);
             }
@@ -1044,6 +1000,7 @@ window.usaEliminationGame = (() => {
             document.body.appendChild(modal);
         }
         modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); display: flex !important; align-items: center; justify-content: center; z-index: 99999; pointer-events: auto;';
+        modal.classList.remove('hidden');
         const borderColor = isCorrect ? '#22c55e' : '#ef4444';
 
         modal.innerHTML = `
@@ -1058,6 +1015,7 @@ window.usaEliminationGame = (() => {
         if (actionBtn) {
             actionBtn.onclick = () => {
                 modal.style.display = 'none';
+                modal.classList.add('hidden');
                 modal.style.pointerEvents = 'none';
                 
                 if (gameOver || usaLives <= 0) {
@@ -1072,10 +1030,6 @@ window.usaEliminationGame = (() => {
             };
         }
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (window.refreshHomeHighScore) window.refreshHomeHighScore();
-    });
 
     return {
         setHardMode(on) {
