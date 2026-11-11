@@ -507,6 +507,78 @@
       "category": "US States",
       "prompt": "Click a state, district, or territory that have one of the top 10 largest airports based on total amount of travelers per year",
       "rule": { "list": ["Georgia", "Texas", "Colorado", "Illinois", "California", "New York", "Florida", "Washington"] }
-    }
+    },
+    {
+      "id": 89,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory whose capital city is named after a USA president",
+      "rule": { "list": ["Nebraska", "Wisconsin", "Missouri", "Mississippi"] }
+    },
+    {
+      "id": 90,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that the Calorado River flows through.",
+      "rule": { "list": ["Colorado", "Arizona", "Utah", "California", "Nevada"] }
+    },
+    {
+      "id": 91,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that does not have and indigenous peoples reservation.",
+      "rule": { "list": ["Oregon", "Ohio", "Indiana", "Illinois", "Missouri", "Arkansas", "Kentucky", "Tennessee", "Georgia", "West Virginia", "Pennsylvania", "Maryland", "Puerto Rico", "District of Columbia", "New Jersey", "Delaware", "Vermont", "New Hampshire", "Hawaii"] }
+    },
+    {
+      "id": 92,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that has a Nascar national series track.",
+      "rule": { "list" : ["North Carolina", "Florida", "California", "Illinois", "Indiana", "Tennessee", "Texas", "Virginia", "Alabama", "Arizona", "Connecticut", "Delaware", "Georgia", "Iowa", "Kansas", "Michigan", "Nevada", "New Hampshire", "New York", "Pennsylvania", "South Carolina" ]}
+    },
+    {
+      "id": 93,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that boardres the Graet Lakes.",
+      "rule": { "list" : ["Minnesota", "Wisconsin", "Michigan", "Illinois", "Indiana", "Ohio", "Pennsylvania", "New York"] }
+    },
+    {
+      "id": 94,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory whose boarder is not defined by a river.",
+      "rule": { "list" : ["Massachusetts", "Puerto Rico", "Hawaii", "Alaska", "Wyoming", "Utah", "Colorado", "Montana"] }
+      },
+      {
+      "id": 95,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that drains into the Hudson Bay.",
+      "rule": { "list" : ["Montana", "Minnesota", "South Dakota", "North Dakota"] }
+      },
+      {
+      "id": 96,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that drains into the Pacific Ocean.",
+      "rule": { "list" : ["Montana", "Idaho", "Washington", "Alaska", "Hawaii", "California", "Oregon", "Arizona", "Nevada", "Utah", "Colorado", "New Mexico"] }
+      },
+      {
+      "id": 97,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that Route 66 runs through.",
+      "rule": { "list" : ["California", "Arizona", "New Mexico", "Texas", "Oklahoma", "Kansas", "Missouri", "Illinois"] }
+      },
+      {
+      "id": 98,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that does not have a Casino.",
+      "rule": { "list" : ["Vermont", "Utah", "Hawaii", "South Carolina", "Georgia", "Tennessee", "District of Columbia"] }
+      },
+      {
+      "id": 99,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that ends with a vowel.",
+      "rule": { "list" : ["California", "South Carolina", "North Carolina", "North Dakota", "South Dakota","Idaho", "Alabama", "Alaska", "Hawaii", "Puerto Rico", "Delaware", "District of Columbia", "Nevada", "Colorado", "Arizona", "New Hampshire", "New Mexico", "Ohio", "Indiana", "West Virginia", "Virginia", "Mississippi", "Missouri", "Iowa", "Nebraska", "Louisiana", "Georgia", "Florida", "Tennessee", "Pennsylvania", "Maine"] }
+      },
+      {
+      "id": 100,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that ranks among the top 10 most square.",
+      "rule": { "list" : ["Wyoming", "Colorado", "Kansas", "North Dakota", "South Dakota", "Pennsylvania", "New Mexico", "Oregon", "Arizona", "Montana"] }
+      }
   ]
 }
