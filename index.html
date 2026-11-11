@@ -546,6 +546,13 @@
 
                 </div>
 
+                <!-- DISPUTE BUTTON -->
+                <div style="margin-top: 20px; text-align: center;">
+                    <a id="dispute-btn" class="space-btn secondary-btn" href="mailto:your-support-email@domain.com?subject=Geo-Spacerace%20Answer%20Dispute&body=Question%20in%20dispute:%0A%0AReason/Source:" target="_blank" style="text-decoration: none; font-size: 13px; display: block; padding: 10px;">
+                        REPORT DISPUTE 🚩
+                    </a>
+                </div>
+
             </aside>
 
         </div>
@@ -558,18 +565,29 @@
 <!-- FEEDBACK MODAL -->
 <div id="feedback-modal" class="modal hidden">
 
-    <div class="modal-content">
+    <div class="modal-content" style="text-align: center;">
 
-        <h2 id="feedback-title">
-            MISSION TERMINATED
+        <h2 id="feedback-title" style="color: #ff4d4d; font-family: 'Orbitron', sans-serif;">
+            INCORRECT ANSWER
         </h2>
 
-        <p id="feedback-desc">
+        <!-- QUESTION DISPLAY CONTAINER -->
+        <div id="modal-question-display" style="margin: 10px 0; font-family: 'Rajdhani', sans-serif; font-size: 18px; color: #a5f3fc;">
+            Target was: <span id="modal-target-question" style="font-weight: bold; color: #ffffff;">-</span>
+        </div>
+
+        <p id="feedback-desc" style="margin: 10px 0; font-family: 'Rajdhani', sans-serif; font-size: 16px;">
             Fuel reserves depleted or incorrect sector breached.
         </p>
 
-        <button id="modal-action-btn" class="space-btn">
-            RE-ENGAGE THRUSTERS
+        <!-- SHOW ANSWER BUTTON & REVEAL SECTION -->
+        <div id="modal-answer-container" style="margin: 15px 0;">
+            <button id="show-answer-btn" class="space-btn secondary-btn" style="font-size: 13px; padding: 8px 14px; cursor: pointer;">SHOW CORRECT ANSWER</button>
+            <div id="answer-reveal-text" style="font-family: 'Orbitron', sans-serif; color: #38bdf8; font-size: 16px; font-weight: bold; margin-top: 10px; display: none;"></div>
+        </div>
+
+        <button id="modal-action-btn" class="space-btn" style="margin-top: 10px;">
+            NEXT QUESTION
         </button>
 
     </div>
@@ -788,6 +806,38 @@ closeLeaderboardBtn.addEventListener('click', () => {
     initAudio();
     leaderboardModal.classList.add('hidden');
 });
+
+
+// SHOW ANSWER BUTTON & QUESTION REVEAL LOGIC
+const showAnswerBtn = document.getElementById('show-answer-btn');
+const answerRevealText = document.getElementById('answer-reveal-text');
+const modalTargetQuestion = document.getElementById('modal-target-question');
+const modalAnswerContainer = document.getElementById('modal-answer-container');
+
+showAnswerBtn.addEventListener('click', () => {
+    initAudio();
+    answerRevealText.style.display = 'block';
+    showAnswerBtn.style.display = 'none';
+});
+
+// Helper function for your game engine script to populate the question and correct answer text when opening the modal
+window.setupModalAnswerReveal = function(questionText, correctAnswerString) {
+    if (questionText) {
+        modalTargetQuestion.textContent = questionText;
+        document.getElementById('modal-question-display').style.display = 'block';
+    } else {
+        document.getElementById('modal-question-display').style.display = 'none';
+    }
+
+    if (correctAnswerString) {
+        answerRevealText.textContent = `CORRECT ANSWER: ${correctAnswerString}`;
+        answerRevealText.style.display = 'none';
+        showAnswerBtn.style.display = 'inline-block';
+        modalAnswerContainer.style.display = 'block';
+    } else {
+        modalAnswerContainer.style.display = 'none';
+    }
+};
 
 </script>
 
