@@ -209,7 +209,6 @@ window.usaEliminationGame = (() => {
         const ctx = getAudioContext();
         if (!ctx) return;
         const now = ctx.currentTime;
-        // Increased volume gain here (0.4) so it matches the other sound effects cleanly
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
@@ -1003,13 +1002,51 @@ window.usaEliminationGame = (() => {
         modal.classList.remove('hidden');
         const borderColor = isCorrect ? '#22c55e' : '#ef4444';
 
+        // Extract correct answers from current question if incorrect
+        let correctAnswersText = '';
+        if (!isCorrect && usaCurrentQuestion && usaCurrentQuestion.matchingEntries) {
+            correctAnswersText = usaCurrentQuestion.matchingEntries.map(e => e.name).join(', ');
+        }
+        const currentPromptText = usaCurrentQuestion ? usaCurrentQuestion.prompt : '';
+
+        // Build HTML for the Question, Show Answer, and Dispute Button Section targeting GeoSpaceRace2026@gmail.com
+        let answerSectionHTML = '';
+        if (!isCorrect && !gameOver && correctAnswersText) {
+            const disputeSubject = encodeURIComponent("Geo-Spacerace Question Dispute");
+            const disputeBody = encodeURIComponent(`Hello Landon,\n\nI would like to report an issue with this question:\n"${currentPromptText}"\n\nReason/Source:`);
+
+            answerSectionHTML = `
+                <div style="margin: 12px 0; padding: 12px; background: rgba(56, 189, 248, 0.08); border: 1px dashed #38bdf8; border-radius: 6px; text-align: left;">
+                    <div style="font-size: 13px; color: #38bdf8; font-family: 'Rajdhani', sans-serif; margin-bottom: 6px;"><strong>Target Question:</strong> ${escapeHtml(currentPromptText)}</div>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px;">
+                        <button id="modal-show-ans-btn" style="background: transparent; color: #38bdf8; border: 1px solid #38bdf8; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;">SHOW ANSWERS</button>
+                        <a href="mailto:GeoSpaceRace2026@gmail.com?subject=${disputeSubject}&body=${disputeBody}" target="_blank" style="background: transparent; color: #f87171; border: 1px solid #f87171; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block;">REPORT DISPUTE 🚩</a>
+                    </div>
+                    <div id="modal-revealed-ans" style="display: none; margin-top: 8px; font-size: 13px; color: #22c55e; font-weight: bold; font-family: 'Rajdhani', sans-serif;">Correct Answer(s): ${escapeHtml(correctAnswersText)}</div>
+                </div>
+            `;
+        }
+
         modal.innerHTML = `
-            <div style="background: #0f172a; border: 2px solid ${borderColor}; border-radius: 12px; padding: 30px; text-align: center; max-width: 400px; width: 90%; color: #f8fafc; font-family: inherit;">
+            <div style="background: #0f172a; border: 2px solid ${borderColor}; border-radius: 12px; padding: 25px; text-align: center; max-width: 440px; width: 90%; color: #f8fafc; font-family: inherit;">
                 <h2 style="margin-top: 0; color: ${borderColor};">${title}</h2>
-                <p style="margin: 20px 0; color: #cbd5e1; line-height: 1.5;">${description}</p>
-                <button id="modal-action-btn" style="background: ${borderColor}; color: #0f172a; border: none; padding: 10px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 16px;">${gameOver ? 'Return to Home' : 'Next Question'}</button>
+                <p style="margin: 10px 0; color: #cbd5e1; line-height: 1.4; font-size: 15px;">${description}</p>
+                ${answerSectionHTML}
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button id="modal-action-btn" style="background: ${borderColor}; color: #0f172a; border: none; padding: 10px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px;">${gameOver ? 'Return to Home' : 'Next Question'}</button>
+                </div>
             </div>
         `;
+
+        // Wire up the Show Answer toggle button
+        const showAnsBtn = modal.querySelector('#modal-show-ans-btn');
+        const revealedDiv = modal.querySelector('#modal-revealed-ans');
+        if (showAnsBtn && revealedDiv) {
+            showAnsBtn.onclick = () => {
+                revealedDiv.style.display = 'block';
+                showAnsBtn.style.display = 'none';
+            };
+        }
 
         const actionBtn = modal.querySelector('#modal-action-btn');
         if (actionBtn) {
