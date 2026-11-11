@@ -501,6 +501,12 @@
       "category":"US Animals",
       "prompt": "Click a state, district, or territory that does NOT have a national park.",
       "rule": { "list": ["Alabama","Puerto Rico", "District of Columbia", "New Hampshire", "Vermont", "New York", "Pennsylvania", "Rhode Island", "Delaware", "Connecticut", "New Jersey", "Maryland", "Georgia", "Mississippi", "Louisiana", "Oklahoma", "Kansas", "Nebraska", "Iowa", "Wisconsin","Illinois"]}
+    },
+    {
+      "id": 88,
+      "category": "US States"'
+      "prompt": "Click a state, district, or territory that have one of the top 10 largest airports based on total amount of travelers per year",
+      "rule": { "list": ["Georgia", "Texas", "Colorado", "Illinois", "California", "New York", "Florida", "Washington"] }
     }
   ]
 }
