@@ -504,7 +504,7 @@
     },
     {
       "id": 88,
-      "category": "US States"'
+      "category": "US States",
       "prompt": "Click a state, district, or territory that have one of the top 10 largest airports based on total amount of travelers per year",
       "rule": { "list": ["Georgia", "Texas", "Colorado", "Illinois", "California", "New York", "Florida", "Washington"] }
     }
