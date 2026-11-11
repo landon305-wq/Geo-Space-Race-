@@ -367,8 +367,8 @@
     {
       "id": 65,
       "category": "US Geography",
-      "prompt": "Click a state, district, or territory that rank among the top 6 tallest states. (Average height of the population)",
-      "rule": { "list": ["Montana", "South Dakota", "Utah", "Nebraska", "Kansas", "Iowa"] }
+      "prompt": "Click a state, district, or territory that has a building taller than 1,000 feet (305 meters)",
+      "rule": { "list": ["New York", "California", "Georgia", "Illinois", "Pennsylvania", "Texas"  ] }
     },
     {
       "id": 66,
@@ -483,6 +483,23 @@
       "category":"US Population",
       "prompt": "Click a state, district, or territory that has over 4 FBS division 1 college football universities (As of 2026).",
       "rule": { "list": ["Ohio", "California", "Texas", "Florida", "Louisiana", "Michigan", "North Carolina"] }
+    },
+    {
+      "id": 85,
+      "category":"US Population",
+      "prompt": "Click a state, district, or territory that I-75 passes through",
+      "rule": { "list": ["Michigan", "Ohio", "Kentucky", "Tennessee", "Georgia", "florida"] }
+    },
+      "id": 86,
+      "category":"US States",
+      "prompt": "Click a state, district, or territory that was one of the original 13 colonies.", 
+      "rule": { "list": ["Delaware", "Pennsylvania", "New Jersey", "Georgia", "Connecticut", "Massachusetts", "Maryland", "South Carolina", "New Hampshire", "Virginia", "New York", "North Carolina", "Rhode Island"] }
+    },
+    {
+      "id": 87,
+      "category":"US Animals",
+      "prompt": "Click a state, district, or territory that does NOT have a national park.",
+      "rule": { "list": ["Alabama","Puerto Rico", "District of Columbia", "New Hampshire", "Vermont", "New York", "Pennsylvania", "Rhode Island", "Delaware", "Connecticut", "New Jersey", "Maryland", "Georgia", "Mississippi", "Louisiana", "Oklahoma", "Kansas", "Nebraska", "Iowa", "Wisconsin","Illinois"]}
     }
   ]
 }
