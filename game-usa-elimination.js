@@ -320,42 +320,23 @@ window.usaEliminationGame = (() => {
                 console.warn('Failed to sync score securely to cloud:', err);
             }
         }
-
-        usaRenderLeaderboard();
     }
 
-    async function usaRenderLeaderboard() {
-        let container = usaGet('usa-leaderboard-card');
-        if (!container) {
-            const homeCard = document.querySelector('.home-card');
-            if (homeCard) {
-                container = document.createElement('div');
-                container.id = 'usa-leaderboard-card';
-                container.style.cssText = 'margin-top: 20px; background: rgba(2, 6, 23, 0.7); border: 1px solid #38bdf8; border-radius: 8px; padding: 15px; text-align: left; max-height: 180px; overflow-y: auto;';
-                homeCard.appendChild(container);
-            }
-        }
-        if (!container) return;
-
-        container.innerHTML = '<h4 style="font-family: Orbitron, sans-serif; font-size: 0.95rem; color: #38bdf8; margin-bottom: 8px; text-align: center;">🏆 Hard Mode Leaderboard</h4><p style="font-size: 0.8rem; color: #94a3b8; text-align: center;">Loading scores...</p>';
-
+    async function usaBuildLeaderboardHTML() {
         const board = await usaGetLeaderboard();
-        let html = '<h4 style="font-family: Orbitron, sans-serif; font-size: 0.95rem; color: #38bdf8; margin-bottom: 8px; text-align: center;">🏆 Hard Mode Leaderboard</h4>';
-        
         if (!board || board.length === 0) {
-            html += '<p style="font-size: 0.85rem; color: #94a3b8; text-align: center; margin: 5px 0;">No hard mode moon landings recorded yet.</p>';
-        } else {
-            html += '<table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">';
-            html += '<tr style="color: #38bdf8; border-bottom: 1px solid #1e293b;"><th style="text-align: left; padding: 4px;">Astronaut</th><th style="text-align: right; padding: 4px;">Moon Landings</th></tr>';
-            board.forEach((entry, idx) => {
-                html += `<tr style="border-bottom: 1px solid rgba(30, 41, 59, 0.5);">
-                    <td style="padding: 5px 4px;">${idx + 1}. ${escapeHtml(entry.name)}</td>
-                    <td style="text-align: right; padding: 5px 4px; color: #22c55e; font-weight: bold;">${entry.clears}</td>
-                </tr>`;
-            });
-            html += '</table>';
+            return '<p style="text-align: center; color: var(--text-muted); margin: 10px 0;">No hard mode moon landings recorded yet.</p>';
         }
-        container.innerHTML = html;
+        let html = '<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">';
+        html += '<tr style="color: #38bdf8; border-bottom: 1px solid #1e293b;"><th style="text-align: left; padding: 6px;">Astronaut</th><th style="text-align: right; padding: 6px;">Moon Landings</th></tr>';
+        board.forEach((entry, idx) => {
+            html += `<tr style="border-bottom: 1px solid rgba(30, 41, 59, 0.5);">
+                <td style="padding: 8px 6px;">${idx + 1}. ${escapeHtml(entry.name)}</td>
+                <td style="text-align: right; padding: 8px 6px; color: #22c55e; font-weight: bold;">${entry.clears}</td>
+            </tr>`;
+        });
+        html += '</table>';
+        return html;
     }
 
     function escapeHtml(str) {
@@ -526,9 +507,15 @@ window.usaEliminationGame = (() => {
 
     function usaCreateStateLabels() {
         if (!usaMap) return;
-        if (usaLabelLayer) usaLabelLayer.remove();
+        if (usaLabelLayer) {
+            usaLabelLayer.clearLayers();
+        } else {
+            usaLabelLayer = L.layerGroup().addTo(usaMap);
+        }
 
-        usaLabelLayer = L.layerGroup().addTo(usaMap);
+        // Reset label references on entries
+        usaEntries.forEach(e => { e.labelGroup = null; });
+
         const placed = new Set();
 
         const labelIcon = abbreviation => L.divIcon({
@@ -818,6 +805,7 @@ window.usaEliminationGame = (() => {
         usaLocked = false;
         usaSelectedEntry = null;
         eliminatedStates.clear();
+        usaCreateStateLabels();
         usaResetMapColors();
         usaResetDeck();
         usaUpdateStatus();
@@ -829,12 +817,26 @@ window.usaEliminationGame = (() => {
         usaEntries.forEach(entry => {
             const norm = usaNormalizeState(entry.name);
             const isElim = eliminatedStates.has(norm);
+            
             entry.layer.setStyle({
                 color: isElim ? '#0f172a' : '#38bdf8',
                 weight: isElim ? 1 : 1.2,
                 fillColor: isElim ? '#090d16' : '#1e293b',
                 fillOpacity: isElim ? 0.3 : 0.95
             });
+
+            // Hide/remove label & pointer arrows for eliminated states, recreate/show for active ones
+            if (entry.labelGroup) {
+                if (isElim || usaHardMode) {
+                    if (usaLabelLayer && usaLabelLayer.hasLayer(entry.labelGroup)) {
+                        usaLabelLayer.removeLayer(entry.labelGroup);
+                    }
+                } else {
+                    if (usaLabelLayer && !usaLabelLayer.hasLayer(entry.labelGroup)) {
+                        usaLabelLayer.addLayer(entry.labelGroup);
+                    }
+                }
+            }
         });
     }
 
@@ -903,6 +905,11 @@ window.usaEliminationGame = (() => {
             eliminatedStates.add(selectedNameNorm);
             selected.layer.setStyle({ color: '#22c55e', weight: 2.5, fillColor: '#22c55e', fillOpacity: 1 });
             usaUpdateStatus();
+            
+            // Immediately clear out label and arrows upon successful elimination
+            if (selected.labelGroup && usaLabelLayer && usaLabelLayer.hasLayer(selected.labelGroup)) {
+                usaLabelLayer.removeLayer(selected.labelGroup);
+            }
 
             if (eliminatedStates.size >= 52) {
                 usaSound('win');
@@ -1054,17 +1061,20 @@ window.usaEliminationGame = (() => {
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        usaRenderLeaderboard();
-        if (window.refreshHomeHighScore) window.refreshHomeHighScore(); // Immediately populate high score on load
+        if (window.refreshHomeHighScore) window.refreshHomeHighScore();
     });
 
     return {
         setHardMode(on) {
             usaHardMode = !!on;
             if (window.refreshHomeHighScore) window.refreshHomeHighScore();
-            if (usaMap) usaCreateStateLabels();
+            if (usaMap) {
+                usaCreateStateLabels();
+                usaResetMapColors();
+            }
         },
         getHighScore() { return usaGetHighScore(); },
+        getLeaderboardHTML: usaBuildLeaderboardHTML,
         start() { usaStartGame(); },
         destroy() {
             usaStopTimer();
