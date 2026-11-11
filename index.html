@@ -627,6 +627,10 @@
             HARD MODE: OFF
         </button>
 
+        <button id="view-leaderboard-btn" class="space-btn secondary-btn" style="margin-top: 12px;">
+            VIEW LEADERBOARD
+        </button>
+
     </div>
 
 </div>
@@ -765,6 +769,18 @@
 
     </div>
 
+</div>
+
+
+<!-- LEADERBOARD MODAL -->
+<div id="leaderboard-modal" class="modal hidden">
+    <div class="modal-content" style="max-width: 500px;">
+        <h2>MISSION LEADERBOARD</h2>
+        <div id="leaderboard-modal-list" style="margin: 20px 0; max-height: 250px; overflow-y: auto; text-align: left; font-family: 'Rajdhani', sans-serif;">
+            <p style="text-align: center; color: var(--text-muted);">Loading telemetry data...</p>
+        </div>
+        <button id="close-leaderboard-btn" class="space-btn">CLOSE</button>
+    </div>
 </div>
 
 
@@ -932,6 +948,33 @@ document.getElementById('start-btn')
         }
 
     });
+
+
+// LEADERBOARD POPUP HANDLERS
+const leaderboardModal = document.getElementById('leaderboard-modal');
+const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
+const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
+
+viewLeaderboardBtn.addEventListener('click', async () => {
+    initAudio();
+    playSound('confirm');
+    leaderboardModal.classList.remove('hidden');
+    
+    // Render leaderboard into modal list
+    const listEl = document.getElementById('leaderboard-modal-list');
+    listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading telemetry data...</p>';
+    
+    if (window.usaEliminationGame && typeof window.usaEliminationGame.getLeaderboardHTML === 'function') {
+        listEl.innerHTML = await window.usaEliminationGame.getLeaderboardHTML();
+    } else {
+        listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No records found.</p>';
+    }
+});
+
+closeLeaderboardBtn.addEventListener('click', () => {
+    initAudio();
+    leaderboardModal.classList.add('hidden');
+});
 
 </script>
 
