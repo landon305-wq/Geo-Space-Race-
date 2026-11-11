@@ -310,7 +310,7 @@ window.usaEliminationGame = (() => {
             return '<p style="text-align: center; color: #94a3b8; margin: 10px 0;">No hard mode moon landings recorded yet.</p>';
         }
         let html = '<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">';
-        html += '<tr style="color: #38bdf8; border-bottom: 1px solid #1e293b;"><th style="text-align: left; padding: 6px;">Astronaut</th><th style="text-align: right; padding: 6px;">Moon Landings</th></tr>';
+        html += '<tr style="color: #38bdf8; border-bottom: 1px solid #1e293b;"><th style="text-align: left; padding: 6px;">Astronaut</th><th style="text-align: right; padding: 6px;">Hard Mode Moon Landings</th></tr>';
         board.forEach((entry, idx) => {
             html += `<tr style="border-bottom: 1px solid rgba(30, 41, 59, 0.5);">
                 <td style="padding: 8px 6px; color: #f8fafc;">${idx + 1}. ${escapeHtml(entry.name || 'Anonymous')}</td>
@@ -1002,16 +1002,16 @@ window.usaEliminationGame = (() => {
         modal.classList.remove('hidden');
         const borderColor = isCorrect ? '#22c55e' : '#ef4444';
 
-        // Extract correct answers from current question if incorrect
+        // Extract correct answers from current question if incorrect or game over
         let correctAnswersText = '';
         if (!isCorrect && usaCurrentQuestion && usaCurrentQuestion.matchingEntries) {
             correctAnswersText = usaCurrentQuestion.matchingEntries.map(e => e.name).join(', ');
         }
         const currentPromptText = usaCurrentQuestion ? usaCurrentQuestion.prompt : '';
 
-        // Build HTML for the Question, Show Answer, and Dispute Button Section targeting GeoSpaceRace2026@gmail.com
+        // Build HTML for the Question, Show Answer, and Dispute Button Section
         let answerSectionHTML = '';
-        if (!isCorrect && !gameOver && correctAnswersText) {
+        if (!isCorrect && correctAnswersText) {
             const disputeSubject = encodeURIComponent("Geo-Spacerace Question Dispute");
             const disputeBody = encodeURIComponent(`Hello Landon,\n\nI would like to report an issue with this question:\n"${currentPromptText}"\n\nReason/Source:`);
 
@@ -1027,13 +1027,15 @@ window.usaEliminationGame = (() => {
             `;
         }
 
+        const buttonText = gameOver ? 'Return to Home' : 'Next Question';
+
         modal.innerHTML = `
             <div style="background: #0f172a; border: 2px solid ${borderColor}; border-radius: 12px; padding: 25px; text-align: center; max-width: 440px; width: 90%; color: #f8fafc; font-family: inherit;">
                 <h2 style="margin-top: 0; color: ${borderColor};">${title}</h2>
                 <p style="margin: 10px 0; color: #cbd5e1; line-height: 1.4; font-size: 15px;">${description}</p>
                 ${answerSectionHTML}
                 <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                    <button id="modal-action-btn" style="background: ${borderColor}; color: #0f172a; border: none; padding: 10px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px;">${gameOver ? 'Return to Home' : 'Next Question'}</button>
+                    <button id="modal-action-btn" style="background: ${borderColor}; color: #0f172a; border: none; padding: 10px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px;">${buttonText}</button>
                 </div>
             </div>
         `;
