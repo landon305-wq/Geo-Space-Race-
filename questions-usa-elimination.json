@@ -490,6 +490,7 @@
       "prompt": "Click a state, district, or territory that I-75 passes through",
       "rule": { "list": ["Michigan", "Ohio", "Kentucky", "Tennessee", "Georgia", "florida"] }
     },
+    {
       "id": 86,
       "category":"US States",
       "prompt": "Click a state, district, or territory that was one of the original 13 colonies.", 
