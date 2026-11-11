@@ -10,7 +10,7 @@
       "id": 2,
       "category": "Professional Sports",
       "prompt": "Click a state, district, or territory with professional franchises in all four major leagues (NFL, NBA, MLB, NHL).",
-      "rule": { "list": ["California", "Colorado", "Florida", "Illinois", "Massachusetts", "Michigan", "Minnesota", "New York", "Ohio", "Pennsylvania", "Texas", "District of Columbia"] }
+      "rule": { "list": ["California", "Colorado", "Florida", "Illinois", "Massachusetts", "Michigan", "Minnesota", "New York", "Ohio", "Pennsylvania", "Texas"] }
     },
     {
       "id": 3,
