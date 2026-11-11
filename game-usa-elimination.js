@@ -13,7 +13,7 @@ window.usaEliminationGame = (() => {
     // ============================================
     // ONLINE CLOUD LEADERBOARD CONFIGURATION
     // ============================================
-    const SUPABASE_URL = 'https://ccjlpsapefnnikbschpj.supabase.co/rest/v1/';
+    const SUPABASE_URL = 'https://ccjlpsapefnnikbschpj.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_q1GbjeHYP7X3Z3DTz4Eftg_0L2toKwO';
 
     // Initialize Supabase Client
@@ -33,6 +33,7 @@ window.usaEliminationGame = (() => {
                 currentUserId = session.user.id;
             } else {
                 const { data, error } = await supabaseClient.auth.signInAnonymously();
+                if (error) console.error('[Leaderboard] Anonymous sign-in failed:', error);
                 if (data && data.user) {
                     currentUserId = data.user.id;
                 }
@@ -265,6 +266,7 @@ window.usaEliminationGame = (() => {
                     .select('*')
                     .order('clears', { ascending: false })
                     .limit(10);
+                if (error) console.error('[Leaderboard] Fetch failed:', error);
                 if (!error && data) return data;
             } catch (err) {
                 console.warn('Cloud leaderboard fetch failed:', err);
@@ -284,6 +286,12 @@ window.usaEliminationGame = (() => {
             const { data } = await supabaseClient.auth.getSession();
             if (data && data.session) currentUserId = data.session.user.id;
         }
+        if (!currentUserId && supabaseClient) {
+            await initAuth(); // retry sign-in if it failed earlier
+        }
+        if (!currentUserId) {
+            console.error('[Leaderboard] No user ID - score NOT saved to cloud. Check API key / anonymous sign-ins.');
+        }
 
         const currentDate = new Date().toLocaleDateString();
 
@@ -300,21 +308,26 @@ window.usaEliminationGame = (() => {
 
         if (supabaseClient && currentUserId) {
             try {
-                const { data: rows } = await supabaseClient
+                const { data: rows, error: selErr } = await supabaseClient
                     .from('usa_leaderboard')
                     .select('clears')
                     .eq('user_id', currentUserId);
+                if (selErr) console.error('[Leaderboard] Select failed:', selErr);
 
                 if (rows && rows.length > 0) {
                     const newClears = rows[0].clears + 1;
-                    await supabaseClient
+                    const { error: updErr } = await supabaseClient
                         .from('usa_leaderboard')
                         .update({ clears: newClears, name: playerCallsign, updated_at: new Date() })
                         .eq('user_id', currentUserId);
+                    if (updErr) console.error('[Leaderboard] Update failed:', updErr);
+                    else console.log('[Leaderboard] Score updated in cloud.');
                 } else {
-                    await supabaseClient
+                    const { error: insErr } = await supabaseClient
                         .from('usa_leaderboard')
-                        .insert([{ user_id: currentUserId, name: playerCallsign, clears: 1, updated_at: new Date() }]);
+                        .insert([{ user_id: currentUserId, name: playerCallsign, clears: 1, mode: 'hard', updated_at: new Date() }]);
+                    if (insErr) console.error('[Leaderboard] Insert failed:', insErr);
+                    else console.log('[Leaderboard] New score saved to cloud.');
                 }
             } catch (err) {
                 console.warn('Failed to sync score securely to cloud:', err);
