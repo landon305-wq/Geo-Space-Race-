@@ -13,8 +13,8 @@ window.usaEliminationGame = (() => {
     // ============================================
     // ONLINE CLOUD LEADERBOARD CONFIGURATION
     // ============================================
-    const SUPABASE_URL = 'https://ccjlpsapefnnikbschpj.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_q1GbjeHYP7X3Z3DTz4Eftg_9L2tokW0';
+    const SUPABASE_URL = 'https://ccjlpsapefnnikbschpj.supabase.co/rest/v1/';
+    const SUPABASE_KEY = 'sb_publishable_q1GbjeHYP7X3Z3DTz4Eftg_0L2toKwO';
 
     // Initialize Supabase Client
     let supabaseClient = null;
