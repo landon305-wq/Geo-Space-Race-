@@ -314,7 +314,7 @@
       "id": 56,
       "category": "US Sports",
       "prompt": "Click a state, district, or territory that have a Roller Coaster taller than 299 feet.",
-      "rule": { "list": ["Ohio", "Texas", "South Carolina", "Virginia"] }
+      "rule": { "list": ["Ohio", "Texas", "South Carolina", "Virginia", "North Carolina"] }
     },
     {
       "id": 57,
