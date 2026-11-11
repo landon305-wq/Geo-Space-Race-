@@ -57,19 +57,19 @@
     {
       "id": 10,
       "category": "US Highways",
-      "prompt": "click on a state the interstae I-35 passes through.",
+      "prompt": "click on a state the interstate I-35 passes through.",
       "rule": { "list": ["Texas", "Oklahoma", "Kansas", "Missouri", "Iowa", "Minnesota"] }
     },
     {
       "id": 11,
       "category": "US Highways",
-      "prompt": "click on a state, district, or territory the interstae I-90 passes through.",
+      "prompt": "click on a state, district, or territory the interstate I-90 passes through.",
       "rule": { "list": ["Washington", "Idaho", "Montana", "Wyoming", "South Dakota", "Minnesota", "Wisconsin", "Illinois", "Indiana", "Ohio", "Pennsylvania", "New York", "Massachusetts"] }
     },
     {
       "id": 12,
       "category": "US Highways",
-      "prompt": "click on a state, district, or territory the interstae I-10 passes through.",
+      "prompt": "click on a state, district, or territory the interstate I-10 passes through.",
       "rule": { "list": ["California", "Arizona", "New Mexico", "Texas", "Louisiana", "Mississippi", "Alabama", "Florida"] }
     },
     {
