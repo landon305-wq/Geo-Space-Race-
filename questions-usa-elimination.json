@@ -617,10 +617,16 @@
       "rule": { "list" : ["Alabama", "North Dakota", "Kentucky", "Oklahoma", "Tennessee","Indiana", "West Virginia", "Kansas", "Iowa", "Arkansas"] }
       },
       {
-        "id": 107,
+      "id": 107,
       "category": "US States",
       "prompt": "Click a state, district, or territory that shares a boarder with the mississippi river.",
       "rule": { "list" : ["Minnesota", "Wisconsin", "Iowa", "Illinois", "Missouri", "Kentucky", "Tennessee", "Arkansas", "Mississippi", "Louisiana"] }
+      },
+      {
+      "id": 108,
+      "category": "US States",
+      "prompt": "Click a state, district, or territory that has no income tax.",
+      "rule": { "list" : ["Alaska", "Florida", "Nevada", "New Hampshire", "South Dakota", "Tennessee", "Texas", "Washington", "Wyoming"] }
       }
     ]    
 }
