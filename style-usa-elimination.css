@@ -61,7 +61,7 @@ body {
 
 
 /* ==========================================
-   MAIN MENU CARD
+   MAIN MENU CARD & FAR-RIGHT AD PANEL
 ========================================== */
 
 .home-card {
@@ -79,13 +79,48 @@ body {
 
     text-align: center;
 
-    max-width: 720px;
+    max-width: 620px;
     width: 90%;
 
     z-index: 10;
     position: relative;
 
     backdrop-filter: blur(10px);
+}
+
+.home-side-ad-panel {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    box-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
+    padding: 20px;
+    border-radius: 16px;
+    width: 280px;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+}
+
+.side-ad-inner {
+    width: 100%;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+@media (max-width: 1050px) {
+    .home-side-ad-panel {
+        display: none; /* Hide side panel ad on smaller/medium screens so it never overlaps the main card */
+    }
 }
 
 .glow-title {
@@ -138,7 +173,7 @@ body {
 
     margin: 0 auto 30px;
 
-    max-width: 620px;
+    max-width: 540px;
 }
 
 
@@ -896,22 +931,21 @@ body {
 
 
 /* ==========================================
-   EARTH ANIMATION
+   EARTH POSITIONING & ANIMATION
 ========================================== */
 
 .earth-object {
-    transform-origin: 1350px 240px;
-
+    transform-origin: 1250px 170px;
     animation: earthFloat 8s ease-in-out infinite;
+    transform: translate(-100px, -40px);
 }
 
 @keyframes earthFloat {
     0%, 100% {
-        transform: translateY(0);
+        transform: translate(-100px, -40px);
     }
-
     50% {
-        transform: translateY(-9px);
+        transform: translate(-100px, -49px);
     }
 }
 
@@ -938,22 +972,21 @@ body {
 
 
 /* ==========================================
-   ROCKET ANIMATION
+   ROCKET POSITIONING & ANIMATION
 ========================================== */
 
 .rocket-object {
-    transform-origin: 1290px 650px;
-
+    transform-origin: 1150px 650px;
     animation: rocketHover 3s ease-in-out infinite;
+    transform: translateX(-60px);
 }
 
 @keyframes rocketHover {
     0%, 100% {
-        transform: translateY(0);
+        transform: translateX(-60px) translateY(0);
     }
-
     50% {
-        transform: translateY(-5px);
+        transform: translateX(-60px) translateY(-5px);
     }
 }
 
@@ -1162,5 +1195,49 @@ body {
 
     .glow-title {
         font-size: 1.8rem;
+    }
+}
+
+/* ==========================================
+   HOMEPAGE AD SPACE STYLING
+========================================== */
+
+.home-ad-banner-dock {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    background: var(--card-bg);
+    border-top: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 6;
+}
+
+.ad-banner-inner {
+    width: 728px;
+    max-width: 100%;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .home-ad-banner-dock {
+        height: 50px;
+    }
+
+    .ad-banner-inner {
+        width: 320px;
+        height: 50px;
+    }
+
+    .ad-banner-inner ins.adsbygoogle {
+        width: 320px !important;
+        height: 50px !important;
     }
 }
