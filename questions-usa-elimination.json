@@ -122,5 +122,6 @@
   {"id":124,"category":"US Geography","prompt":"Click a state, district, or territory that hosted a FIFA World Cup match during the 2026 FIFA Mens World Cup.","rule":{"list":["California","Texas","Florida","New Jersey","Massachusetts","Pennsylvania","Washington","Georgia","Missouri"]}},
   {"id":125,"category":"US Geography","prompt":"Click a state, district, or territory that contains an Ivy League university campus.","rule":{"list":["Massachusetts","Connecticut","New York","New Jersey","Pennsylvania","New Hampshire","Rhode Island"]}},
   {"id":126,"category":"US Geography","prompt":"Click a state, district, or territory that has a coastline on Lake Superior.","rule":{"list":["Minnesota","Wisconsin","Michigan"]}},
-  {"id":127,"category":"US Geography","prompt":"Click a state, district, or territory whose name contains double letters (e.g., 'll', 'ss', 'nn').","rule":{"list":["Connecticut","Hawaii","Illinois","Massachusetts","Minnesota","Mississippi","Missouri","Pennsylvania","Tennessee"]}}
+  {"id":127,"category":"US Geography","prompt":"Click a state, district, or territory whose name contains double letters (e.g., 'll', 'ss', 'nn').","rule":{"list":["Connecticut","Hawaii","Illinois","Massachusetts","Minnesota","Mississippi","Missouri","Pennsylvania","Tennessee"]}},
+  {"id":128,"category":"US Geography","prompt":"Click a state, district, or territory that does not have a major US intesate travel through it.(intersates ending in 0 or 5)(Google Maps)","rule":{"list":["North Dakota", "Vermont","Puerto Rico"]}}
 ]}
