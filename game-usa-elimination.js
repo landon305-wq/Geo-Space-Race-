@@ -281,18 +281,18 @@ window.usaEliminationGame = (() => {
         board.sort((a, b) => b.clears - a.clears);
         localStorage.setItem(USA_LOCAL_LB_KEY, JSON.stringify(board));
 
-        if (supabaseClient && currentUserId) {
+        if (supabaseClient && playerCallsign) {
             try {
                 const { data: rows } = await supabaseClient
                     .from('usa_leaderboard')
                     .select('clears')
-                    .eq('user_id', currentUserId);
+                    .ilike('name', playerCallsign);
 
                 if (rows && rows.length > 0) {
                     await supabaseClient
                         .from('usa_leaderboard')
-                        .update({ clears: rows[0].clears + 1, name: playerCallsign, updated_at: new Date() })
-                        .eq('user_id', currentUserId);
+                        .update({ clears: rows[0].clears + 1, updated_at: new Date() })
+                        .ilike('name', playerCallsign);
                 } else {
                     await supabaseClient
                         .from('usa_leaderboard')
