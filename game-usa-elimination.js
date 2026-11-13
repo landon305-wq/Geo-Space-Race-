@@ -690,7 +690,8 @@ window.usaEliminationGame = (() => {
         if (!window.L) throw new Error('Leaflet not loaded.');
         if (usaMap) return;
         usaEntries = [];
-        usaMap = L.map('map', { center: [37.8, -96], zoom: 4, minZoom: 3, maxZoom: 7, zoomControl: true, attributionControl: false });
+        // Disabled double click zoom here so double-clicking doesn't zoom in
+        usaMap = L.map('map', { center: [37.8, -96], zoom: 4, minZoom: 3, maxZoom: 7, zoomControl: true, doubleClickZoom: false, attributionControl: false });
         const normalStyle = { color: '#38bdf8', weight: 1.2, fillColor: '#1e293b', fillOpacity: 0.95 };
 
         L.geoJSON(geoData, {
@@ -796,6 +797,15 @@ window.usaEliminationGame = (() => {
                 fillOpacity: isElim ? 0.3 : 0.95
             });
 
+            if (entry.circleMarker) {
+                entry.circleMarker.setStyle({
+                    color: isElim ? '#0f172a' : '#38bdf8',
+                    weight: isElim ? 1 : 1.8,
+                    fillColor: isElim ? '#090d16' : '#1e293b',
+                    fillOpacity: isElim ? 0.05 : 0.1
+                });
+            }
+
             if (entry.labelGroup) {
                 if (isElim || usaHardMode) {
                     if (usaLabelLayer && usaLabelLayer.hasLayer(entry.labelGroup)) {
@@ -846,6 +856,9 @@ window.usaEliminationGame = (() => {
             const prevNorm = usaNormalizeState(usaSelectedEntry.name);
             if (!eliminatedStates.has(prevNorm)) {
                 usaSelectedEntry.layer.setStyle({ color: '#38bdf8', weight: 1.2, fillColor: '#1e293b', fillOpacity: 0.95 });
+                if (usaSelectedEntry.circleMarker) {
+                    usaSelectedEntry.circleMarker.setStyle({ color: '#38bdf8', weight: 1.8, fillColor: '#1e293b', fillOpacity: 0.1 });
+                }
             }
         }
 
@@ -853,6 +866,9 @@ window.usaEliminationGame = (() => {
             usaSelectedEntry = entry;
             usaSound('select');
             entry.layer.setStyle({ color: '#f59e0b', weight: 2.5, fillColor: '#f59e0b', fillOpacity: 0.95 });
+            if (entry.circleMarker) {
+                entry.circleMarker.setStyle({ color: '#f59e0b', weight: 2.5, fillColor: '#f59e0b', fillOpacity: 0.5 });
+            }
             usaSetPrompt(usaCurrentQuestion.prompt + ' — Click again to confirm elimination.');
             return;
         }
@@ -872,7 +888,12 @@ window.usaEliminationGame = (() => {
 
         if (correct) {
             eliminatedStates.add(selectedNameNorm);
-            selected.layer.setStyle({ color: '#22c55e', weight: 2.5, fillColor: '#22c55e', fillOpacity: 1 });
+            
+            selected.layer.setStyle({ color: '#22c55e', weight: 3, fillColor: '#22c55e', fillOpacity: 1 });
+            if (selected.circleMarker) {
+                selected.circleMarker.setStyle({ color: '#22c55e', weight: 3, fillColor: '#22c55e', fillOpacity: 0.8 });
+            }
+            
             usaUpdateStatus();
             
             if (selected.labelGroup && usaLabelLayer && usaLabelLayer.hasLayer(selected.labelGroup)) {
@@ -891,7 +912,12 @@ window.usaEliminationGame = (() => {
             }
         } else {
             usaLives--;
-            selected.layer.setStyle({ color: '#ef4444', weight: 2.5, fillColor: '#ef4444', fillOpacity: 1 });
+            
+            selected.layer.setStyle({ color: '#ef4444', weight: 3, fillColor: '#ef4444', fillOpacity: 1 });
+            if (selected.circleMarker) {
+                selected.circleMarker.setStyle({ color: '#ef4444', weight: 3, fillColor: '#ef4444', fillOpacity: 0.8 });
+            }
+            
             usaUpdateStatus();
 
             if (usaLives <= 0) {
@@ -1002,14 +1028,12 @@ window.usaEliminationGame = (() => {
         modal.classList.remove('hidden');
         const borderColor = isCorrect ? '#22c55e' : '#ef4444';
 
-        // Extract correct answers from current question if incorrect or game over
         let correctAnswersText = '';
         if (!isCorrect && usaCurrentQuestion && usaCurrentQuestion.matchingEntries) {
             correctAnswersText = usaCurrentQuestion.matchingEntries.map(e => e.name).join(', ');
         }
         const currentPromptText = usaCurrentQuestion ? usaCurrentQuestion.prompt : '';
 
-        // Build HTML for the Question, Show Answer, and Dispute Button Section
         let answerSectionHTML = '';
         if (!isCorrect && correctAnswersText) {
             const disputeSubject = encodeURIComponent("Geo-Spacerace Question Dispute");
@@ -1040,7 +1064,6 @@ window.usaEliminationGame = (() => {
             </div>
         `;
 
-        // Wire up the Show Answer toggle button
         const showAnsBtn = modal.querySelector('#modal-show-ans-btn');
         const revealedDiv = modal.querySelector('#modal-revealed-ans');
         if (showAnsBtn && revealedDiv) {
