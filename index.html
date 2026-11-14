@@ -8,9 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="style-usa-elimination.css?v=18">
-    <link rel="stylesheet" href="style-europe-elimination.css?v=18">
-    <link rel="stylesheet" href="style-usa-daily.css?v=18">
+    <link rel="stylesheet" href="style-usa-elimination.css?v=19">
+    <link rel="stylesheet" href="style-europe-elimination.css?v=19">
+    <link rel="stylesheet" href="style-usa-daily.css?v=19">
     <!-- keeps only one home menu visible even if a stylesheet is slow or missing -->
     <style>.home-menu.hidden { display: none !important; }</style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -822,10 +822,10 @@
 
 
 <!-- CRITICAL: LOAD GAME ENGINE FIRST BEFORE UI SCRIPTS -->
-<script src="leaderboard-shared.js?v=18"></script>
-<script src="game-usa-elimination.js?v=18"></script>
-<script src="game-europe-elimination.js?v=18"></script>
-<script src="game-usa-daily.js?v=18"></script>
+<script src="leaderboard-shared.js?v=19"></script>
+<script src="game-usa-elimination.js?v=19"></script>
+<script src="game-europe-elimination.js?v=19"></script>
+<script src="game-usa-daily.js?v=19"></script>
 
 
 <!-- AUDIO & UI SCRIPT -->
@@ -1068,8 +1068,8 @@ const leaderboardModal = document.getElementById('leaderboard-modal');
 const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
 const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
 
-// the list always shows every player; it scrolls inside the window
-const leaderboardFullView = true;
+// show the top 5 of each board; players outside the top 5 see their own rank underneath
+const leaderboardFullView = false;
 
 async function renderLeaderboard() {
     const listEl = document.getElementById('leaderboard-modal-list');
