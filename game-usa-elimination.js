@@ -230,95 +230,36 @@ window.usaEliminationGame = (() => {
     // ============================================
     // LEADERBOARD & STORAGE
     // ============================================
-    function usaGetLocalLeaderboard() {
-        try {
-            return JSON.parse(localStorage.getItem(USA_LOCAL_LB_KEY)) || [];
-        } catch (e) {
-            return [];
+    let usaBoard = null;
+    function usaLB() {
+        if (!usaBoard && window.GeoLeaderboard) {
+            usaBoard = window.GeoLeaderboard.create({
+                table: 'usa_leaderboard',
+                localKey: USA_LOCAL_LB_KEY,
+                unit: 'States',
+                getClient: () => supabaseClient,
+                getUserId: () => currentUserId,
+                ensureAuth: initAuth,
+                getTotal: () => 52
+            });
         }
+        return usaBoard;
     }
 
-    async function usaGetLeaderboard() {
-        if (supabaseClient) {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('usa_leaderboard')
-                    .select('*')
-                    .order('clears', { ascending: false })
-                    .limit(10);
-                if (!error && data) return data;
-            } catch (err) {
-                console.warn('Cloud leaderboard fetch failed:', err);
-            }
-        }
-        return usaGetLocalLeaderboard();
+    function usaRecordHardModeClear() {
+        const lb = usaLB();
+        if (lb) lb.recordMoon(eliminatedStates.size);
     }
 
-    async function usaRecordHardModeClear() {
-        if (!playerCallsign || !playerCallsign.trim()) {
-            let inputName = prompt("🎉 LUNAR LANDING SUCCESS!\nEnter your astronaut callsign for the leaderboard:", "Commander Cadet");
-            playerCallsign = (inputName && inputName.trim()) ? inputName.trim() : "Commander Cadet";
-            localStorage.setItem('astro_geo_player_callsign', playerCallsign);
-        }
-
-        if (!currentUserId && supabaseClient) {
-            try {
-                const { data } = await supabaseClient.auth.getSession();
-                if (data && data.session) currentUserId = data.session.user.id;
-                else await initAuth();
-            } catch (e) {}
-        }
-
-        const currentDate = new Date().toLocaleDateString();
-        let board = usaGetLocalLeaderboard();
-        let existing = board.find(entry => entry.name.toLowerCase() === playerCallsign.toLowerCase());
-        if (existing) {
-            existing.clears += 1;
-            existing.date = currentDate;
-        } else {
-            board.push({ name: playerCallsign, clears: 1, date: currentDate });
-        }
-        board.sort((a, b) => b.clears - a.clears);
-        localStorage.setItem(USA_LOCAL_LB_KEY, JSON.stringify(board));
-
-        if (supabaseClient && playerCallsign) {
-            try {
-                const { data: rows } = await supabaseClient
-                    .from('usa_leaderboard')
-                    .select('clears')
-                    .ilike('name', playerCallsign);
-
-                if (rows && rows.length > 0) {
-                    await supabaseClient
-                        .from('usa_leaderboard')
-                        .update({ clears: rows[0].clears + 1, updated_at: new Date() })
-                        .ilike('name', playerCallsign);
-                } else {
-                    await supabaseClient
-                        .from('usa_leaderboard')
-                        .insert([{ user_id: currentUserId, name: playerCallsign, clears: 1, mode: 'hard', updated_at: new Date() }]);
-                }
-            } catch (err) {
-                console.warn('Cloud sync failed:', err);
-            }
-        }
+    function usaRecordHardModeScore() {
+        const lb = usaLB();
+        if (lb && usaHardMode) lb.recordScore(eliminatedStates.size);
     }
 
-    async function usaBuildLeaderboardHTML() {
-        const board = await usaGetLeaderboard();
-        if (!board || board.length === 0) {
-            return '<p style="text-align: center; color: #94a3b8; margin: 10px 0;">No hard mode moon landings recorded yet.</p>';
-        }
-        let html = '<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">';
-        html += '<tr style="color: #38bdf8; border-bottom: 1px solid #1e293b;"><th style="text-align: left; padding: 6px;">Astronaut</th><th style="text-align: right; padding: 6px;">Hard Mode Moon Landings</th></tr>';
-        board.forEach((entry, idx) => {
-            html += `<tr style="border-bottom: 1px solid rgba(30, 41, 59, 0.5);">
-                <td style="padding: 8px 6px; color: #f8fafc;">${idx + 1}. ${escapeHtml(entry.name || 'Anonymous')}</td>
-                <td style="text-align: right; padding: 8px 6px; color: #22c55e; font-weight: bold;">${entry.clears || 1}</td>
-            </tr>`;
-        });
-        html += '</table>';
-        return html;
+    async function usaBuildLeaderboardHTML(full) {
+        const lb = usaLB();
+        if (!lb) return '<p style="text-align: center; color: #94a3b8;">Leaderboard unavailable.</p>';
+        return lb.buildHTML(!!full);
     }
 
     function escapeHtml(str) {
@@ -922,6 +863,7 @@ window.usaEliminationGame = (() => {
 
             if (usaLives <= 0) {
                 usaSound('gameover');
+                usaRecordHardModeScore();
                 usaShowModal('MISSION FAILED', `${autoNote}${selected.name} was incorrect.<br>Total states eliminated: ${eliminatedStates.size}`, true, false);
             } else {
                 usaSound('wrong');
@@ -978,6 +920,7 @@ window.usaEliminationGame = (() => {
         usaUpdateStatus();
         if (usaLives <= 0) {
             usaSound('gameover');
+            usaRecordHardModeScore();
             usaShowModal("TIME'S UP!", `Time expired.<br>Total states eliminated: ${eliminatedStates.size}`, true, false);
         } else {
             usaSound('wrong');
