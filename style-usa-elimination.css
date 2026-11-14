@@ -1241,3 +1241,50 @@ body {
         height: 50px !important;
     }
 }
+
+
+/* ==========================================
+   LEADERBOARD WINDOW: always fits the screen
+   (the names scroll; the buttons stay visible)
+========================================== */
+
+.leaderboard-content {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    overflow: hidden;
+}
+
+.leaderboard-content h2,
+.leaderboard-content #lb-callsign-row,
+.leaderboard-content .space-btn {
+    flex-shrink: 0;
+}
+
+#leaderboard-modal-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .leaderboard-content {
+        padding: 18px 14px;
+        max-height: calc(100dvh - 20px);
+    }
+
+    .leaderboard-content h2 {
+        font-size: 1.3rem;
+        margin-bottom: 4px;
+    }
+
+    #leaderboard-modal-list {
+        margin: 10px 0 !important;
+    }
+
+    .leaderboard-content .space-btn {
+        padding: 11px 14px;
+    }
+}
