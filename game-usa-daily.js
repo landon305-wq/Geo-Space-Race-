@@ -15,6 +15,7 @@ window.usaDailyGame = (function () {
     const FIRST_WINDOW = new Date(2026, 10, 13); // Nov 13, 2026 = Launch Window #1 (month is 0-based)
     const HARD_WEEKDAY = 3;            // 0 = Sunday ... 3 = Wednesday (the hard day)
     const STORE_KEY = 'geo_usa_daily_v1';
+    const SITE_URL = 'https://geospacerace.com/';   // link added to shared results
 
     // ---------- STATE ----------
     let dMap = null;
@@ -45,6 +46,10 @@ window.usaDailyGame = (function () {
         return Math.round((a - b) / 86400000);
     }
     function windowNumber() { return Math.max(1, dayIndex() + 1); }
+    function dayLabel(date = new Date()) {
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });   // e.g. "Nov 14"
+    }
+    function headerLabel() { return (isHardDay() ? 'HARD WEDNESDAY · ' : 'DAILY CHALLENGE · ') + dayLabel().toUpperCase(); }
 
     function loadStore() {
         try {
@@ -127,7 +132,7 @@ window.usaDailyGame = (function () {
             <div class="daily-wrap">
                 <header class="daily-hud">
                     <button id="daily-home-btn" class="space-btn secondary-btn daily-small-btn">🏠 Home</button>
-                    <div class="daily-title">LAUNCH WINDOW <span id="daily-num">#1</span></div>
+                    <div class="daily-title" id="daily-num">DAILY CHALLENGE</div>
                     <div class="daily-timer" id="daily-timer">0:45</div>
                 </header>
                 <div class="daily-prompt" id="daily-prompt">Loading today's mission...</div>
@@ -144,7 +149,7 @@ window.usaDailyGame = (function () {
 
             <div id="daily-intro" class="modal hidden">
                 <div class="modal-content daily-card">
-                    <div class="daily-kicker" id="daily-intro-num">LAUNCH WINDOW #1</div>
+                    <div class="daily-kicker" id="daily-intro-num">DAILY CHALLENGE</div>
                     <h2>READY FOR LAUNCH?</h2>
                     <div class="daily-intro-cat" id="daily-intro-cat">Today's category: —</div>
                     <ul class="daily-rules">
@@ -161,7 +166,7 @@ window.usaDailyGame = (function () {
 
             <div id="daily-results" class="modal hidden">
                 <div class="modal-content daily-card">
-                    <div class="daily-kicker" id="daily-res-num">LAUNCH WINDOW #1</div>
+                    <div class="daily-kicker" id="daily-res-num">DAILY CHALLENGE</div>
                     <h2 id="daily-res-title">MISSION COMPLETE</h2>
                     <div class="daily-res-score" id="daily-res-score">0 / 0</div>
                     <div class="daily-res-fuel" id="daily-res-fuel"></div>
@@ -429,7 +434,7 @@ window.usaDailyGame = (function () {
     async function start() {
         ensureScreen();
         showScreen();
-        $('daily-num').textContent = '#' + windowNumber();
+        $('daily-num').textContent = headerLabel();
         $('daily-prompt').textContent = 'Loading today\'s mission...';
 
         try {
@@ -477,7 +482,7 @@ window.usaDailyGame = (function () {
         paintAll();
         updateHud(ROUND_SECONDS);
         $('daily-prompt').textContent = '🔒 Today\'s mission is sealed until launch.';
-        $('daily-intro-num').textContent = 'LAUNCH WINDOW #' + windowNumber();
+        $('daily-intro-num').textContent = headerLabel();
         $('daily-intro-count').textContent = dAnswers.size;
         $('daily-intro-cat').textContent = (dQuestion.hard ? '🔥 HARD WEDNESDAY · ' : "Today's category: ") + (dQuestion.category || 'Mystery');
         $('daily-countdown-big').classList.add('hidden');
@@ -708,7 +713,7 @@ window.usaDailyGame = (function () {
         const found = result.found.length;
         const total = result.total;
         const streak = currentStreak(store);
-        $('daily-res-num').textContent = 'LAUNCH WINDOW #' + windowNumber();
+        $('daily-res-num').textContent = headerLabel();
         $('daily-res-title').textContent = titleFor(result);
         $('daily-res-score').textContent = `${found} / ${total}`;
         $('daily-res-fuel').innerHTML = trackerHTML(result);
@@ -734,25 +739,36 @@ window.usaDailyGame = (function () {
         const store = loadStore();
         const r = store.results[dayIndex()];
         if (!r || !r.done) return '';
-        // full https link so it's tappable in texts, iMessage, Discord, etc.
-        const site = location.protocol.startsWith('http') ? location.origin + '/' : 'https://geospacerace.com/';
-        return `🚀 Geo-Spacerace Launch Window #${windowNumber()}${isHardDay() ? ' 🔥 Hard Wednesday' : ''}\n` +
+        return `🚀 Geo-Spacerace Daily · ${dayLabel()}${isHardDay() ? ' 🔥 Hard Wednesday' : ''}\n` +
             `${trackerEmoji(r)} ${r.found.length}/${r.total}\n` +
             `⏱️ ${r.timeLeft || 0}s left · 💥 ${(r.wrong || []).length} · 🔥 ${currentStreak(store)}\n` +
-            site;
+            SITE_URL;
     }
 
     async function shareResult() {
         const text = shareText();
         if (!text) return;
+        const body = text.replace(SITE_URL, '').trim();
         try {
             if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-                await navigator.share({ text });
+                // the url field makes Messages / WhatsApp / etc. show it as a tappable link
+                await navigator.share({ text: body, url: SITE_URL });
                 return;
             }
-        } catch (e) { /* user cancelled, fall back to copy */ }
+        } catch (e) {
+            if (e && e.name === 'AbortError') return;   // they closed the share menu
+        }
         try {
-            await navigator.clipboard.writeText(text);
+            // copy both plain text and a version with a real clickable link
+            const html = esc(body).replace(/\n/g, '<br>') + `<br><a href="${SITE_URL}">${SITE_URL}</a>`;
+            if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+                await navigator.clipboard.write([new ClipboardItem({
+                    'text/plain': new Blob([text], { type: 'text/plain' }),
+                    'text/html': new Blob([html], { type: 'text/html' })
+                })]);
+            } else {
+                await navigator.clipboard.writeText(text);
+            }
             toast('Result copied! Paste it anywhere 📋');
         } catch (e) {
             const ta = document.createElement('textarea');
