@@ -1319,3 +1319,27 @@ body {
 .leaderboard-content h2 {
     padding: 0 40px;   /* keep the title clear of the X */
 }
+
+/* iPhone fix: Safari counts the area behind its toolbars as part of 100vh,
+   which pushed the leaderboard below the bottom bar. Pin the window to the
+   part of the screen you can actually see, and start it near the top. */
+#leaderboard-modal {
+    top: 0;
+    bottom: 0;
+    height: auto;
+    height: 100dvh;
+    padding: 12px 0;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    #leaderboard-modal {
+        align-items: flex-start;
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+
+    .leaderboard-content {
+        max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    }
+}
