@@ -8,6 +8,70 @@
 // ==========================================
 window.GeoLeaderboard = (function () {
 
+    // ---------- ASTRONAUT CALLSIGN (player name) ----------
+    const NAME_KEY = 'astro_geo_player_callsign';
+    const OLD_DEFAULT = 'commander cadet';   // the old auto-filled name counts as "no name yet"
+    const boards = [];
+
+    function storedName() {
+        let n = '';
+        try { n = (localStorage.getItem(NAME_KEY) || '').trim(); } catch (e) {}
+        return n.toLowerCase() === OLD_DEFAULT ? '' : n;
+    }
+    function cleanName(n) {
+        return String(n || '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 20);
+    }
+
+    // In-page name box (replaces the browser prompt, which phones often block or people skip)
+    function askCallsign(message, current) {
+        return new Promise(resolve => {
+            let box = document.getElementById('callsign-modal');
+            if (box) box.remove();
+            box = document.createElement('div');
+            box.id = 'callsign-modal';
+            box.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.88);display:flex;align-items:center;justify-content:center;z-index:100000;padding:16px;';
+            box.innerHTML = `
+                <div style="background:#0f172a;border:2px solid #38bdf8;border-radius:14px;padding:26px 22px;max-width:400px;width:100%;text-align:center;color:#f8fafc;box-shadow:0 0 40px rgba(56,189,248,0.4);">
+                    <div style="font-family:'Orbitron',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:8px;">🧑‍🚀 ASTRONAUT CALLSIGN</div>
+                    <div style="color:#94a3b8;font-size:1rem;margin-bottom:16px;line-height:1.4;">${esc(message || 'Enter the name to show on the leaderboard.')}</div>
+                    <input id="callsign-input" type="text" maxlength="20" autocomplete="nickname" placeholder="Your name"
+                        style="width:100%;padding:12px 14px;font-size:1.1rem;border-radius:8px;border:1px solid #38bdf8;background:#020617;color:#f8fafc;outline:none;font-family:inherit;">
+                    <div id="callsign-error" style="color:#f87171;font-size:0.9rem;min-height:1.2em;margin:6px 0 10px;"></div>
+                    <button id="callsign-save" class="space-btn" style="margin:0;">SAVE NAME</button>
+                </div>`;
+            document.body.appendChild(box);
+            const input = box.querySelector('#callsign-input');
+            const err = box.querySelector('#callsign-error');
+            input.value = current || '';
+            setTimeout(() => input.focus(), 50);
+            const save = () => {
+                const n = cleanName(input.value);
+                if (n.length < 2) { err.textContent = 'Please enter at least 2 characters.'; return; }
+                if (n.toLowerCase() === OLD_DEFAULT) { err.textContent = 'Pick your own name for the leaderboard!'; return; }
+                box.remove();
+                setCallsign(n);
+                resolve(n);
+            };
+            box.querySelector('#callsign-save').onclick = save;
+            input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
+        });
+    }
+
+    async function ensureCallsign(message) {
+        return storedName() || askCallsign(message);
+    }
+
+    function setCallsign(n) {
+        const old = storedName();
+        try { localStorage.setItem(NAME_KEY, n); } catch (e) {}
+        boards.forEach(b => b.rename(n, old));
+    }
+
+    async function changeCallsign() {
+        const n = await askCallsign('Change the name shown on the leaderboard.', storedName());
+        return n;
+    }
+
     function esc(str) {
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
@@ -31,16 +95,6 @@ window.GeoLeaderboard = (function () {
         const unit = opts.unit || 'States';
         const total = () => (opts.getTotal ? opts.getTotal() : 0) || Infinity;
 
-        function getCallsign(promptText) {
-            let name = localStorage.getItem('astro_geo_player_callsign') || '';
-            if (!name.trim()) {
-                const input = prompt(promptText + '\nEnter your astronaut callsign for the leaderboard:', 'Commander Cadet');
-                name = (input && input.trim()) ? input.trim().slice(0, 24) : 'Commander Cadet';
-                localStorage.setItem('astro_geo_player_callsign', name);
-            }
-            return name;
-        }
-
         function getLocal() {
             try { return JSON.parse(localStorage.getItem(opts.localKey)) || []; } catch (e) { return []; }
         }
@@ -57,7 +111,7 @@ window.GeoLeaderboard = (function () {
 
         // ---- record a hard mode MOON LANDING ----
         async function recordMoon(totalItems) {
-            const name = getCallsign('🎉 LUNAR LANDING SUCCESS!');
+            const name = await ensureCallsign('🎉 You reached the Moon! Enter your name for the leaderboard.');
             const now = new Date().toISOString();
 
             const board = getLocal();
@@ -86,7 +140,7 @@ window.GeoLeaderboard = (function () {
         async function recordScore(score) {
             if (!score || score < 1) return;
             if (score >= total()) return recordMoon(score);   // a full map is a Moon landing
-            const name = getCallsign('🚀 MISSION OVER! ' + score + ' ' + unit.toLowerCase() + ' eliminated.');
+            const name = await ensureCallsign(`🚀 ${score} ${unit.toLowerCase()} eliminated! Enter your name for the leaderboard.`);
             const now = new Date().toISOString();
 
             const board = getLocal();
@@ -104,6 +158,8 @@ window.GeoLeaderboard = (function () {
                 if (rows && rows.length) {
                     if (score > (rows[0].best_score || 0)) {
                         await client.from(opts.table).update({ name, best_score: score, updated_at: now }).eq('user_id', uid);
+                    } else {
+                        await client.from(opts.table).update({ name }).eq('user_id', uid);   // keep the name current
                     }
                 } else {
                     await client.from(opts.table)
@@ -169,8 +225,27 @@ window.GeoLeaderboard = (function () {
                    sectionHTML(`🚀 HIGH SCORES (HARD MODE)`, '#38bdf8', `${unit} Eliminated`, score, 'best_score', isMe, full, unit.toLowerCase());
         }
 
-        return { recordMoon, recordScore, buildHTML };
+        // Update this player's name everywhere it is saved for this board
+        async function rename(newName, oldName) {
+            if (!newName) return;
+            const board = getLocal();
+            board.forEach(e => {
+                const n = (e.name || '').toLowerCase();
+                if (n === OLD_DEFAULT || (oldName && n === oldName.toLowerCase())) e.name = newName;
+            });
+            saveLocal(board);
+            const client = await readyClient();
+            if (!client) return;
+            try { await client.from(opts.table).update({ name: newName }).eq('user_id', opts.getUserId()); }
+            catch (err) { console.warn('Leaderboard rename failed:', err); }
+        }
+
+        const api = { recordMoon, recordScore, buildHTML, rename };
+        boards.push(api);
+        // once per visit, make sure the saved leaderboard row shows the current name
+        setTimeout(() => { const n = storedName(); if (n) rename(n); }, 2000);
+        return api;
     }
 
-    return { create };
+    return { create, askCallsign, ensureCallsign, changeCallsign, getCallsign: storedName };
 })();
