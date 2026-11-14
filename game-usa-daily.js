@@ -270,18 +270,29 @@ window.usaDailyGame = (function () {
 
     // First time through, questions run in file order. Once every question has been used,
     // the pool is reshuffled (the same way for every player) so the next lap is in a new order.
+    // Sports questions are shuffled separately and then spread evenly, so they never bunch up.
+    const isSportsQ = q => /sport/i.test(q.category || '');
     function pickFromPool(pool, n, salt) {
         const lap = Math.floor(n / pool.length);
         const pos = n % pool.length;
         if (lap === 0) return pool[pos];
         let seed = (lap * 2654435761 + salt * 97) >>> 0;
         const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-        const order = pool.map((_, i) => i);
-        for (let i = order.length - 1; i > 0; i--) {
-            const j = Math.floor(rand() * (i + 1));
-            [order[i], order[j]] = [order[j], order[i]];
-        }
-        return pool[order[pos]];
+        const shuffle = arr => {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(rand() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        };
+        const sports = shuffle(pool.filter(isSportsQ));
+        const others = shuffle(pool.filter(q => !isSportsQ(q)));
+        if (!sports.length) return others[pos];
+        const slots = new Set(sports.map((_, k) => Math.floor((k + 0.5) * pool.length / sports.length)));
+        const order = [];
+        let s = 0, o = 0;
+        for (let i = 0; i < pool.length; i++) order.push(slots.has(i) && s < sports.length ? sports[s++] : (o < others.length ? others[o++] : sports[s++]));
+        return order[pos];
     }
 
     function isHardDay(date = new Date()) { return date.getDay() === HARD_WEEKDAY; }
