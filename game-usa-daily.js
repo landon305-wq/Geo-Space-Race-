@@ -762,8 +762,10 @@ window.usaDailyGame = (function () {
         const body = text.replace(SITE_URL, '').trim();
         try {
             if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-                // the url field makes Messages / WhatsApp / etc. show it as a tappable link
-                await navigator.share({ text: body, url: SITE_URL });
+                // the link goes inside the text: some apps (and iPhone's "Copy" option) keep only the
+                // url field and drop the text, so a separate url can leave just a bare link.
+                // Messages / WhatsApp still turn the link inside the text into a tappable link.
+                await navigator.share({ text });
                 return;
             }
         } catch (e) {
