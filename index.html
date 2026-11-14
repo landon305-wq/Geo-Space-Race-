@@ -8,8 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="style-usa-elimination.css">
-    <link rel="stylesheet" href="style-europe-elimination.css">
+    <link rel="stylesheet" href="style-usa-elimination.css?v=13">
+    <link rel="stylesheet" href="style-europe-elimination.css?v=13">
+    <link rel="stylesheet" href="style-usa-daily.css?v=13">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- GOOGLE ADSENSE SCRIPT -->
@@ -539,6 +540,39 @@
 
         <h1 class="glow-title">GEO-SPACERACE</h1>
 
+        <!-- DAILY CHALLENGE MENU (default) -->
+        <div id="daily-menu" class="home-menu">
+
+            <div class="daily-home-badge" id="daily-home-badge">🗓️ DAILY CHALLENGE</div>
+
+
+            <p class="game-desc">
+                You have 45 seconds to find every state that fits
+                today's mission. Each wrong answer burns 5 seconds of
+                fuel. A new mission launches every day!
+            </p>
+
+            <div class="daily-home-stats">
+                <span class="streak">🔥 Streak: <b id="daily-home-streak">0</b></span>
+                <span>🏆 Best: <b id="daily-home-best">0</b></span>
+                <span class="perfect">⭐ Perfect days: <b id="daily-home-perfect">0</b></span>
+            </div>
+
+            <button id="daily-launch-btn" class="space-btn">
+                🚀 LAUNCH TODAY'S MISSION
+            </button>
+
+            <div class="daily-home-next" id="daily-home-next"></div>
+
+            <button id="show-elim-btn" class="space-btn secondary-btn">
+                🎯 PLAY ELIMINATION MODE
+            </button>
+
+        </div>
+
+        <!-- ELIMINATION MENU -->
+        <div id="elim-menu" class="home-menu hidden">
+
         <div class="subtitle" id="home-subtitle">
             USA STATE TRIVIA GAME
         </div>
@@ -571,6 +605,12 @@
         <button id="view-leaderboard-btn" class="space-btn secondary-btn" style="margin-top: 12px;">
             VIEW LEADERBOARD
         </button>
+
+            <button id="back-daily-btn" class="space-btn secondary-btn" style="margin-top: 12px;">
+                ⬅ BACK TO DAILY CHALLENGE
+            </button>
+
+        </div>
 
     </div>
 
@@ -766,6 +806,10 @@
         <div id="leaderboard-modal-list" style="margin: 20px 0; max-height: 55vh; overflow-y: auto; text-align: left; font-family: 'Rajdhani', sans-serif;">
             <p style="text-align: center; color: var(--text-muted);">Loading telemetry data...</p>
         </div>
+        <div id="lb-callsign-row" style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; color: var(--text-muted); font-size: 1rem;">
+            <span>Playing as: <b id="lb-callsign" style="color: #facc15;">—</b></span>
+            <button id="change-callsign-btn" class="space-btn secondary-btn" style="width: auto; padding: 6px 12px; font-size: 0.75rem; margin: 0;">✏️ CHANGE NAME</button>
+        </div>
         <button id="full-leaderboard-btn" class="space-btn secondary-btn" style="margin-bottom: 10px;">VIEW FULL LEADERBOARD</button>
         <button id="close-leaderboard-btn" class="space-btn">CLOSE</button>
     </div>
@@ -777,9 +821,10 @@
 
 
 <!-- CRITICAL: LOAD GAME ENGINE FIRST BEFORE UI SCRIPTS -->
-<script src="leaderboard-shared.js?v=4"></script>
-<script src="game-usa-elimination.js?v=4"></script>
-<script src="game-europe-elimination.js?v=4"></script>
+<script src="leaderboard-shared.js?v=13"></script>
+<script src="game-usa-elimination.js?v=13"></script>
+<script src="game-europe-elimination.js?v=13"></script>
+<script src="game-usa-daily.js?v=13"></script>
 
 
 <!-- AUDIO & UI SCRIPT -->
@@ -929,7 +974,7 @@ hardBtn.addEventListener('click', () => {
 
 // LAUNCH GAME
 document.getElementById('start-btn')
-    .addEventListener('click', () => {
+    .addEventListener('click', async () => {
 
         initAudio();
 
@@ -944,6 +989,11 @@ document.getElementById('start-btn')
             if (oldHomeBtn) oldHomeBtn.remove();
 
             activeGame.setHardMode(isHard);
+
+            // hard mode counts for the leaderboard, so get the player's name before launch
+            if (isHard && window.GeoLeaderboard && !window.GeoLeaderboard.getCallsign()) {
+                await window.GeoLeaderboard.ensureCallsign('Hard mode counts for the leaderboard. What name should we show?');
+            }
 
             activeGame.start();
 
@@ -1026,6 +1076,9 @@ async function renderLeaderboard() {
     listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading telemetry data...</p>';
     if (titleEl) titleEl.textContent = (gameMode === 'europe' ? 'EUROPE' : 'USA') + ' LEADERBOARD';
     fullLeaderboardBtn.textContent = leaderboardFullView ? 'SHOW TOP 5' : 'VIEW FULL LEADERBOARD';
+    const myName = window.GeoLeaderboard ? window.GeoLeaderboard.getCallsign() : '';
+    document.getElementById('lb-callsign').textContent = myName || 'not set yet';
+    document.getElementById('change-callsign-btn').textContent = myName ? '✏️ CHANGE NAME' : '✏️ SET NAME';
 
     const lbGame = window.getActiveGame();
     if (lbGame && typeof lbGame.getLeaderboardHTML === 'function') {
@@ -1044,6 +1097,14 @@ viewLeaderboardBtn.addEventListener('click', async () => {
     renderLeaderboard();
 });
 
+document.getElementById('change-callsign-btn').addEventListener('click', async () => {
+    initAudio();
+    playSound('confirm');
+    if (!window.GeoLeaderboard) return;
+    await window.GeoLeaderboard.changeCallsign();
+    setTimeout(renderLeaderboard, 600);   // give the cloud a moment to save the new name
+});
+
 fullLeaderboardBtn.addEventListener('click', () => {
     initAudio();
     playSound('confirm');
@@ -1056,6 +1117,55 @@ closeLeaderboardBtn.addEventListener('click', () => {
     leaderboardModal.classList.add('hidden');
 });
 
+
+
+// DAILY CHALLENGE HOME MENU
+window.refreshDailyHome = function() {
+    const daily = window.usaDailyGame;
+    if (!daily) return;
+    const info = daily.getHomeInfo();
+    document.getElementById('daily-home-badge').textContent = info.hard ? '🔥 HARD WEDNESDAY' : '🗓️ DAILY CHALLENGE';
+    document.getElementById('daily-home-streak').textContent = info.streak;
+    document.getElementById('daily-home-best').textContent = info.maxStreak;
+    document.getElementById('daily-home-perfect').textContent = info.perfect;
+    const btn = document.getElementById('daily-launch-btn');
+    const next = document.getElementById('daily-home-next');
+    if (info.played) {
+        btn.textContent = `✅ TODAY: ${info.found}/${info.total} · VIEW RESULT`;
+        btn.classList.add('played');
+        next.textContent = `Next mission in ${info.nextIn}`;
+    } else {
+        btn.textContent = "🚀 LAUNCH TODAY'S MISSION";
+        btn.classList.remove('played');
+        next.textContent = '';
+    }
+};
+window.refreshDailyHome();
+setInterval(window.refreshDailyHome, 1000);
+
+document.getElementById('daily-launch-btn').addEventListener('click', () => {
+    initAudio();
+    playSound('confirm');
+    if (window.usaDailyGame) window.usaDailyGame.start();
+});
+
+document.getElementById('show-elim-btn').addEventListener('click', () => {
+    initAudio();
+    playSound('confirm');
+    document.getElementById('daily-menu').classList.add('hidden');
+    document.getElementById('elim-menu').classList.remove('hidden');
+    window.refreshHomeHighScore();
+});
+
+document.getElementById('back-daily-btn').addEventListener('click', () => {
+    initAudio();
+    playSound('confirm');
+    // the daily challenge is USA only, so switch back from Europe if needed
+    if (gameMode === 'europe') document.getElementById('mode-btn').click();
+    document.getElementById('elim-menu').classList.add('hidden');
+    document.getElementById('daily-menu').classList.remove('hidden');
+    window.refreshDailyHome();
+});
 
 // SHOW ANSWER BUTTON & QUESTION REVEAL LOGIC
 const showAnswerBtn = document.getElementById('show-answer-btn');
