@@ -1,7 +1,7 @@
 // ==========================================
 // GEO-SPACERACE: DAILY LAUNCH WINDOW (USA)
 // One question per day, the same for everyone.
-// Find as many correct states as you can in 45 seconds.
+// Find as many correct states as you can in 60 seconds.
 // Each wrong click burns 5 seconds of fuel.
 // One run per day + streaks + share button.
 // ==========================================
@@ -10,7 +10,7 @@ window.usaDailyGame = (function () {
     // ---------- SETTINGS (easy to tweak) ----------
     const DAILY_QUESTIONS_FILE = 'questions-usa-daily.json';
     const DAILY_MAP_FILE = 'us-states.geojson';
-    const ROUND_SECONDS = 45;          // starting fuel (seconds)
+    const ROUND_SECONDS = 60;          // starting fuel (seconds)
     const WRONG_PENALTY_SECONDS = 5;   // fuel lost per wrong click
     const FIRST_WINDOW = new Date(2026, 10, 13); // Nov 13, 2026 = Launch Window #1 (month is 0-based)
     const HARD_WEEKDAY = 3;            // 0 = Sunday ... 3 = Wednesday (the hard day)
@@ -133,7 +133,7 @@ window.usaDailyGame = (function () {
                 <header class="daily-hud">
                     <button id="daily-home-btn" class="space-btn secondary-btn daily-small-btn">🏠 Home</button>
                     <div class="daily-title" id="daily-num">DAILY CHALLENGE</div>
-                    <div class="daily-timer" id="daily-timer">0:45</div>
+                    <div class="daily-timer" id="daily-timer">1:00</div>
                 </header>
                 <div class="daily-prompt" id="daily-prompt">Loading today's mission...</div>
                 <div class="daily-fuel">
@@ -364,7 +364,7 @@ window.usaDailyGame = (function () {
     }
 
     // Alaska and Hawaii are moved into insets (like a classroom map)
-    // so the whole country fits on screen with no panning during the 45 seconds.
+    // so the whole country fits on screen with no panning during the round.
     const INSETS = {
         alaska: { lng: c => -124.5 + (c + 170) * 0.33, lat: c => 20.6 + (c - 51) * 0.45 },
         hawaii: { lng: c => c + 50.5, lat: c => c + 3.8 }
@@ -542,7 +542,7 @@ window.usaDailyGame = (function () {
         const t = $('daily-timer');
         if (t) {
             const s = Math.ceil(left);
-            t.textContent = `0:${String(Math.min(59, s)).padStart(2, '0')}`;
+            t.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
             t.classList.toggle('low', dRunning && s <= 10);
         }
         const c = $('daily-count');
