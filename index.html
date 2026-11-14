@@ -9,6 +9,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="style-usa-elimination.css">
+    <link rel="stylesheet" href="style-europe-elimination.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- GOOGLE ADSENSE SCRIPT -->
@@ -404,28 +405,155 @@
     </div>
 
 
+    <!-- EUROPE MODE ARTWORK (only visible in Europe mode) -->
+    <div class="europe-scene" aria-hidden="true">
+        <svg class="europe-art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="euEarthGrad" cx="50%" cy="0%" r="100%">
+                    <stop offset="0%" stop-color="#1e6fa8"/>
+                    <stop offset="55%" stop-color="#0a2a52"/>
+                    <stop offset="100%" stop-color="#030b1c"/>
+                </radialGradient>
+                <linearGradient id="euAuroraGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#34d399" stop-opacity="0"/>
+                    <stop offset="60%" stop-color="#2dd4bf" stop-opacity=".55"/>
+                    <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+                </linearGradient>
+                <filter id="euBlur"><feGaussianBlur stdDeviation="18"/></filter>
+                <filter id="euSoft"><feGaussianBlur stdDeviation="3"/></filter>
+                <linearGradient id="euRocketGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#94a3b8"/>
+                    <stop offset="50%" stop-color="#ffffff"/>
+                    <stop offset="100%" stop-color="#94a3b8"/>
+                </linearGradient>
+                <radialGradient id="euSunGrad">
+                    <stop offset="0%" stop-color="#fffde7"/>
+                    <stop offset="55%" stop-color="#ffd27c"/>
+                    <stop offset="100%" stop-color="#f28b38"/>
+                </radialGradient>
+                <linearGradient id="euMoonGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#aab8ca"/>
+                    <stop offset="100%" stop-color="#263449"/>
+                </linearGradient>
+                <polygon id="euStar" points="0,-2.4 0.7,-0.8 2.3,-0.8 1,0.3 1.5,2 0,1 -1.5,2 -1,0.3 -2.3,-0.8 -0.7,-0.8" fill="#ffcc00"/>
+
+            </defs>
+
+            <g fill="#ffffff" opacity=".8">
+                <circle cx="180" cy="120" r="2"/><circle cx="420" cy="260" r="1.5"/>
+                <circle cx="700" cy="140" r="2"/><circle cx="980" cy="230" r="1.5"/>
+                <circle cx="1250" cy="110" r="2"/><circle cx="1480" cy="300" r="1.5"/>
+                <circle cx="300" cy="380" r="1.5"/><circle cx="1120" cy="400" r="2"/>
+            </g>
+
+            <!-- EARTH in the sky (top left) -->
+            <g>
+                <circle cx="230" cy="190" r="80" fill="#168cff" opacity=".2" filter="url(#euBlur)"/>
+                <circle cx="230" cy="190" r="52" fill="#0878d5" stroke="#70dfff" stroke-width="3"/>
+                <path d="M200 165 L215 150 L235 158 L246 172 L262 178 L266 196 L252 212 L236 208 L224 228 L210 216 L203 196 Z" fill="#62c58c"/>
+                <path d="M182 190 Q230 140 278 190" fill="none" stroke="#d4f4ff" stroke-width="3" opacity=".5"/>
+            </g>
+
+            <!-- DISTANT MOON HILLS -->
+            <path d="M0 740 L120 695 L220 720 L340 665 L450 720 L570 680 L690 715 L810 670 L950 720 L1080 675 L1210 715 L1330 660 L1450 710 L1600 680 L1600 900 L0 900 Z" fill="#374357"/>
+
+            <!-- MOON SURFACE -->
+            <path d="M0 785 Q120 720 250 765 Q380 800 500 750 Q650 710 790 770 Q920 820 1060 750 Q1210 710 1350 760 Q1480 800 1600 735 L1600 900 L0 900 Z" fill="url(#euMoonGrad)"/>
+            <path d="M0 785 Q120 720 250 765 Q380 800 500 750 Q650 710 790 770 Q920 820 1060 750 Q1210 710 1350 760 Q1480 800 1600 735" fill="none" stroke="#99f6e4" stroke-width="3" opacity=".3"/>
+
+            <!-- MOON CRATERS -->
+            <g fill="#202b3d" opacity=".8">
+                <ellipse cx="100" cy="820" rx="75" ry="18"/>
+                <ellipse cx="470" cy="830" rx="55" ry="13"/>
+                <ellipse cx="780" cy="850" rx="90" ry="20"/>
+                <ellipse cx="1110" cy="815" rx="65" ry="16"/>
+                <ellipse cx="1490" cy="830" rx="85" ry="20"/>
+            </g>
+
+            <!-- MOON ROCKS -->
+            <g fill="#aab5c5" opacity=".55">
+                <path d="M540 795 L560 780 L585 795 L577 807 H547 Z"/>
+                <path d="M980 790 L995 770 L1025 780 L1030 795 Z"/>
+                <path d="M1430 785 L1452 767 L1477 782 L1467 800 Z"/>
+            </g>
+
+            <!-- satellite -->
+            <g class="eu-satellite">
+                <rect x="0" y="300" width="26" height="12" rx="2" fill="#e2e8f0"/>
+                <rect x="-34" y="303" width="30" height="6" fill="#38bdf8"/>
+                <rect x="30" y="303" width="30" height="6" fill="#38bdf8"/>
+                <circle cx="13" cy="306" r="3" fill="#2dd4bf"/>
+            </g>
+
+
+            <!-- SUN (top right) -->
+            <g class="eu-sun">
+                <circle cx="1480" cy="120" r="110" fill="#ffb45c" opacity=".15" filter="url(#euBlur)"/>
+                <circle cx="1480" cy="120" r="55" fill="url(#euSunGrad)"/>
+                <circle cx="1480" cy="120" r="64" fill="none" stroke="#ffc879" stroke-width="3" opacity=".4"/>
+            </g>
+
+            <!-- EU FLAG planted on the horizon (left) -->
+            <g class="eu-flag">
+                <path d="M255 770 L255 528" stroke="#dbeafe" stroke-width="7" stroke-linecap="round"/>
+                <circle cx="255" cy="524" r="6" fill="#facc15"/>
+                <g transform="translate(258 536)">
+                    <g>
+                        <animateTransform attributeName="transform" type="skewY" values="0;-3;0;3;0" dur="4s" repeatCount="indefinite"/>
+                        <rect width="150" height="100" fill="#003399" stroke="#e2e8f0" stroke-width="2"/>
+                        <use href="#euStar" transform="translate(75.0 17.0) scale(2.6)"/><use href="#euStar" transform="translate(91.5 21.4) scale(2.6)"/><use href="#euStar" transform="translate(103.6 33.5) scale(2.6)"/><use href="#euStar" transform="translate(108.0 50.0) scale(2.6)"/><use href="#euStar" transform="translate(103.6 66.5) scale(2.6)"/><use href="#euStar" transform="translate(91.5 78.6) scale(2.6)"/><use href="#euStar" transform="translate(75.0 83.0) scale(2.6)"/><use href="#euStar" transform="translate(58.5 78.6) scale(2.6)"/><use href="#euStar" transform="translate(46.4 66.5) scale(2.6)"/><use href="#euStar" transform="translate(42.0 50.0) scale(2.6)"/><use href="#euStar" transform="translate(46.4 33.5) scale(2.6)"/><use href="#euStar" transform="translate(58.5 21.4) scale(2.6)"/>
+                    </g>
+                </g>
+            </g>
+
+            <!-- ROCKET WITH EU FLAG -->
+            <g transform="translate(1180 285) rotate(12) scale(1.1)">
+                <g>
+                    <animateTransform attributeName="transform" type="translate" values="0 0;0 -12;0 0" dur="5s" repeatCount="indefinite"/>
+                    <g transform="translate(0 170)">
+                        <g>
+                            <animateTransform attributeName="transform" type="scale" values="1 1;1 1.25;1 1" dur="0.45s" repeatCount="indefinite"/>
+                            <path d="M-13 0 Q0 70 13 0 Z" fill="#ff9f43"/>
+                            <path d="M-6 0 Q0 36 6 0 Z" fill="#fff4b0"/>
+                        </g>
+                    </g>
+                    <path d="M-30 105 L-58 165 L-30 150 Z" fill="#38bdf8" stroke="#94a3b8" stroke-width="3"/>
+                    <path d="M30 105 L58 165 L30 150 Z" fill="#38bdf8" stroke="#94a3b8" stroke-width="3"/>
+                    <path d="M-14 150 L-18 172 L18 172 L14 150 Z" fill="#64748b"/>
+                    <path d="M-30 150 L-30 0 Q0 -70 30 0 L30 150 Z" fill="url(#euRocketGrad)" stroke="#94a3b8" stroke-width="4"/>
+                    <path d="M-30 0 Q0 -70 30 0 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="3"/>
+                    <circle cx="0" cy="24" r="11" fill="#075985" stroke="#38bdf8" stroke-width="4"/>
+                    <!-- EU flag: blue field + ring of 12 gold stars -->
+                    <g transform="translate(0 78)">
+                        <rect x="-21" y="-14" width="42" height="28" fill="#003399" stroke="#e2e8f0" stroke-width="1.5"/>
+                        <use href="#euStar" x="0.00" y="-9.00"/><use href="#euStar" x="4.50" y="-7.79"/><use href="#euStar" x="7.79" y="-4.50"/><use href="#euStar" x="9.00" y="-0.00"/><use href="#euStar" x="7.79" y="4.50"/><use href="#euStar" x="4.50" y="7.79"/><use href="#euStar" x="0.00" y="9.00"/><use href="#euStar" x="-4.50" y="7.79"/><use href="#euStar" x="-7.79" y="4.50"/><use href="#euStar" x="-9.00" y="0.00"/><use href="#euStar" x="-7.79" y="-4.50"/><use href="#euStar" x="-4.50" y="-7.79"/>
+                    </g>
+                </g>
+            </g>
+        </svg>
+    </div>
+
+
     <!-- MAIN MENU CARD -->
     <div class="home-card">
 
         <h1 class="glow-title">GEO-SPACERACE</h1>
 
-        <div class="subtitle">
+        <div class="subtitle" id="home-subtitle">
             USA STATE TRIVIA GAME
         </div>
 
-        <p class="game-desc">
-            The race to the Moon is on! Compete against the
-            Soviet space program in an epic race to make
-            history. Answer U.S. state trivia correctly to
-            eliminate states from the map, advance your
-            mission, and launch America toward the Moon
-            before the Soviets get there first!
+        <p class="game-desc" id="home-desc">
+            The race to the Moon is on! Beat the clock and
+            answer U.S. state trivia correctly to eliminate
+            states from the map, advance your mission, and
+            launch your rocket all the way to the Moon!
         </p>
 
         <div class="home-stats">
             Personal Best:
             <span id="home-highscore">0</span>
-            STATES
+            <span id="home-unit">STATES</span>
         </div>
 
         <button id="start-btn" class="space-btn">
@@ -434,6 +562,10 @@
 
         <button id="hard-mode-btn" class="space-btn secondary-btn">
             HARD MODE: OFF
+        </button>
+
+        <button id="mode-btn" class="space-btn secondary-btn">
+            <svg viewBox="0 0 30 20" width="27" height="18" style="vertical-align:-3px;margin-right:8px;border-radius:2px"><rect width="30" height="20" fill="#003399"/><g fill="#ffcc00"><circle cx="15.00" cy="4.00" r="0.9"/><circle cx="18.00" cy="4.80" r="0.9"/><circle cx="20.20" cy="7.00" r="0.9"/><circle cx="21.00" cy="10.00" r="0.9"/><circle cx="20.20" cy="13.00" r="0.9"/><circle cx="18.00" cy="15.20" r="0.9"/><circle cx="15.00" cy="16.00" r="0.9"/><circle cx="12.00" cy="15.20" r="0.9"/><circle cx="9.80" cy="13.00" r="0.9"/><circle cx="9.00" cy="10.00" r="0.9"/><circle cx="9.80" cy="7.00" r="0.9"/><circle cx="12.00" cy="4.80" r="0.9"/></g></svg>SWITCH TO EUROPE MODE
         </button>
 
         <button id="view-leaderboard-btn" class="space-btn secondary-btn" style="margin-top: 12px;">
@@ -630,10 +762,11 @@
 <!-- LEADERBOARD MODAL -->
 <div id="leaderboard-modal" class="modal hidden">
     <div class="modal-content" style="max-width: 500px;">
-        <h2>MISSION LEADERBOARD</h2>
-        <div id="leaderboard-modal-list" style="margin: 20px 0; max-height: 250px; overflow-y: auto; text-align: left; font-family: 'Rajdhani', sans-serif;">
+        <h2 id="leaderboard-title">MISSION LEADERBOARD</h2>
+        <div id="leaderboard-modal-list" style="margin: 20px 0; max-height: 55vh; overflow-y: auto; text-align: left; font-family: 'Rajdhani', sans-serif;">
             <p style="text-align: center; color: var(--text-muted);">Loading telemetry data...</p>
         </div>
+        <button id="full-leaderboard-btn" class="space-btn secondary-btn" style="margin-bottom: 10px;">VIEW FULL LEADERBOARD</button>
         <button id="close-leaderboard-btn" class="space-btn">CLOSE</button>
     </div>
 </div>
@@ -644,7 +777,9 @@
 
 
 <!-- CRITICAL: LOAD GAME ENGINE FIRST BEFORE UI SCRIPTS -->
-<script src="game-usa-elimination.js"></script>
+<script src="leaderboard-shared.js?v=4"></script>
+<script src="game-usa-elimination.js?v=4"></script>
+<script src="game-europe-elimination.js?v=4"></script>
 
 
 <!-- AUDIO & UI SCRIPT -->
@@ -739,10 +874,12 @@ window.refreshHomeHighScore = function() {
     const highscoreEl =
         document.getElementById('home-highscore');
 
-    if (highscoreEl && window.usaEliminationGame) {
+    const activeGame = window.getActiveGame && window.getActiveGame();
+
+    if (highscoreEl) {
 
         highscoreEl.textContent =
-            window.usaEliminationGame.getHighScore();
+            activeGame ? activeGame.getHighScore() : 0;
 
     }
 
@@ -777,9 +914,11 @@ hardBtn.addEventListener('click', () => {
 
     }
 
-    if (window.usaEliminationGame) {
+    const activeGame = window.getActiveGame();
 
-        window.usaEliminationGame.setHardMode(isHard);
+    if (activeGame) {
+
+        activeGame.setHardMode(isHard);
 
     }
 
@@ -796,42 +935,120 @@ document.getElementById('start-btn')
 
         playSound('confirm');
 
-        if (window.usaEliminationGame) {
+        const activeGame = window.getActiveGame();
 
-            window.usaEliminationGame.setHardMode(isHard);
+        if (activeGame) {
 
-            window.usaEliminationGame.start();
+            // remove the old in-game Home button so the active mode rebuilds its own
+            const oldHomeBtn = document.getElementById('game-home-btn');
+            if (oldHomeBtn) oldHomeBtn.remove();
+
+            activeGame.setHardMode(isHard);
+
+            activeGame.start();
 
         } else {
 
-            console.error(
-                "usaEliminationGame is not loaded!"
-            );
+            const missingFile = gameMode === 'europe'
+                ? 'game-europe-elimination.js'
+                : 'game-usa-elimination.js';
+            console.error(missingFile + ' is not loaded!');
+            alert('Launch failed: ' + missingFile + ' did not load.\nRe-upload that file next to index.html and hard refresh (Ctrl+Shift+R).');
 
         }
 
     });
 
 
+
+// GAME MODE SWITCH (USA <-> EUROPE)
+let gameMode = 'usa';
+
+window.getActiveGame = function() {
+    return gameMode === 'europe'
+        ? window.europeEliminationGame
+        : window.usaEliminationGame;
+};
+
+const MODE_TEXT = {
+    usa: {
+        subtitle: 'USA STATE TRIVIA GAME',
+        unit: 'STATES',
+        btn: '<svg viewBox="0 0 30 20" width="27" height="18" style="vertical-align:-3px;margin-right:8px;border-radius:2px"><rect width="30" height="20" fill="#003399"/><g fill="#ffcc00"><circle cx="15.00" cy="4.00" r="0.9"/><circle cx="18.00" cy="4.80" r="0.9"/><circle cx="20.20" cy="7.00" r="0.9"/><circle cx="21.00" cy="10.00" r="0.9"/><circle cx="20.20" cy="13.00" r="0.9"/><circle cx="18.00" cy="15.20" r="0.9"/><circle cx="15.00" cy="16.00" r="0.9"/><circle cx="12.00" cy="15.20" r="0.9"/><circle cx="9.80" cy="13.00" r="0.9"/><circle cx="9.00" cy="10.00" r="0.9"/><circle cx="9.80" cy="7.00" r="0.9"/><circle cx="12.00" cy="4.80" r="0.9"/></g></svg>SWITCH TO EUROPE MODE',
+        desc: document.getElementById('home-desc').innerHTML
+    },
+    europe: {
+        subtitle: 'EUROPE COUNTRY TRIVIA GAME',
+        unit: 'COUNTRIES',
+        btn: '<svg viewBox="0 0 38 20" width="34" height="18" style="vertical-align:-3px;margin-right:8px;border-radius:2px"><rect width="38" height="20" fill="#fff"/><path d="M0 0H38V1.54H0ZM0 3.08H38V4.62H0ZM0 6.15H38V7.69H0ZM0 9.23H38V10.77H0ZM0 12.31H38V13.85H0ZM0 15.38H38V16.92H0ZM0 18.46H38V20H0Z" fill="#b22234"/><rect width="15.2" height="10.77" fill="#3c3b6e"/></svg>SWITCH TO USA MODE',
+        desc: 'The race to the Moon is on! Beat the clock and answer European trivia correctly to eliminate countries from the map, advance your mission, and launch your rocket all the way to the Moon!'
+    }
+};
+
+document.getElementById('mode-btn').addEventListener('click', () => {
+
+    initAudio();
+    playSound('confirm');
+
+    // shut down the mode we are leaving (removes its map so the other can use #map)
+    const leaving = window.getActiveGame();
+    if (leaving && typeof leaving.destroy === 'function') leaving.destroy();
+
+    gameMode = (gameMode === 'usa') ? 'europe' : 'usa';
+
+    const t = MODE_TEXT[gameMode];
+
+    document.getElementById('home-screen')
+        .classList.toggle('europe-mode', gameMode === 'europe');
+    document.getElementById('home-subtitle').textContent = t.subtitle;
+    document.getElementById('home-unit').textContent = t.unit;
+    document.getElementById('home-desc').textContent = t.desc;
+    document.getElementById('mode-btn').innerHTML = t.btn;
+
+    const entering = window.getActiveGame();
+    if (entering) entering.setHardMode(isHard);
+
+    window.refreshHomeHighScore();
+
+});
+
 // LEADERBOARD POPUP HANDLERS
 const leaderboardModal = document.getElementById('leaderboard-modal');
 const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
 const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
 
+const fullLeaderboardBtn = document.getElementById('full-leaderboard-btn');
+let leaderboardFullView = false;
+
+async function renderLeaderboard() {
+    const listEl = document.getElementById('leaderboard-modal-list');
+    const titleEl = document.getElementById('leaderboard-title');
+    listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading telemetry data...</p>';
+    if (titleEl) titleEl.textContent = (gameMode === 'europe' ? 'EUROPE' : 'USA') + ' LEADERBOARD';
+    fullLeaderboardBtn.textContent = leaderboardFullView ? 'SHOW TOP 5' : 'VIEW FULL LEADERBOARD';
+
+    const lbGame = window.getActiveGame();
+    if (lbGame && typeof lbGame.getLeaderboardHTML === 'function') {
+        listEl.innerHTML = await lbGame.getLeaderboardHTML(leaderboardFullView);
+    } else {
+        listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No records found.</p>';
+    }
+    listEl.scrollTop = 0;
+}
+
 viewLeaderboardBtn.addEventListener('click', async () => {
     initAudio();
     playSound('confirm');
     leaderboardModal.classList.remove('hidden');
-    
-    // Render leaderboard into modal list
-    const listEl = document.getElementById('leaderboard-modal-list');
-    listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading telemetry data...</p>';
-    
-    if (window.usaEliminationGame && typeof window.usaEliminationGame.getLeaderboardHTML === 'function') {
-        listEl.innerHTML = await window.usaEliminationGame.getLeaderboardHTML();
-    } else {
-        listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No records found.</p>';
-    }
+    leaderboardFullView = false;
+    renderLeaderboard();
+});
+
+fullLeaderboardBtn.addEventListener('click', () => {
+    initAudio();
+    playSound('confirm');
+    leaderboardFullView = !leaderboardFullView;
+    renderLeaderboard();
 });
 
 closeLeaderboardBtn.addEventListener('click', () => {
