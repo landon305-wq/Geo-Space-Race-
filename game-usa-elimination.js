@@ -412,7 +412,7 @@ window.usaEliminationGame = (() => {
     };
 
     const usaLabelPositionOverrides = {
-        AK: [64.5, -152.5], MA: [42.25, -71.8], CT: [41.55, -72.7],
+        AK: [25.8, -117.5], MA: [42.25, -71.8], CT: [41.55, -72.7],
         NJ: [40.1, -74.5], ID: [43.4, -114.3], OK: [35.5, -96.5],
         LA: [30.95, -92.0], FL: [27.6, -81.0], MI: [43.6, -84.8],
         MS: [32.9, -89.4], VA: [37.6, -78.2], KY: [37.5, -85.3],
@@ -525,15 +525,15 @@ window.usaEliminationGame = (() => {
         usaEntries.forEach(entry => {
             const abbr = (entry.abbr || usaAbbreviationFromName(entry.name)).toUpperCase();
             if (abbr === 'HI' || abbr === 'PR') {
-                const center = abbr === 'HI' ? L.latLng(20.35, -157.55) : L.latLng(18.22, -66.45);
-                const circleRadius = abbr === 'HI' ? 30 : 24;
-                const circleMarker = L.circleMarker(center, {
-                    radius: circleRadius, color: '#38bdf8', weight: 1.8,
+                const center = abbr === 'HI' ? L.latLng(...USA_HI_CENTER) : L.latLng(18.22, -66.45);
+                // tap circle sized in meters so it grows and shrinks with the map zoom
+                const circleMarker = L.circle(center, {
+                    radius: abbr === 'HI' ? 330000 : 150000, color: '#38bdf8', weight: 1.8,
                     fillColor: '#1e293b', fillOpacity: 0.1, interactive: true, className: 'usa-island-circle'
                 });
 
                 entry.circleMarker = circleMarker;
-                const labelPos = abbr === 'HI' ? L.latLng(center.lat + 4.2, center.lng) : L.latLng(center.lat + 3.8, center.lng);
+                const labelPos = abbr === 'HI' ? L.latLng(center.lat - 4.6, center.lng) : L.latLng(center.lat + 2.6, center.lng);
                 const entryGroup = L.layerGroup();
                 if (!usaHardMode) {
                     L.marker(labelPos, { icon: labelIcon(abbr), interactive: false, keyboard: false, zIndexOffset: 1000 }).addTo(entryGroup);
@@ -608,7 +608,7 @@ window.usaEliminationGame = (() => {
         if (!usaMap) usaInitializeGame();
         else if (usaQuestions.length) {
             usaResetGame();
-            setTimeout(() => usaMap.invalidateSize(), 150);
+            setTimeout(usaFitMap, 150);
         } else usaLoadQuestions();
     }
 
@@ -619,6 +619,7 @@ window.usaEliminationGame = (() => {
             if (!response.ok) throw new Error('Could not load us-states.geojson.');
             const geoData = await response.json();
             if (!Array.isArray(geoData.features)) throw new Error('Invalid GeoJSON.');
+            usaMoveAlaskaAndHawaii(geoData);
             usaCreateMap(geoData);
             await usaLoadQuestions();
         } catch (error) {
@@ -627,12 +628,39 @@ window.usaEliminationGame = (() => {
         }
     }
 
+    // Alaska and Hawaii are moved into boxes below the country (like a classroom map)
+    // so all 50 states, DC and Puerto Rico fit on screen without scrolling.
+    const USA_INSETS = {
+        alaska: { lng: c => -124.5 + (c + 170) * 0.33, lat: c => 20.6 + (c - 51) * 0.45 },
+        hawaii: { lng: c => c + 50.5, lat: c => c + 3.8 }
+    };
+    const USA_HI_CENTER = [20.6 + 3.8, -157.3 + 50.5];
+    const USA_FIT_BOUNDS = [[17.0, -125.0], [49.4, -62.5]];
+
+    function usaMoveAlaskaAndHawaii(geoData) {
+        geoData.features.forEach(f => {
+            const key = String(usaGetStateName(f.properties || {})).trim().toLowerCase();
+            const t = USA_INSETS[key];
+            if (!t || !f.geometry) return;
+            let polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+            if (key === 'alaska') polys = polys.filter(poly => poly[0].every(pt => pt[0] < 0)); // drop Aleutians past 180°
+            polys = polys.map(poly => poly.map(ring => ring.map(([x, y]) => [t.lng(x), t.lat(y)])));
+            f.geometry = { type: 'MultiPolygon', coordinates: polys };
+        });
+    }
+
+    function usaFitMap() {
+        if (!usaMap) return;
+        usaMap.invalidateSize();
+        usaMap.fitBounds(USA_FIT_BOUNDS, { padding: [6, 6] });
+    }
+
     function usaCreateMap(geoData) {
         if (!window.L) throw new Error('Leaflet not loaded.');
         if (usaMap) return;
         usaEntries = [];
         // Disabled double click zoom here so double-clicking doesn't zoom in
-        usaMap = L.map('map', { center: [37.8, -96], zoom: 4, minZoom: 3, maxZoom: 7, zoomControl: true, doubleClickZoom: false, attributionControl: false });
+        usaMap = L.map('map', { center: [37.8, -96], zoom: 4, minZoom: 1, maxZoom: 10, zoomSnap: 0.25, zoomControl: true, doubleClickZoom: false, attributionControl: false });
         const normalStyle = { color: '#38bdf8', weight: 1.2, fillColor: '#1e293b', fillOpacity: 0.95 };
 
         L.geoJSON(geoData, {
@@ -664,6 +692,7 @@ window.usaEliminationGame = (() => {
             }
         }).addTo(usaMap);
         usaCreateStateLabels();
+        usaFitMap();
     }
 
     async function usaLoadQuestions() {
@@ -674,7 +703,7 @@ window.usaEliminationGame = (() => {
             const bank = await response.json();
             usaQuestions = usaPrepareQuestions(bank);
             usaResetGame();
-            setTimeout(() => { if (usaMap) usaMap.invalidateSize(); }, 150);
+            setTimeout(usaFitMap, 150);
         } catch (error) {
             usaStopTimer();
             usaSetPrompt('ERROR: ' + error.message);
@@ -1035,6 +1064,8 @@ window.usaEliminationGame = (() => {
             };
         }
     }
+
+    window.addEventListener('resize', () => { if (usaMap) usaFitMap(); });
 
     return {
         setHardMode(on) {
