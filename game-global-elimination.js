@@ -4,7 +4,7 @@ window.globalEliminationGame = (() => {
     // ============================================
 
     const GL_MAP_FILE = 'world-countries.geojson';
-    const GL_MAP_VERSION = '6';   // bump when world-countries.geojson changes so browsers fetch the new map
+    const GL_MAP_VERSION = '7';   // bump when world-countries.geojson changes so browsers fetch the new map
     const GL_QUESTION_FILE = 'questions-global-elimination.json';
 
     const GL_NORMAL_LIVES = 3;
