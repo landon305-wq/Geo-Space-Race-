@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="style-usa-elimination.css?v=20">
     <link rel="stylesheet" href="style-europe-elimination.css?v=20">
-    <link rel="stylesheet" href="style-usa-daily.css?v=22">
+    <link rel="stylesheet" href="style-usa-daily.css?v=23">
     <link rel="stylesheet" href="style-global-elimination.css?v=20">
     <!-- keeps only one home menu visible even if a stylesheet is slow or missing -->
     <style>.home-menu.hidden { display: none !important; }</style>
@@ -941,7 +941,7 @@
 <script src="game-usa-elimination.js?v=20"></script>
 <script src="game-europe-elimination.js?v=20"></script>
 <script src="game-global-elimination.js?v=20"></script>
-<script src="game-usa-daily.js?v=22"></script>
+<script src="game-usa-daily.js?v=23"></script>
 
 
 <!-- AUDIO & UI SCRIPT -->
@@ -1253,8 +1253,13 @@ window.refreshDailyHome = function() {
     const info = daily.getHomeInfo();
     document.getElementById('daily-home-badge').textContent = info.global ? '🌍 GLOBAL FRIDAY' : info.hard ? '💀 HARD WEDNESDAY' : '🗓️ DAILY CHALLENGE';
     document.getElementById('daily-home-place').textContent = info.global ? 'country' : 'state';
-    // on Wednesdays, a note that today's mission is harder
-    document.getElementById('daily-home-week').classList.toggle('hidden', !info.hard);
+    // on Wednesdays a note that today's mission is harder; on Fridays a note that it's a world map
+    const weekNote = document.getElementById('daily-home-week');
+    weekNote.textContent = info.global ? "🌍 It's Global Friday! Today's mission uses the world map — click countries instead of states."
+                                       : "💀 It's Hard Wednesday! Today's mission is tougher than usual.";
+    weekNote.classList.toggle('hard', !!info.hard && !info.global);
+    weekNote.classList.toggle('global', !!info.global);
+    weekNote.classList.toggle('hidden', !info.hard && !info.global);
     document.getElementById('daily-home-streak').textContent = info.streak;
     document.getElementById('daily-home-best').textContent = info.maxStreak;
     document.getElementById('daily-home-perfect').textContent = info.perfect;

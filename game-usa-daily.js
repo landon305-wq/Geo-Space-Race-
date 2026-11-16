@@ -14,7 +14,7 @@ window.usaDailyGame = (function () {
     const WRONG_PENALTY_SECONDS = 5;   // fuel lost per wrong click
     const FIRST_WINDOW = new Date(2026, 10, 13); // Nov 13, 2026 = Launch Window #1 (month is 0-based)
     const HARD_WEEKDAY = 3;            // 0 = Sunday ... 3 = Wednesday (the hard day)
-    const GLOBAL_FRIDAYS_ON = false;   // Global Fridays are switched off for now (set to true to turn them on)
+    const GLOBAL_FRIDAYS_ON = true;    // Global Fridays: world-map questions every Friday from GLOBAL_START (false turns them off)
     const GLOBAL_WEEKDAY = 5;          // 5 = Friday: Global Friday, played on the world map
     const GLOBAL_START = new Date(2026, 10, 20);  // first Global Friday (Nov 20, 2026); earlier Fridays stay USA days
     const WORLD_MAP_FILE = 'world-countries.geojson?v=7';   // same map file as Global elimination mode
