@@ -14,6 +14,10 @@ window.usaDailyGame = (function () {
     const WRONG_PENALTY_SECONDS = 5;   // fuel lost per wrong click
     const FIRST_WINDOW = new Date(2026, 10, 13); // Nov 13, 2026 = Launch Window #1 (month is 0-based)
     const HARD_WEEKDAY = 3;            // 0 = Sunday ... 3 = Wednesday (the hard day)
+    const GLOBAL_FRIDAYS_ON = false;   // Global Fridays are switched off for now (set to true to turn them on)
+    const GLOBAL_WEEKDAY = 5;          // 5 = Friday: Global Friday, played on the world map
+    const GLOBAL_START = new Date(2026, 10, 20);  // first Global Friday (Nov 20, 2026); earlier Fridays stay USA days
+    const WORLD_MAP_FILE = 'world-countries.geojson?v=7';   // same map file as Global elimination mode
     const STORE_KEY = 'geo_usa_daily_v1';
     const SITE_URL = 'https://geospacerace.com/';   // link added to shared results
 
@@ -23,6 +27,8 @@ window.usaDailyGame = (function () {
     let dLabelLayer = null;
     let dQuestions = null;
     let dSpecials = {};
+    let dGlobal = [];             // Global Friday questions ("globalFridays" in the questions file)
+    let dKind = '';               // which map is drawn right now: 'usa' or 'world'
     let dQuestion = null;
     let dAnswers = new Set();     // normalized answer names
     let dFound = new Set();
@@ -49,7 +55,7 @@ window.usaDailyGame = (function () {
     function dayLabel(date = new Date()) {
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });   // e.g. "Nov 14"
     }
-    function headerLabel() { return (isHardDay() ? 'HARD WEDNESDAY · ' : 'DAILY CHALLENGE · ') + dayLabel().toUpperCase(); }
+    function headerLabel() { return (isGlobalDay() ? 'GLOBAL FRIDAY · ' : isHardDay() ? 'HARD WEDNESDAY · ' : 'DAILY CHALLENGE · ') + dayLabel().toUpperCase(); }
 
     function loadStore() {
         try {
@@ -156,7 +162,7 @@ window.usaDailyGame = (function () {
                     <ul class="daily-rules">
                         <li>⛽ There are <b><span id="daily-intro-count">?</span> correct answers</b> to find</li>
                         <li>⏱️ You have <b>${ROUND_SECONDS} seconds</b></li>
-                        <li>👆 Tap a state, then tap it <b>again</b> to lock it in</li>
+                        <li>👆 Tap a <span id="daily-rule-place">state</span>, then tap it <b>again</b> to lock it in</li>
                         <li>💥 Each wrong answer burns <b>${WRONG_PENALTY_SECONDS} seconds</b></li>
                         <li>🗓️ One launch per day, same for everyone</li>
                     </ul>
@@ -242,6 +248,8 @@ window.usaDailyGame = (function () {
         const data = await res.json();
         dQuestions = (data.questions || data).filter(q => q.prompt && Array.isArray(q.answers) && q.answers.length);
         dSpecials = (data.specials && typeof data.specials === 'object') ? data.specials : {};
+        dGlobal = (data.globalFridays || []).filter(q => q.prompt && Array.isArray(q.answers) && q.answers.length)
+            .map(q => Object.assign({}, q, { global: true }));
         if (!dQuestions.length) throw new Error('No daily questions found.');
         return dQuestions;
     }
@@ -264,17 +272,21 @@ window.usaDailyGame = (function () {
             }
             return q;
         }
-        // Wednesdays pull from the hard questions; every other day uses the regular ones.
+        // Wednesdays pull from the hard questions, Fridays (from GLOBAL_START) from the Global Friday
+        // questions, and every other day uses the regular ones. Each list keeps its own place in line.
         const hard = dQuestions.filter(q => q.hard);
         const regular = dQuestions.filter(q => !q.hard);
         const d = Math.max(0, dayIndex());
         if (!hard.length || !regular.length) return dQuestions[d % dQuestions.length];
-        let wednesdaysBefore = 0;
+        let wednesdaysBefore = 0, fridaysBefore = 0;
         for (let i = 0; i < d; i++) {
-            if (new Date(FIRST_WINDOW.getFullYear(), FIRST_WINDOW.getMonth(), FIRST_WINDOW.getDate() + i).getDay() === HARD_WEEKDAY) wednesdaysBefore++;
+            const day = new Date(FIRST_WINDOW.getFullYear(), FIRST_WINDOW.getMonth(), FIRST_WINDOW.getDate() + i);
+            if (day.getDay() === HARD_WEEKDAY) wednesdaysBefore++;
+            else if (isGlobalSlot(day)) fridaysBefore++;
         }
+        if (isGlobalDay()) return pickFromPool(dGlobal, fridaysBefore, 11);
         if (isHardDay()) return pickFromPool(hard, wednesdaysBefore, 7);
-        return pickFromPool(regular, d - wednesdaysBefore, 3);
+        return pickFromPool(regular, d - wednesdaysBefore - fridaysBefore, 3);
     }
 
     // First time through, questions run in file order. Once every question has been used,
@@ -306,6 +318,12 @@ window.usaDailyGame = (function () {
 
     // a holiday special on a Wednesday replaces Hard Wednesday, so that day is not labelled hard
     function isHardDay(date = new Date()) { return date.getDay() === HARD_WEEKDAY && !(dSpecials && dSpecials[dateKey(date)]); }
+    // a Friday on or after GLOBAL_START uses the world map (a holiday special on that day still wins)
+    function isGlobalSlot(date) {
+        const day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        return GLOBAL_FRIDAYS_ON && date.getDay() === GLOBAL_WEEKDAY && day >= GLOBAL_START && dGlobal.length > 0;
+    }
+    function isGlobalDay(date = new Date()) { return isGlobalSlot(date) && !(dSpecials && dSpecials[dateKey(date)]); }
 
     // ---------- MAP ----------
     const NE_CALLOUTS = {
@@ -354,12 +372,17 @@ window.usaDailyGame = (function () {
     }
     function paintAll() { dEntries.forEach(paint); }
 
-    async function ensureMap() {
-        if (dMap) return;
+    async function ensureMap(kind = 'usa') {
+        if (dMap && dKind === kind) return;
         if (!window.L) throw new Error('Map library (Leaflet) did not load.');
+        if (dMap) { dMap.remove(); dMap = null; dEntries = []; dLabelLayer = null; }   // the day changed map type
+        dKind = kind;
+        if (kind === 'world') return buildWorldMap();
         const res = await fetch(DAILY_MAP_FILE);
         if (!res.ok) throw new Error('Could not load ' + DAILY_MAP_FILE);
         const geo = await res.json();
+        // Puerto Rico is not part of the daily game
+        geo.features = (geo.features || []).filter(f => norm(f.properties && (f.properties.name || f.properties.NAME)) !== 'puerto rico');
         moveAlaskaAndHawaii(geo);
 
         dMap = L.map('daily-map', {
@@ -384,6 +407,76 @@ window.usaDailyGame = (function () {
         fitUSA();
     }
 
+    // ---------- WORLD MAP (Global Fridays) ----------
+    // Same map file as Global elimination mode: island countries get a dashed clickable zone,
+    // tiny countries (Vatican City, Monaco...) get a small square, and names appear as you zoom in.
+    const zoneStyle = s => ({ ...s, weight: Math.max(1.1, (s.weight || 1) * 0.8), dashArray: '5 4', fillOpacity: (s.fillOpacity || 0) * 0.35 });
+    const thinStyle = s => ({ ...s, weight: Math.max(0.6, (s.weight || 1) * 0.65) });
+    async function buildWorldMap() {
+        const res = await fetch(WORLD_MAP_FILE);
+        if (!res.ok) throw new Error('Could not load the world map.');
+        const geo = await res.json();
+        dMap = L.map('daily-map', {
+            center: [20, 10], zoom: 2, minZoom: 1, maxZoom: 8, zoomSnap: 0.5, zoomDelta: 1, wheelPxPerZoomLevel: 60,
+            zoomControl: true, doubleClickZoom: false, attributionControl: false, worldCopyJump: false,
+            maxBounds: [[-75, -200], [85, 215]], maxBoundsViscosity: 1.0,
+            renderer: L.canvas({ padding: 0.15, tolerance: 4 })
+        });
+        dLabelLayer = L.layerGroup().addTo(dMap);
+        const byName = {};
+        const entryFor = props => {
+            if (byName[props.name]) return byName[props.name];
+            const entry = { name: props.name, norm: norm(props.name), abbr: props.abbr || '', lz: Number(props.lz) || 4, parts: [], labels: [], circle: null };
+            entry.layer = { setStyle: st => entry.parts.forEach(l => l.setStyle(l._dwKind === 'zone' ? zoneStyle(st) : thinStyle(st))) };
+            byName[props.name] = entry;
+            dEntries.push(entry);
+            return entry;
+        };
+        const wire = (entry, layer) => {
+            layer.on('mouseover', () => { if (dRunning && entryStyle(entry) === STYLE_BASE) entry.layer.setStyle(STYLE_HOVER); });
+            layer.on('mouseout', () => paint(entry));
+            layer.on('click', () => handleClick(entry));
+        };
+        const addOutline = (entry, ring, kind) => {
+            const lyr = L.polygon(ring.map(([x, y]) => [y, x]), kind === 'zone' ? zoneStyle(STYLE_BASE) : thinStyle(STYLE_BASE));
+            lyr._dwKind = kind;
+            lyr.addTo(dMap);
+            entry.parts.push(lyr);
+            wire(entry, lyr);
+        };
+        const feats = (geo.features || []).filter(f => f.properties && f.properties.name);
+        // 1) island zones underneath, 2) real coastlines, 3) little squares for tiny countries on top
+        feats.forEach(f => { if (!f.properties.neutral && f.properties.zones) f.properties.zones.forEach(r => addOutline(entryFor(f.properties), r, 'zone')); });
+        feats.forEach(f => {
+            const p = f.properties;
+            if (!f.geometry) return;
+            if (p.neutral) {
+                L.geoJSON(f, { style: () => ({ color: '#334155', weight: 0.6, fillColor: '#0b1220', fillOpacity: 0.9, dashArray: '3 3' }), interactive: false }).addTo(dMap);
+                return;
+            }
+            const entry = entryFor(p);
+            L.geoJSON(f, { style: () => thinStyle(STYLE_BASE), smoothFactor: 1.5 }).eachLayer(l => { l._dwKind = 'land'; l.addTo(dMap); entry.parts.push(l); wire(entry, l); });
+            if (p.label) {
+                const cls = entry.lz <= 2 ? 'big' : (entry.lz >= 5 || entry.name.length > 16) ? 'small' : '';
+                entry.labels.push(L.marker(p.label, { icon: L.divIcon({ className: 'dw-label-icon', html: `<span class="dw-label ${cls}">${esc(entry.name)}</span>`, iconSize: [0, 0] }), interactive: false, keyboard: false, zIndexOffset: 1000 }));
+            }
+        });
+        feats.forEach(f => { if (!f.properties.neutral && f.properties.box) addOutline(entryFor(f.properties), f.properties.box, 'box'); });
+        dMap.on('zoomend', updateWorldLabels);
+        fitMap();
+        updateWorldLabels();
+    }
+    function updateWorldLabels() {
+        if (!dMap || dKind !== 'world' || !dLabelLayer) return;
+        const z = dMap.getZoom();
+        dEntries.forEach(entry => (entry.labels || []).forEach(m => {
+            const show = z >= Math.max(1.5, entry.lz - (entry.lz >= 5 ? 1 : 0.75));
+            const has = dLabelLayer.hasLayer(m);
+            if (show && !has) dLabelLayer.addLayer(m);
+            else if (!show && has) dLabelLayer.removeLayer(m);
+        }));
+    }
+
     // Alaska and Hawaii are moved into insets (like a classroom map)
     // so the whole country fits on screen with no panning during the round.
     const INSETS = {
@@ -403,11 +496,13 @@ window.usaDailyGame = (function () {
     }
     const HI_CENTER = [20.6 + 3.8, -157.3 + 50.5];
 
-    function fitUSA() {
+    function fitMap() {
         if (!dMap) return;
         dMap.invalidateSize();
-        dMap.fitBounds([[17.0, -125.0], [49.4, -62.5]], { padding: [6, 6] });
+        if (dKind === 'world') dMap.fitBounds([[-56, -170], [78, 190]], { padding: [4, 4] });
+        else dMap.fitBounds([[17.0, -125.0], [49.4, -62.5]], { padding: [6, 6] });
     }
+    const fitUSA = fitMap;
 
     function buildLabels() {
         dLabelLayer = L.layerGroup().addTo(dMap);
@@ -460,12 +555,14 @@ window.usaDailyGame = (function () {
 
         try {
             await loadQuestions();
-            await ensureMap();
+            await ensureMap(isGlobalDay() ? 'world' : 'usa');
         } catch (err) {
             $('daily-prompt').textContent = 'ERROR: ' + err.message;
             return;
         }
-        setTimeout(fitUSA, 80);
+        setTimeout(fitMap, 80);
+        $('daily-num').textContent = headerLabel();
+        $('daily-rule-place').textContent = isGlobalDay() ? 'country' : 'state';
 
         dQuestion = todaysQuestion();
         dAnswers = new Set(dQuestion.answers.map(norm));
@@ -505,7 +602,7 @@ window.usaDailyGame = (function () {
         $('daily-prompt').textContent = '🔒 Today\'s mission is sealed until launch.';
         $('daily-intro-num').textContent = headerLabel();
         $('daily-intro-count').textContent = dAnswers.size;
-        $('daily-intro-cat').textContent = (dQuestion.hard ? '🔥 HARD WEDNESDAY · ' : "Today's category: ") + (dQuestion.category || 'Mystery');
+        $('daily-intro-cat').textContent = (dQuestion.global ? '🌍 GLOBAL FRIDAY · ' : dQuestion.hard ? '💀 HARD WEDNESDAY · ' : "Today's category: ") + (dQuestion.category || 'Mystery');
         const introEl = $('daily-intro-special');
         introEl.textContent = dQuestion.intro || '';
         introEl.classList.toggle('hidden', !dQuestion.intro);
@@ -763,7 +860,7 @@ window.usaDailyGame = (function () {
         const store = loadStore();
         const r = store.results[dayIndex()];
         if (!r || !r.done) return '';
-        return `🚀 Geo-Spacerace Daily · ${dayLabel()}${isHardDay() ? ' 🔥 Hard Wednesday' : ''}\n` +
+        return `🚀 Geo-Spacerace Daily · ${dayLabel()}${isGlobalDay() ? ' 🌍 Global Friday' : isHardDay() ? ' 💀 Hard Wednesday' : ''}\n` +
             `${trackerEmoji(r)} ${r.found.length}/${r.total}\n` +
             `⏱️ ${r.timeLeft || 0}s left · 💥 ${(r.wrong || []).length} · 🔥 ${currentStreak(store)}\n` +
             SITE_URL;
@@ -807,11 +904,19 @@ window.usaDailyGame = (function () {
 
     // ---------- HOME SCREEN INFO ----------
     function getHomeInfo() {
+        // load the questions in the background so the home screen knows about specials and Global Fridays
+        if (!dQuestions && !getHomeInfo._loading) {
+            getHomeInfo._loading = true;
+            loadQuestions().then(() => window.refreshDailyHome && window.refreshDailyHome()).catch(() => {}).finally(() => { getHomeInfo._loading = false; });
+        }
         const store = loadStore();
         const r = store.results[dayIndex()];
         return {
             number: windowNumber(),
             hard: isHardDay(),
+            global: isGlobalDay(),
+            special: !!(dSpecials && dSpecials[dateKey()]),
+            weekday: new Date().getDay(),
             played: !!(r && r.done),
             found: r && r.done ? r.found.length : 0,
             total: r && r.done ? r.total : 0,

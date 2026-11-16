@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="style-usa-elimination.css?v=20">
     <link rel="stylesheet" href="style-europe-elimination.css?v=20">
-    <link rel="stylesheet" href="style-usa-daily.css?v=21">
+    <link rel="stylesheet" href="style-usa-daily.css?v=22">
     <link rel="stylesheet" href="style-global-elimination.css?v=20">
     <!-- keeps only one home menu visible even if a stylesheet is slow or missing -->
     <style>.home-menu.hidden { display: none !important; }</style>
@@ -657,10 +657,12 @@
 
 
             <p class="game-desc">
-                You have 60 seconds to find every state that fits
+                You have 60 seconds to find every <span id="daily-home-place">state</span> that fits
                 today's mission. Each wrong answer burns 5 seconds of
                 fuel. A new mission launches every day!
             </p>
+
+            <div class="daily-home-week hard hidden" id="daily-home-week">💀 It's Hard Wednesday! Today's mission is tougher than usual.</div>
 
             <div class="daily-home-stats">
                 <span class="streak">🔥 Streak: <b id="daily-home-streak">0</b></span>
@@ -939,7 +941,7 @@
 <script src="game-usa-elimination.js?v=20"></script>
 <script src="game-europe-elimination.js?v=20"></script>
 <script src="game-global-elimination.js?v=20"></script>
-<script src="game-usa-daily.js?v=21"></script>
+<script src="game-usa-daily.js?v=22"></script>
 
 
 <!-- AUDIO & UI SCRIPT -->
@@ -1249,7 +1251,10 @@ window.refreshDailyHome = function() {
     const daily = window.usaDailyGame;
     if (!daily) return;
     const info = daily.getHomeInfo();
-    document.getElementById('daily-home-badge').textContent = info.hard ? '🔥 HARD WEDNESDAY' : '🗓️ DAILY CHALLENGE';
+    document.getElementById('daily-home-badge').textContent = info.global ? '🌍 GLOBAL FRIDAY' : info.hard ? '💀 HARD WEDNESDAY' : '🗓️ DAILY CHALLENGE';
+    document.getElementById('daily-home-place').textContent = info.global ? 'country' : 'state';
+    // on Wednesdays, a note that today's mission is harder
+    document.getElementById('daily-home-week').classList.toggle('hidden', !info.hard);
     document.getElementById('daily-home-streak').textContent = info.streak;
     document.getElementById('daily-home-best').textContent = info.maxStreak;
     document.getElementById('daily-home-perfect').textContent = info.perfect;
@@ -1324,6 +1329,6 @@ window.setupModalAnswerReveal = function(questionText, correctAnswerString) {
 };
 
 </script>
-<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "3a6ddeb908b54945b01145d5021ffc48"}'></script><!-- End Cloudflare Web Analytics -->
+
 </body>
 </html>

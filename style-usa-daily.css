@@ -369,3 +369,30 @@
     .daily-res-score { font-size: 2.1rem; }
     .daily-res-fuel .sq { width: 20px; height: 20px; }
 }
+
+/* ---------- Global Friday world map ---------- */
+.dw-label-icon { background: transparent !important; border: 0 !important; pointer-events: none !important; }
+.dw-label {
+    display: block; transform: translate(-50%, -50%); width: max-content; max-width: 120px;
+    text-align: center; line-height: 1.05; white-space: normal;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.2px;
+    color: #e2e8f0; text-shadow: 0 0 3px #020617, 0 0 3px #020617, 0 0 2px #020617;
+}
+.dw-label.big { font-size: 13px; letter-spacing: 0.5px; }
+.dw-label.small { max-width: 76px; }
+
+/* ---------- home screen: what's special about today ---------- */
+.daily-home-week {
+    margin: -4px auto 14px;
+    max-width: 420px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    background: rgba(56, 189, 248, 0.08);
+    color: #bae6fd;
+    font-size: 0.98rem;
+    line-height: 1.4;
+}
+.daily-home-week.hard { border-color: rgba(249, 115, 22, 0.55); background: rgba(249, 115, 22, 0.12); color: #fed7aa; }
+.daily-home-week.global { border-color: rgba(168, 85, 247, 0.55); background: rgba(168, 85, 247, 0.12); color: #e9d5ff; }
+.daily-home-week.hidden { display: none; }
