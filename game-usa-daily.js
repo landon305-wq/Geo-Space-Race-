@@ -152,6 +152,7 @@ window.usaDailyGame = (function () {
                     <div class="daily-kicker" id="daily-intro-num">DAILY CHALLENGE</div>
                     <h2>READY FOR LAUNCH?</h2>
                     <div class="daily-intro-cat" id="daily-intro-cat">Today's category: —</div>
+                    <div class="daily-intro-special hidden" id="daily-intro-special"></div>
                     <ul class="daily-rules">
                         <li>⛽ There are <b><span id="daily-intro-count">?</span> correct answers</b> to find</li>
                         <li>⏱️ You have <b>${ROUND_SECONDS} seconds</b></li>
@@ -253,7 +254,15 @@ window.usaDailyGame = (function () {
         // a hand-made question for a specific date (holidays, events) wins over the normal rotation
         const special = dSpecials[dateKey()];
         if (special && special.prompt && Array.isArray(special.answers) && special.answers.length) {
-            return Object.assign({ id: 'special-' + dateKey(), category: 'Special' }, special);
+            const q = Object.assign({ id: 'special-' + dateKey(), category: 'Special' }, special);
+            // The story for the day ("It's Mickey's birthday! ...") goes on the launch screen and the
+            // question bar only shows the question. Use an "intro" field, or anything written before
+            // "Click" in the prompt is treated as the intro.
+            if (!q.intro) {
+                const i = q.prompt.indexOf('Click ');
+                if (i > 0) { q.intro = q.prompt.slice(0, i).trim(); q.prompt = q.prompt.slice(i); }
+            }
+            return q;
         }
         // Wednesdays pull from the hard questions; every other day uses the regular ones.
         const hard = dQuestions.filter(q => q.hard);
@@ -295,7 +304,8 @@ window.usaDailyGame = (function () {
         return order[pos];
     }
 
-    function isHardDay(date = new Date()) { return date.getDay() === HARD_WEEKDAY; }
+    // a holiday special on a Wednesday replaces Hard Wednesday, so that day is not labelled hard
+    function isHardDay(date = new Date()) { return date.getDay() === HARD_WEEKDAY && !(dSpecials && dSpecials[dateKey(date)]); }
 
     // ---------- MAP ----------
     const NE_CALLOUTS = {
@@ -496,6 +506,9 @@ window.usaDailyGame = (function () {
         $('daily-intro-num').textContent = headerLabel();
         $('daily-intro-count').textContent = dAnswers.size;
         $('daily-intro-cat').textContent = (dQuestion.hard ? '🔥 HARD WEDNESDAY · ' : "Today's category: ") + (dQuestion.category || 'Mystery');
+        const introEl = $('daily-intro-special');
+        introEl.textContent = dQuestion.intro || '';
+        introEl.classList.toggle('hidden', !dQuestion.intro);
         $('daily-countdown-big').classList.add('hidden');
         $('daily-go-btn').classList.remove('hidden');
         $('daily-results').classList.add('hidden');
