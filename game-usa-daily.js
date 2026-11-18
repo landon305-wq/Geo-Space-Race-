@@ -142,6 +142,7 @@ window.usaDailyGame = (function () {
                     <div class="daily-timer" id="daily-timer">1:00</div>
                 </header>
                 <div class="daily-prompt" id="daily-prompt">Loading today's mission...</div>
+                <div class="daily-tap-hint hidden" id="daily-tap-hint"></div>
                 <div class="daily-fuel">
                     <span class="daily-fuel-label">FUEL</span>
                     <div class="daily-fuel-cells" id="daily-fuel-cells"></div>
@@ -159,10 +160,10 @@ window.usaDailyGame = (function () {
                     <h2>READY FOR LAUNCH?</h2>
                     <div class="daily-intro-cat" id="daily-intro-cat">Today's category: —</div>
                     <div class="daily-intro-special hidden" id="daily-intro-special"></div>
+                    <div class="daily-tap-tip">👆👆 <b>Tap twice to answer</b><br>Your first tap selects a <span id="daily-rule-place">state</span> (it turns yellow). Tap it <b>again</b> to lock it in.</div>
                     <ul class="daily-rules">
                         <li>⛽ There are <b><span id="daily-intro-count">?</span> correct answers</b> to find</li>
                         <li>⏱️ You have <b>${ROUND_SECONDS} seconds</b></li>
-                        <li>👆 Tap a <span id="daily-rule-place">state</span>, then tap it <b>again</b> to lock it in</li>
                         <li>💥 Each wrong answer burns <b>${WRONG_PENALTY_SECONDS} seconds</b></li>
                         <li>🗓️ One launch per day, same for everyone</li>
                     </ul>
@@ -324,6 +325,9 @@ window.usaDailyGame = (function () {
         return GLOBAL_FRIDAYS_ON && date.getDay() === GLOBAL_WEEKDAY && day >= GLOBAL_START && dGlobal.length > 0;
     }
     function isGlobalDay(date = new Date()) { return isGlobalSlot(date) && !(dSpecials && dSpecials[dateKey(date)]); }
+    // a special can use the world map too: give it  "map": "world"  in questions-usa-daily.json
+    function isWorldSpecial(date = new Date()) { const sp = dSpecials && dSpecials[dateKey(date)]; return !!(sp && sp.map === 'world'); }
+    function isWorldDay(date = new Date()) { return isGlobalDay(date) || isWorldSpecial(date); }
 
     // ---------- MAP ----------
     const NE_CALLOUTS = {
@@ -555,14 +559,14 @@ window.usaDailyGame = (function () {
 
         try {
             await loadQuestions();
-            await ensureMap(isGlobalDay() ? 'world' : 'usa');
+            await ensureMap(isWorldDay() ? 'world' : 'usa');
         } catch (err) {
             $('daily-prompt').textContent = 'ERROR: ' + err.message;
             return;
         }
         setTimeout(fitMap, 80);
         $('daily-num').textContent = headerLabel();
-        $('daily-rule-place').textContent = isGlobalDay() ? 'country' : 'state';
+        $('daily-rule-place').textContent = isWorldDay() ? 'country' : 'state';
 
         dQuestion = todaysQuestion();
         dAnswers = new Set(dQuestion.answers.map(norm));
@@ -602,7 +606,7 @@ window.usaDailyGame = (function () {
         $('daily-prompt').textContent = '🔒 Today\'s mission is sealed until launch.';
         $('daily-intro-num').textContent = headerLabel();
         $('daily-intro-count').textContent = dAnswers.size;
-        $('daily-intro-cat').textContent = (dQuestion.global ? '🌍 GLOBAL FRIDAY · ' : dQuestion.hard ? '💀 HARD WEDNESDAY · ' : "Today's category: ") + (dQuestion.category || 'Mystery');
+        $('daily-intro-cat').textContent = (dQuestion.global ? '🌍 GLOBAL FRIDAY · ' : dQuestion.hard ? '💀 HARD WEDNESDAY · ' : isWorldSpecial() ? "🌍 Today's category: " : "Today's category: ") + (dQuestion.category || 'Mystery');
         const introEl = $('daily-intro-special');
         introEl.textContent = dQuestion.intro || '';
         introEl.classList.toggle('hidden', !dQuestion.intro);
@@ -640,6 +644,7 @@ window.usaDailyGame = (function () {
         dSelected = null;
         paintAll();
         $('daily-prompt').textContent = dQuestion.prompt;
+        setTapHint();
         dEndTime = Date.now() + ROUND_SECONDS * 1000;
 
         const store = loadStore();
@@ -705,9 +710,11 @@ window.usaDailyGame = (function () {
             if (prev) paint(prev);
             paint(entry);
             beep('click');
+            setTapHint();
             return;
         }
         dSelected = null;
+        setTapHint();
 
         if (dAnswers.has(n)) {
             dFound.add(n);
@@ -729,6 +736,17 @@ window.usaDailyGame = (function () {
             persistProgress();
             tick();
         }
+    }
+
+    // the line under the question: reminds players that it takes two taps to answer
+    function setTapHint() {
+        const el = $('daily-tap-hint');
+        if (!el) return;
+        el.classList.toggle('hidden', !dRunning);
+        el.classList.toggle('armed', !!dSelected);
+        el.innerHTML = dSelected
+            ? `👆 Tap <b>${esc(dSelected.name)}</b> again to lock it in`
+            : `👆 Tap a ${isWorldDay() ? 'country' : 'state'} once to select it, then tap it <b>again</b> to lock it in`;
     }
 
     function flashState(entry, good) {
@@ -759,6 +777,7 @@ window.usaDailyGame = (function () {
         if (!dRunning) return;
         dRunning = false;
         dSelected = null;
+        setTapHint();
         stopTimers();
         const left = forcedLeft !== undefined ? forcedLeft : secondsLeft();
         updateHud(left);
@@ -860,7 +879,7 @@ window.usaDailyGame = (function () {
         const store = loadStore();
         const r = store.results[dayIndex()];
         if (!r || !r.done) return '';
-        return `🚀 Geo-Spacerace Daily · ${dayLabel()}${isGlobalDay() ? ' 🌍 Global Friday' : isHardDay() ? ' 💀 Hard Wednesday' : ''}\n` +
+        return `🚀 Geo-Spacerace Daily · ${dayLabel()}${isGlobalDay() ? ' 🌍 Global Friday' : isWorldSpecial() ? ' 🌍' : isHardDay() ? ' 💀 Hard Wednesday' : ''}\n` +
             `${trackerEmoji(r)} ${r.found.length}/${r.total}\n` +
             `⏱️ ${r.timeLeft || 0}s left · 💥 ${(r.wrong || []).length} · 🔥 ${currentStreak(store)}\n` +
             SITE_URL;
@@ -915,6 +934,7 @@ window.usaDailyGame = (function () {
             number: windowNumber(),
             hard: isHardDay(),
             global: isGlobalDay(),
+            world: isWorldDay(),
             special: !!(dSpecials && dSpecials[dateKey()]),
             weekday: new Date().getDay(),
             played: !!(r && r.done),
