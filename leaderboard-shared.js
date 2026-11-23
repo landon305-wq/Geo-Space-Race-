@@ -95,6 +95,24 @@ window.GeoLeaderboard = (function () {
         const unit = opts.unit || 'States';
         const total = () => (opts.getTotal ? opts.getTotal() : 0) || Infinity;
 
+        // Combine rows that share a name (ignoring capitals and extra spaces) into one entry:
+        // Moon landings are added up, the best score is the highest one, and the newest spelling of the name is shown.
+        function mergeByName(rows, uid) {
+            const map = new Map();
+            (rows || []).forEach(r => {
+                const name = String(r.name || 'Anonymous').replace(/\s+/g, ' ').trim() || 'Anonymous';
+                const key = name.toLowerCase();
+                const clears = Math.max(r.clears || 0, (r.best_score || 0) >= total() ? 1 : 0);
+                const cur = map.get(key);
+                if (!cur) { map.set(key, Object.assign({}, r, { name, clears, ids: [r.user_id] })); return; }
+                cur.clears += clears;
+                cur.best_score = Math.max(cur.best_score || 0, r.best_score || 0);
+                cur.ids.push(r.user_id);
+                if (new Date(r.updated_at || 0) > new Date(cur.updated_at || 0)) { cur.updated_at = r.updated_at; cur.name = name; }
+            });
+            return [...map.values()];
+        }
+
         function getLocal() {
             try { return JSON.parse(localStorage.getItem(opts.localKey)) || []; } catch (e) { return []; }
         }
@@ -209,10 +227,13 @@ window.GeoLeaderboard = (function () {
         }
 
         async function buildHTML(full) {
-            const { rows, cloud } = await fetchAll();
+            const fetched = await fetchAll();
+            const cloud = fetched.cloud;
             const uid = opts.getUserId();
-            const myName = (localStorage.getItem('astro_geo_player_callsign') || '').toLowerCase();
-            const isMe = r => cloud ? (!!uid && r.user_id === uid) : (!!myName && (r.name || '').toLowerCase() === myName);
+            const myName = (localStorage.getItem('astro_geo_player_callsign') || '').replace(/\s+/g, ' ').trim().toLowerCase();
+            // one entry per name: rows saved from different phones/computers under the same name are combined
+            const rows = mergeByName(fetched.rows, uid);
+            const isMe = r => (!!uid && (r.ids || []).includes(uid)) || (!!myName && (r.name || '').toLowerCase() === myName);
 
             // Anyone who cleared the whole map counts as a Moon lander, never as a high score
             const landed = r => (r.clears || 0) > 0 || (r.best_score || 0) >= total();
