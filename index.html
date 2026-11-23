@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GEO-SPACERACE | USA State Trivia</title>
+    <meta name="description" content="GEO-SPACERACE is a free map trivia game: a 60-second Daily Challenge plus USA, Europe and world geography missions. Answer on a real map and race your rocket to the Moon.">
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
@@ -12,6 +13,7 @@
     <link rel="stylesheet" href="style-europe-elimination.css?v=20">
     <link rel="stylesheet" href="style-usa-daily.css?v=25">
     <link rel="stylesheet" href="style-global-elimination.css?v=20">
+    <link rel="stylesheet" href="site-fixes.css?v=1">
     <!-- keeps only one home menu visible even if a stylesheet is slow or missing -->
     <style>.home-menu.hidden { display: none !important; }</style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -731,36 +733,16 @@
             </button>
 
         </div>
+            <nav class="home-site-links" aria-label="Site pages">
+                <a href="how-to-play.html">How to Play</a>
+                <a href="guides.html">Geography Guides</a>
+                <a href="about.html">About</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="contact.html">Contact</a>
+            </nav>
 
     </div>
 
-    <!-- FAR-RIGHT SCREEN BORDER AD PANEL (NEW SIDEBAR AD UNIT) -->
-    <div class="home-side-ad-panel" aria-label="Advertisement">
-        <div class="side-ad-inner">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-5097600965533779"
-                 data-ad-slot="8948806671"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
-    </div>
-
-    <!-- HOMEPAGE BOTTOM AD BANNER (ORIGINAL AD UNIT) -->
-    <footer class="home-ad-banner-dock" aria-label="Advertisement">
-        <div class="ad-banner-inner">
-            <ins class="adsbygoogle"
-                 style="display:inline-block;width:728px;height:90px"
-                 data-ad-client="ca-pub-5097600965533779"
-                 data-ad-slot="8123130962"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
-    </footer>
 
 </div>
 
@@ -872,7 +854,7 @@
 
                 <!-- DISPUTE BUTTON -->
                 <div style="margin-top: 20px; text-align: center;">
-                    <a id="dispute-btn" class="space-btn secondary-btn" href="mailto:your-support-email@domain.com?subject=Geo-Spacerace%20Answer%20Dispute&body=Question%20in%20dispute:%0A%0AReason/Source:" target="_blank" style="text-decoration: none; font-size: 13px; display: block; padding: 10px;">
+                    <a id="dispute-btn" class="space-btn secondary-btn" href="mailto:geospacerace2026@gmail.com?subject=Geo-Spacerace%20Answer%20Dispute&body=Question%20in%20dispute:%0A%0AReason/Source:" target="_blank" style="text-decoration: none; font-size: 13px; display: block; padding: 10px;">
                         REPORT DISPUTE 🚩
                     </a>
                 </div>

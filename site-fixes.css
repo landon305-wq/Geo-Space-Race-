@@ -1,0 +1,23 @@
+/* Phone fix: pop-up boxes scroll when their content is taller than the screen,
+   so the buttons at the bottom can always be reached. */
+.modal:not(#leaderboard-modal) {
+  align-items: flex-start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  height: 100vh;
+  height: 100dvh;
+  padding: max(16px, env(safe-area-inset-top)) 0 max(16px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+.modal:not(#leaderboard-modal) > .modal-content {
+  margin: auto;          /* stays centered when it fits, scrolls when it doesn't */
+  flex-shrink: 0;
+  max-height: none;
+}
+.home-card { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
+/* Links to the guide pages on the home menu */
+.home-site-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; margin-top: 18px; padding-top: 12px; border-top: 1px solid rgba(56, 189, 248, 0.2); font-size: 0.95rem; }
+.home-site-links a { color: #7dd3fc; text-decoration: none; font-weight: 600; }
+.home-site-links a:hover { color: #fff; text-decoration: underline; }
