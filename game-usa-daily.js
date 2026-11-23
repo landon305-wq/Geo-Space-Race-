@@ -169,6 +169,7 @@ window.usaDailyGame = (function () {
                     </ul>
                     <div class="daily-countdown-big hidden" id="daily-countdown-big">3</div>
                     <button id="daily-go-btn" class="space-btn">🚀 LAUNCH</button>
+            <button id="daily-intro-back-btn" class="space-btn secondary-btn" style="margin-top: 12px;">⬅ BACK TO HOME</button>
                 </div>
             </div>
 
@@ -197,6 +198,7 @@ window.usaDailyGame = (function () {
         $('daily-home-btn').onclick = goHome;
         $('daily-res-home-btn').onclick = goHome;
         $('daily-go-btn').onclick = beginCountdown;
+        $('daily-intro-back-btn').onclick = goHome;
         $('daily-share-btn').onclick = shareResult;
         $('daily-map-btn').onclick = () => {
             $('daily-results').classList.add('hidden');
@@ -612,6 +614,7 @@ window.usaDailyGame = (function () {
         introEl.classList.toggle('hidden', !dQuestion.intro);
         $('daily-countdown-big').classList.add('hidden');
         $('daily-go-btn').classList.remove('hidden');
+        $('daily-intro-back-btn').classList.remove('hidden');
         $('daily-results').classList.add('hidden');
         $('daily-show-results').classList.add('hidden');
         $('daily-intro').classList.remove('hidden');
@@ -620,6 +623,7 @@ window.usaDailyGame = (function () {
     function beginCountdown() {
         beep('click');
         $('daily-go-btn').classList.add('hidden');
+        $('daily-intro-back-btn').classList.add('hidden');
         const big = $('daily-countdown-big');
         big.classList.remove('hidden');
         let n = 3;
