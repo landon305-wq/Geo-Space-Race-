@@ -447,75 +447,54 @@ window.europeEliminationGame = (() => {
         return '';
     }
 
-    // Micro nations are drawn as small fixed-size SQUARES (like a map-quiz), placed on their
-    // real location. The label is part of the same marker, so it always stays attached.
+    // Micro nations work like Global mode: a small box drawn on the map itself, so it grows when you
+    // zoom in and shrinks when you zoom out. Malta gets a dashed island zone around its real coastline.
+    // The shapes are copied from world-countries.geojson so every map matches.
+    // (Europe's map file only has rough oversized shapes for these, so those are not drawn.)
     const euMicroNations = {
-        AD: { center: [42.54, 1.58],  side: 'l' },
-        MC: { center: [43.74, 7.42],  side: 'r' },
-        LI: { center: [47.16, 9.55],  side: 'r' },
-        SM: { center: [43.94, 12.46], side: 'r' },
-        VA: { center: [41.90, 12.45], side: 'l' },
-        MT: { center: [35.90, 14.40], side: 'r' }
+        AD: { box: [[1.295, 42.34], [1.865, 42.34], [1.865, 42.76], [1.295, 42.76], [1.295, 42.34]] },
+        MC: { box: [[7.171, 43.56], [7.669, 43.56], [7.669, 43.92], [7.171, 43.92], [7.171, 43.56]] },
+        LI: { box: [[9.285, 46.98], [9.815, 46.98], [9.815, 47.34], [9.285, 47.34], [9.285, 46.98]] },
+        SM: { box: [[12.196, 43.75], [12.724, 43.75], [12.724, 44.13], [12.196, 44.13], [12.196, 43.75]] },
+        VA: { box: [[12.208, 41.72], [12.692, 41.72], [12.692, 42.08], [12.208, 42.08], [12.208, 41.72]] },
+        MT: { zone: [[14.299, 35.511], [14.2, 35.548], [14.124, 35.6], [14.04, 35.72], [13.887, 35.84], [13.833, 35.96], [13.83, 36.12], [13.872, 36.24], [13.953, 36.323], [14.101, 36.389], [14.348, 36.397], [14.496, 36.354], [14.677, 36.2], [14.852, 36.12], [14.928, 36.04], [14.963, 35.96], [14.963, 35.84], [14.928, 35.76], [14.744, 35.574], [14.645, 35.524], [14.546, 35.502], [14.299, 35.511]],
+              shape: [[[[14.568, 35.853], [14.532, 35.82], [14.438, 35.821], [14.352, 35.872], [14.352, 35.978], [14.449, 35.957], [14.539, 35.886], [14.568, 35.853]]], [[[14.312, 36.028], [14.254, 36.012], [14.193, 36.042], [14.179, 36.061], [14.262, 36.077], [14.305, 36.063], [14.319, 36.037], [14.312, 36.028]]]] }
     };
 
-    // one-time CSS for the squares (injected here so no extra CSS file edit is needed)
-    (function euInjectMicroCss() {
-        if (document.getElementById('eu-micro-style')) return;
-        const st = document.createElement('style');
-        st.id = 'eu-micro-style';
-        st.textContent = `
-            .eu-micro-icon { background: transparent !important; border: 0 !important; cursor: pointer; }
-            .eu-micro-sq {
-                position: absolute; left: 50%; top: 50%;
-                width: 26px; height: 20px; margin: -10px 0 0 -13px;
-                box-sizing: border-box; border: 2px solid #38bdf8;
-                background: #1e293b; border-radius: 3px;
-            }
-            .eu-micro-lbl {
-                position: absolute; left: 50%; top: 50%;
-                width: 26px; height: 20px; margin: -10px 0 0 -13px;
-                font-size: 9px; letter-spacing: 0; z-index: 2;
-            }
-        `;
-        document.head.appendChild(st);
-    })();
+    const euZoneStyle = s => Object.assign({}, s, { weight: Math.max(1.2, s.weight || 1), dashArray: '5 4', fillOpacity: (s.fillOpacity || 0) * 0.35 });
 
     function euMakeSquare(abbr, micro) {
-        const center = L.latLng(...micro.center);
-        const marker = L.marker(center, {
-            icon: L.divIcon({
-                className: 'eu-micro-icon',
-                html: `<div class="eu-micro-sq"></div><span class="usa-state-label eu-micro-lbl">${abbr}</span>`,
-                iconSize: [34, 34], iconAnchor: [17, 17]
-            }),
-            keyboard: false, zIndexOffset: 900
-        }).addTo(euMicroLayer);
+        const toLatLngs = ring => ring.map(([x, y]) => [y, x]);
+        const parts = [];
+        if (micro.zone) parts.push({ kind: 'zone', lyr: L.polygon(toLatLngs(micro.zone)) });
+        (micro.shape || []).forEach(poly => parts.push({ kind: 'land', lyr: L.polygon(poly.map(toLatLngs)) }));
+        if (micro.box) parts.push({ kind: 'box', lyr: L.polygon(toLatLngs(micro.box)) });
+        parts.forEach(p => p.lyr.addTo(euMicroLayer));
+
+        const bounds = L.latLngBounds([]);
+        parts.forEach(p => bounds.extend(p.lyr.getBounds()));
+        // the name label sits just above the box / island zone
+        const label = L.marker([bounds.getNorth(), bounds.getCenter().lng], {
+            icon: L.divIcon({ className: 'usa-state-label-icon', html: `<span class="usa-state-label">${abbr}</span>`, iconSize: [28, 20], iconAnchor: [14, 21] }),
+            interactive: false, keyboard: false, zIndexOffset: 1000
+        });
 
         let st = { color: '#38bdf8', weight: 1.2, fillColor: '#1e293b', fillOpacity: 0.95 };
         let labelOn = true;
         const apply = () => {
-            const el = marker.getElement();
-            if (!el) return;
-            const sq = el.querySelector('.eu-micro-sq');
-            const lb = el.querySelector('.eu-micro-lbl');
-            if (sq) {
-                sq.style.borderColor = st.color;
-                sq.style.background = st.fillColor;
-                sq.style.opacity = st.fillOpacity;
-                sq.style.borderWidth = (st.weight >= 2.5 ? 3 : 2) + 'px';
-            }
-            if (lb) lb.style.display = labelOn ? '' : 'none';
+            parts.forEach(p => p.lyr.setStyle(p.kind === 'zone' ? euZoneStyle(st) : st));
+            const has = euMicroLayer && euMicroLayer.hasLayer(label);
+            if (labelOn && !has && euMicroLayer) euMicroLayer.addLayer(label);
+            else if (!labelOn && has) euMicroLayer.removeLayer(label);
         };
-        marker.on('add', apply);
         apply();
 
         // same small API the game uses on normal country layers
         return {
-            marker,
             setStyle(s) { st = Object.assign({}, st, s); apply(); },
             setLabelVisible(v) { labelOn = !!v; apply(); },
-            on(evt, fn) { marker.on(evt, fn); return this; },
-            getBounds() { return L.latLngBounds([center, center]); }
+            on(evt, fn) { parts.forEach(p => p.lyr.on(evt, fn)); return this; },
+            getBounds() { return bounds; }
         };
     }
 

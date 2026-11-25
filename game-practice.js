@@ -532,6 +532,10 @@ window.practiceGame = (function () {
         SM: [[12.196, 43.75], [12.724, 43.75], [12.724, 44.13], [12.196, 44.13], [12.196, 43.75]],
         VA: [[12.208, 41.72], [12.692, 41.72], [12.692, 42.08], [12.208, 42.08], [12.208, 41.72]]
     };
+    // Malta's real coastline (Europe's map file only has a rough oversized shape for it)
+    const EU_SHAPES = {
+        MT: [[[[14.568, 35.853], [14.532, 35.82], [14.438, 35.821], [14.352, 35.872], [14.352, 35.978], [14.449, 35.957], [14.539, 35.886], [14.568, 35.853]]], [[[14.312, 36.028], [14.254, 36.012], [14.193, 36.042], [14.179, 36.061], [14.262, 36.077], [14.305, 36.063], [14.319, 36.037], [14.312, 36.028]]]]
+    };
     const EU_ZONES = {
         MT: [[14.299, 35.511], [14.2, 35.548], [14.124, 35.6], [14.04, 35.72], [13.887, 35.84], [13.833, 35.96], [13.83, 36.12], [13.872, 36.24], [13.953, 36.323], [14.101, 36.389], [14.348, 36.397], [14.496, 36.354], [14.677, 36.2], [14.852, 36.12], [14.928, 36.04], [14.963, 35.96], [14.963, 35.84], [14.928, 35.76], [14.744, 35.574], [14.645, 35.524], [14.546, 35.502], [14.299, 35.511]]
     };
@@ -551,7 +555,9 @@ window.practiceGame = (function () {
         feats.forEach(f => {
             if (!f.geometry || EU_BOXES[abbrOf(f)]) return;   // tiny countries are only their square
             const entry = entryOf(f);
-            L.geoJSON(f, { style: () => STYLE_BASE }).eachLayer(l => { l.addTo(pMap); addPart(entry, l); });
+            const shape = EU_SHAPES[abbrOf(f)];
+            const g = shape ? { type: 'Feature', properties: {}, geometry: { type: 'MultiPolygon', coordinates: shape } } : f;
+            L.geoJSON(g, { style: () => STYLE_BASE }).eachLayer(l => { l.addTo(pMap); addPart(entry, l); });
         });
         feats.forEach(f => { const b = EU_BOXES[abbrOf(f)]; if (b) outline(entryOf(f), b, 'box'); });
         paintAll();
