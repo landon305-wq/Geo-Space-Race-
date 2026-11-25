@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="style-europe-elimination.css?v=20">
     <link rel="stylesheet" href="style-usa-daily.css?v=25">
     <link rel="stylesheet" href="style-global-elimination.css?v=20">
+    <link rel="stylesheet" href="style-practice.css?v=1">
     <link rel="stylesheet" href="site-fixes.css?v=1">
     <!-- keeps only one home menu visible even if a stylesheet is slow or missing -->
     <style>.home-menu.hidden { display: none !important; }</style>
@@ -686,6 +687,10 @@
                 🎯 PLAY ELIMINATION MODES
             </button>
 
+            <button id="show-practice-btn" class="space-btn secondary-btn">
+                📚 PRACTICE MODE <span>States · Countries · Capitals · Water</span>
+            </button>
+
         </div>
 
         <!-- ELIMINATION MENU -->
@@ -928,6 +933,7 @@
 <script src="game-europe-elimination.js?v=20"></script>
 <script src="game-global-elimination.js?v=20"></script>
 <script src="game-usa-daily.js?v=26"></script>
+<script src="game-practice.js?v=1"></script>
 
 
 <!-- AUDIO & UI SCRIPT -->
@@ -1276,6 +1282,13 @@ document.getElementById('show-elim-btn').addEventListener('click', () => {
     document.getElementById('daily-menu').classList.add('hidden');
     document.getElementById('elim-menu').classList.remove('hidden');
     window.refreshHomeHighScore();
+});
+
+document.getElementById('show-practice-btn').addEventListener('click', () => {
+    initAudio();
+    playSound('confirm');
+    if (window.practiceGame) window.practiceGame.open();
+    else alert('Practice mode did not load. Upload game-practice.js next to index.html and hard refresh (Ctrl+Shift+R).');
 });
 
 document.getElementById('back-daily-btn').addEventListener('click', () => {
