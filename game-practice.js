@@ -4,8 +4,6 @@
 //   Maps:  USA (50 states) · Europe (47 countries) · World (197 countries)
 //   Modes: STATES / COUNTRIES  - "Find Texas"           (local personal best)
 //          CAPITALS (HARD)     - "Austin is the capital of...?"  (online leaderboard)
-//   Water: rivers, lakes, seas & oceans, bays & gulfs (or all of them) on a world map
-//          (map data: water-bodies.geojson, from Natural Earth - public domain)
 // Rules: one life, no names on the map, every place comes up once in a random order.
 // Tap a place once to select it (yellow), tap it again to lock it in.
 // ==========================================
@@ -39,18 +37,11 @@ window.practiceGame = (function () {
     const REGIONS = {
         usa:    { label: 'USA',    flag: '🇺🇸', unit: 'States',    one: 'state',   map: 'us-states.geojson',          table: 'usa_capitals_leaderboard' },
         europe: { label: 'EUROPE', flag: '🇪🇺', unit: 'Countries', one: 'country', map: 'europe-countries.geojson',   table: 'europe_capitals_leaderboard' },
-        world:  { label: 'WORLD',  flag: '🌍', unit: 'Countries', one: 'country', map: 'world-countries.geojson?v=7', table: 'world_capitals_leaderboard' },
-        water:  { label: 'WATER',  flag: '🌊', unit: 'Bodies of Water', one: 'body of water', map: 'water-bodies.geojson?v=1', table: null }
+        world:  { label: 'WORLD',  flag: '🌍', unit: 'Countries', one: 'country', map: 'world-countries.geojson?v=7', table: 'world_capitals_leaderboard' }
     };
-    // Water mode categories (cats = which kinds of water are in play)
-    const WATER_TYPES = {
-        all:    { label: 'ALL WATER',      icon: '🌊', cats: ['river', 'lake', 'sea', 'ocean', 'bay'], one: 'body of water', sub: 'Every river, lake, sea, ocean and bay' },
-        rivers: { label: 'RIVERS',         icon: '🏞️', cats: ['river'],        one: 'river',         sub: 'The Nile, Amazon, Mississippi and more' },
-        lakes:  { label: 'LAKES',          icon: '💧', cats: ['lake'],         one: 'lake',          sub: 'The Great Lakes, Baikal, Victoria and more' },
-        seas:   { label: 'SEAS & OCEANS',  icon: '🌐', cats: ['sea', 'ocean'], one: 'sea or ocean',  sub: 'All 5 oceans and the major seas' },
-        bays:   { label: 'BAYS & GULFS',   icon: '⚓', cats: ['bay'],          one: 'bay or gulf',   sub: 'Hudson Bay, Gulf of Mexico and more' }
-    };
-    const WATER_COUNTS = { river: 64, lake: 49, sea: 45, ocean: 5, bay: 26 };   // matches water-bodies.geojson
+    // drawn flags for the map tabs (flag emojis show up as plain letters on Windows)
+    const FLAG_USA = '<svg viewBox="0 0 38 20" class="prac-flag" width="38" height="20"><rect width="38" height="20" fill="#fff"/><path d="M0 0H38V1.54H0ZM0 3.08H38V4.62H0ZM0 6.15H38V7.69H0ZM0 9.23H38V10.77H0ZM0 12.31H38V13.85H0ZM0 15.38H38V16.92H0ZM0 18.46H38V20H0Z" fill="#b22234"/><rect width="15.2" height="10.77" fill="#3c3b6e"/></svg>';
+    const FLAG_EU = '<svg viewBox="0 0 30 20" class="prac-flag" width="30" height="20"><rect width="30" height="20" fill="#003399"/><g fill="#ffcc00"><circle cx="15.00" cy="4.00" r="0.9"/><circle cx="18.00" cy="4.80" r="0.9"/><circle cx="20.20" cy="7.00" r="0.9"/><circle cx="21.00" cy="10.00" r="0.9"/><circle cx="20.20" cy="13.00" r="0.9"/><circle cx="18.00" cy="15.20" r="0.9"/><circle cx="15.00" cy="16.00" r="0.9"/><circle cx="12.00" cy="15.20" r="0.9"/><circle cx="9.80" cy="13.00" r="0.9"/><circle cx="9.00" cy="10.00" r="0.9"/><circle cx="9.80" cy="7.00" r="0.9"/><circle cx="12.00" cy="4.80" r="0.9"/></g></svg>';
     const BEST_KEY = (region, type) => `geo_practice_best_${region}_${type}`;
     const LAST_KEY = 'geo_practice_last_choice';
     const REVEAL_DELAY_MS = 1600;   // how long the right answer shows on the map before the results card
@@ -133,12 +124,11 @@ window.practiceGame = (function () {
         const last = JSON.parse(localStorage.getItem(LAST_KEY) || '{}');
         if (REGIONS[last.region]) pRegion = last.region;
         if (validType(pRegion, last.type)) pType = last.type;
-        else pType = pRegion === 'water' ? 'all' : 'places';
     } catch (e) {}
 
     const $ = id => document.getElementById(id);
     function validType(region, type) {
-        return region === 'water' ? !!WATER_TYPES[type] : (type === 'places' || type === 'capitals');
+        return type === 'places' || type === 'capitals';
     }
     const norm = s => String(s || '').trim().toLowerCase();
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
@@ -147,17 +137,15 @@ window.practiceGame = (function () {
     function getBest(region = pRegion, type = pType) { return Number(localStorage.getItem(BEST_KEY(region, type))) || 0; }
     function setBest(v, region = pRegion, type = pType) { try { localStorage.setItem(BEST_KEY(region, type), String(v)); } catch (e) {} }
     function totalFor(region, type) {
-        if (region === 'water') return (WATER_TYPES[type] || WATER_TYPES.all).cats.reduce((n, c) => n + WATER_COUNTS[c], 0);
         if (type === 'capitals') return Object.keys(CAPITALS[region]).length;
         return { usa: 50, europe: 47, world: 197 }[region];
     }
     function typeLabel(region = pRegion, type = pType) {
-        if (region === 'water') return (WATER_TYPES[type] || WATER_TYPES.all).label;
         return type === 'capitals' ? 'CAPITALS' : REGIONS[region].unit.toUpperCase();
     }
     // what one thing in this run is called ("state", "river", "sea or ocean"...)
     function oneName(region = pRegion, type = pType) {
-        return region === 'water' ? (WATER_TYPES[type] || WATER_TYPES.all).one : REGIONS[region].one;
+        return REGIONS[region].one;
     }
 
     function board(region) {
@@ -243,13 +231,11 @@ window.practiceGame = (function () {
                 <div class="modal-content prac-card">
                     <div class="prac-kicker">📚 PRACTICE MODE</div>
                     <h2>PICK YOUR MAP</h2>
-                    <div class="prac-picker four" id="prac-region-picker">
-                        <button type="button" class="prac-pick" data-region="usa">🇺🇸<span>USA</span></button>
-                        <button type="button" class="prac-pick" data-region="europe">🇪🇺<span>EUROPE</span></button>
+                    <div class="prac-picker" id="prac-region-picker">
+                        <button type="button" class="prac-pick" data-region="usa">${FLAG_USA}<span>USA</span></button>
+                        <button type="button" class="prac-pick" data-region="europe">${FLAG_EU}<span>EUROPE</span></button>
                         <button type="button" class="prac-pick" data-region="world">🌍<span>WORLD</span></button>
-                        <button type="button" class="prac-pick" data-region="water">🌊<span>WATER</span></button>
                     </div>
-                    <div class="prac-types water hidden" id="prac-water-types"></div>
                     <div class="prac-types" id="prac-land-types">
                         <button type="button" class="prac-type" data-type="places">
                             <span class="prac-type-name" id="prac-type-places-name">🗺️ STATES</span>
@@ -303,8 +289,8 @@ window.practiceGame = (function () {
                     <div class="prac-kicker">🏛️ CAPITALS · HARD MODE</div>
                     <h2>LEADERBOARD</h2>
                     <div class="prac-picker small" id="prac-lb-picker">
-                        <button type="button" class="prac-pick" data-region="usa">🇺🇸<span>USA</span></button>
-                        <button type="button" class="prac-pick" data-region="europe">🇪🇺<span>EUROPE</span></button>
+                        <button type="button" class="prac-pick" data-region="usa">${FLAG_USA}<span>USA</span></button>
+                        <button type="button" class="prac-pick" data-region="europe">${FLAG_EU}<span>EUROPE</span></button>
                         <button type="button" class="prac-pick" data-region="world">🌍<span>WORLD</span></button>
                     </div>
                     <div class="prac-lb-note">🌙 A Moon landing = every capital answered with no mistakes</div>
@@ -347,23 +333,15 @@ window.practiceGame = (function () {
         el.querySelectorAll('#prac-region-picker .prac-pick').forEach(b => b.onclick = () => {
             beep('ok');
             pRegion = b.dataset.region;
-            if (!validType(pRegion, pType)) pType = pRegion === 'water' ? 'all' : 'places';
             saveChoice();
             refreshSetup();
             ensureMap(pRegion).catch(err => console.warn(err));
         });
-        $('prac-water-types').innerHTML = Object.entries(WATER_TYPES).map(([key, t]) => `
-            <button type="button" class="prac-type${key === 'all' ? ' wide' : ''}" data-type="${key}">
-                <span class="prac-type-name">${t.icon} ${t.label}</span>
-                <span class="prac-type-sub">${t.sub}</span>
-                <span class="prac-type-best" data-best="${key}">Best: 0</span>
-            </button>`).join('');
         el.querySelectorAll('.prac-type').forEach(b => b.onclick = () => {
             beep('ok');
             pType = b.dataset.type;
             saveChoice();
             refreshSetup();
-            if (pKind === 'water') paintAll();
         });
         el.querySelectorAll('#prac-lb-picker .prac-pick').forEach(b => b.onclick = () => { beep('ok'); renderLeaderboard(b.dataset.region); });
         window.addEventListener('resize', () => { if (pMap) pMap.invalidateSize(); });
@@ -396,28 +374,17 @@ window.practiceGame = (function () {
         const r = REGIONS[pRegion];
         document.querySelectorAll('#prac-region-picker .prac-pick').forEach(b => b.classList.toggle('active', b.dataset.region === pRegion));
         document.querySelectorAll('.prac-type').forEach(b => b.classList.toggle('active', b.dataset.type === pType));
-        if (pRegion !== 'water') $('prac-type-places-name').textContent = '🗺️ ' + r.unit.toUpperCase();
+        $('prac-type-places-name').textContent = '🗺️ ' + r.unit.toUpperCase();
         $('prac-type-places-sub').textContent = `Find every ${r.one} on the map`;
         $('prac-type-capitals-sub').textContent = `Find the ${r.one} for each capital city`;
-        if (pRegion !== 'water') $('prac-type-places-best').textContent = `Best: ${getBest(pRegion, 'places')} / ${totalFor(pRegion, 'places')}`;
-        const water = pRegion === 'water';
-        $('prac-water-types').classList.toggle('hidden', !water);
-        $('prac-land-types').classList.toggle('hidden', water);
-        if (!water) $('prac-type-capitals-best').textContent = `Best: ${getBest(pRegion, 'capitals')} / ${totalFor(pRegion, 'capitals')} · 🏆 Leaderboard`;
-        document.querySelectorAll('#prac-water-types .prac-type-best').forEach(el => {
-            el.textContent = `Best: ${getBest('water', el.dataset.best)} / ${totalFor('water', el.dataset.best)}`;
-        });
-        $('prac-rule-board').innerHTML = water
-            ? '🏞️ Only the kind of water you pick is <b>clickable</b>; the rest is dimmed'
-            : isHard()
-                ? '🏆 This run goes on the <b>online leaderboard</b>'
-                : '🏆 Pick <b>Capitals</b> to play for the online leaderboard';
-        $('prac-setup-lb-btn').style.display = water ? 'none' : '';
-        $('prac-start-btn').textContent = water
-            ? `🌊 START ${typeLabel()} PRACTICE`
-            : isHard() ? '💀 START CAPITALS (HARD)' : `🚀 START ${r.unit.toUpperCase()} PRACTICE`;
+        $('prac-type-places-best').textContent = `Best: ${getBest(pRegion, 'places')} / ${totalFor(pRegion, 'places')}`;
+        $('prac-type-capitals-best').textContent = `Best: ${getBest(pRegion, 'capitals')} / ${totalFor(pRegion, 'capitals')} · 🏆 Leaderboard`;
+        $('prac-rule-board').innerHTML = isHard()
+            ? '🏆 This run goes on the <b>online leaderboard</b>'
+            : '🏆 Pick <b>Capitals</b> to play for the online leaderboard';
+        $('prac-start-btn').textContent = isHard() ? '💀 START CAPITALS (HARD)' : `🚀 START ${r.unit.toUpperCase()} PRACTICE`;
         $('prac-start-btn').classList.toggle('hard', isHard());
-        $('prac-title').textContent = pRegion === 'water' ? `🌊 ${typeLabel()}` : `${r.label} · ${typeLabel()}${isHard() ? ' 💀' : ''}`;
+        $('prac-title').textContent = `${r.label} · ${typeLabel()}${isHard() ? ' 💀' : ''}`;
     }
 
     function showSetup() {
@@ -439,14 +406,7 @@ window.practiceGame = (function () {
     const STYLE_WRONG = { color: '#fca5a5', weight: 2.5, fillColor: '#b91c1c', fillOpacity: 0.95 };
     const STYLE_MISSED = { color: '#ffffff', weight: 3, fillColor: '#d97706', fillOpacity: 0.95 };
 
-    const STYLE_DIM = { color: '#1e3a5f', weight: 0.8, fillColor: '#0b1a2e', fillOpacity: 0.6 };
-    // in water mode only the chosen kind of water is in play
-    function inPlay(entry) {
-        if (pKind !== 'water') return true;
-        return (WATER_TYPES[pType] || WATER_TYPES.all).cats.includes(entry.cat);
-    }
     function entryStyle(entry) {
-        if (!inPlay(entry)) return STYLE_DIM;
         if (entry === pWrongEntry) return STYLE_WRONG;
         if (entry === pMissedEntry) return STYLE_MISSED;
         if (pFound.has(entry)) return STYLE_FOUND;
@@ -457,8 +417,8 @@ window.practiceGame = (function () {
     function paint(entry) { if (entry) applyStyle(entry, entryStyle(entry)); }
     function paintAll() { pEntries.forEach(paint); }
 
-    function newEntry(name, cat) {
-        const entry = { name, norm: norm(name), parts: [], cat: cat || '' };
+    function newEntry(name) {
+        const entry = { name, norm: norm(name), parts: [] };
         pEntries.push(entry);
         return entry;
     }
@@ -499,7 +459,6 @@ window.practiceGame = (function () {
                 const geo = JSON.parse(geoCache[region]);
                 if (region === 'usa') buildUSA(geo);
                 else if (region === 'europe') buildEurope(geo);
-                else if (region === 'water') buildWater(geo);
                 else buildWorld(geo);
                 fitMap();
                 setTimeout(fitMap, 120);
@@ -637,46 +596,10 @@ window.practiceGame = (function () {
         paintAll();
     }
 
-    // WATER: world map of rivers, lakes, seas, oceans and bays. Land is a plain backdrop (not clickable).
-    // Rivers are thin, so each one also gets a wide invisible line on top that is easy to tap.
-    const WATER_ORDER = { land: 0, ocean: 1, sea: 2, bay: 3, lake: 4, river: 5 };
-    const riverLine = s => s === STYLE_BASE
-        ? { color: '#38bdf8', weight: 2.2, opacity: 1 }
-        : s === STYLE_DIM ? { color: '#1e4a6e', weight: 1.2, opacity: 0.8 }
-        : { color: s === STYLE_HOVER ? '#a5f3fc' : s.fillColor, weight: 4.5, opacity: 1 };
-    const riverHit = () => ({ color: '#000', weight: 16, opacity: 0 });
-    const waterFill = s => s === STYLE_BASE ? { color: '#38bdf8', weight: 1, fillColor: '#0c4a6e', fillOpacity: 0.75 } : s;
-    function buildWater(geo) {
-        pMap = baseMap({
-            center: [20, 10], zoom: 2, minZoom: 1, maxZoom: 8, zoomSnap: 0.5, zoomDelta: 1, wheelPxPerZoomLevel: 60,
-            worldCopyJump: false, maxBounds: [[-85, -200], [88, 215]], maxBoundsViscosity: 1.0,
-            renderer: L.canvas({ padding: 0.15, tolerance: 6 })
-        });
-        // plain water underneath everything, so straits and channels that are not in the quiz still look like water
-        L.rectangle([[-90, -200], [90, 215]], { stroke: false, fillColor: '#0a3958', fillOpacity: 1, interactive: false }).addTo(pMap);
-        const feats = (geo.features || []).filter(f => f.properties && f.geometry)
-            .sort((a, b) => (WATER_ORDER[a.properties.cat] || 0) - (WATER_ORDER[b.properties.cat] || 0));
-        feats.forEach(f => {
-            const p = f.properties;
-            if (p.cat === 'land') {
-                L.geoJSON(f, { style: () => ({ color: '#6b9a6f', weight: 0.8, fillColor: '#2f5236', fillOpacity: 1 }), interactive: false }).addTo(pMap);
-                return;
-            }
-            const entry = newEntry(p.name, p.cat);
-            if (p.cat === 'river') {
-                L.geoJSON(f, { style: () => riverLine(STYLE_BASE), interactive: false }).eachLayer(l => { l.addTo(pMap); entry.parts.push({ layer: l, tf: riverLine }); });
-                L.geoJSON(f, { style: riverHit }).eachLayer(l => { l.addTo(pMap); addPart(entry, l, riverHit); });
-            } else {
-                L.geoJSON(f, { style: () => waterFill(STYLE_BASE), smoothFactor: 1.2 }).eachLayer(l => { l.addTo(pMap); addPart(entry, l, waterFill); });
-            }
-        });
-        paintAll();
-    }
-
     function fitMap() {
         if (!pMap) return;
         pMap.invalidateSize();
-        if (pKind === 'world' || pKind === 'water') pMap.fitBounds([[-56, -170], [78, 190]], { padding: [4, 4] });
+        if (pKind === 'world') pMap.fitBounds([[-56, -170], [78, 190]], { padding: [4, 4] });
         else if (pKind === 'europe') pMap.fitBounds([[34.5, -12], [66, 42]], { padding: [6, 6] });
         else pMap.fitBounds([[17.0, -125.0], [49.4, -66.5]], { padding: [6, 6] });
     }
@@ -710,7 +633,7 @@ window.practiceGame = (function () {
         }
 
         const caps = CAPITALS[pRegion] || {};
-        pDeck = shuffle(pEntries.filter(e => inPlay(e) && (!isHard() || caps[e.name])));
+        pDeck = shuffle(pEntries.filter(e => !isHard() || caps[e.name]));
         pIdx = 0;
         pFound = new Set();
         pSelected = pWrongEntry = pMissedEntry = null;
@@ -759,7 +682,7 @@ window.practiceGame = (function () {
     }
 
     function handleClick(entry) {
-        if (!pRunning || !entry || pFound.has(entry) || !inPlay(entry)) return;
+        if (!pRunning || !entry || pFound.has(entry)) return;
         if (pSelected !== entry) {
             const prev = pSelected;
             pSelected = entry;
@@ -847,7 +770,7 @@ window.practiceGame = (function () {
         const r = pLastResult;
         if (!r) return;
         const reg = REGIONS[pRegion];
-        $('prac-res-kicker').textContent = pRegion === 'water' ? `WATER · ${typeLabel()} PRACTICE` : `${reg.label} · ${typeLabel()}${isHard() ? ' · 💀 HARD' : ' PRACTICE'}`;
+        $('prac-res-kicker').textContent = `${reg.label} · ${typeLabel()}${isHard() ? ' · 💀 HARD' : ' PRACTICE'}`;
         $('prac-res-title').textContent = r.won ? '🌙 PERFECT RUN!' : '💥 MISSION OVER';
         $('prac-res-score').textContent = `${r.score} / ${r.total}`;
         $('prac-res-score').classList.toggle('won', r.won);
@@ -903,7 +826,6 @@ window.practiceGame = (function () {
         start(region, type) {
             if (REGIONS[region]) pRegion = region;
             if (validType(pRegion, type)) pType = type;
-            else if (!validType(pRegion, pType)) pType = pRegion === 'water' ? 'all' : 'places';
             saveChoice();
             startRun();
         },

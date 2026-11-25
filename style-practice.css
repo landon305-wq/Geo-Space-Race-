@@ -209,10 +209,9 @@
     box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
 }
 .prac-picker.small .prac-pick { font-size: 1.15rem; padding: 6px; }
-.prac-picker.four { grid-template-columns: repeat(4, 1fr); }
-.prac-types.hidden { display: none; }
-.prac-types.water .prac-type.wide { grid-column: 1 / -1; }
-.prac-types.water .prac-type-sub { font-size: 0.85rem; }
+/* drawn flags on the USA / EUROPE tabs (same height as the globe emoji) */
+.prac-pick { justify-content: flex-end; }
+.prac-pick .prac-flag { width: auto; height: 1.05em; display: block; margin: 0.1em 0 0.15em; border-radius: 2px; box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35); }
 
 .prac-types {
     display: grid;
@@ -352,14 +351,7 @@
     .prac-prompt { font-size: 1.1rem; padding: 9px 12px; }
     .prac-tap-hint { font-size: 0.85rem; }
     .prac-types { grid-template-columns: 1fr; }
-    .prac-types.water { grid-template-columns: 1fr 1fr; }
-    .prac-types.water .prac-type { padding: 9px 6px; }
-    .prac-types.water .prac-type-sub { display: none; }
-    .prac-picker.four .prac-pick span { letter-spacing: 0.5px; font-size: 0.65rem; }
     #practice-screen .modal-content.prac-card { padding: 20px 14px; }
     .prac-card h2 { font-size: 1.25rem; }
     .prac-res-score { font-size: 2.1rem; }
 }
-
-/* water map has no leaderboard: let HOME fill the row */
-#prac-setup-lb-btn[style*="none"] + #prac-setup-home-btn { grid-column: 1 / -1; }
