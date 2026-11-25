@@ -188,8 +188,6 @@
   {"id": 187, "category": "US food", "prompt": "Click a state, district, or territory that is one of the four major commercial citrus-growing states.(usda.gov)", "rule": {"list": ["Florida", "California", "Texas", "Arizona"]}},
   {"id": 188, "category": "US Animals", "prompt": "Click a state, district, or territory whose state bird is the American robin.(thefactfile.org)", "rule": {"list": ["Connecticut", "Michigan", "Wisconsin"]}},
   {"id": 189, "category": "US Geography", "prompt": "Click a state, district, or territory that has a coastline on two or more Great Lakes.(Google Maps)", "rule": {"list": ["Michigan", "New York", "Wisconsin"]}},
-  {"id": 190, "category": "US States", "prompt": "Click a state, district, or territory whose state flower is the violet.(thefactfile.org)", "rule": {"list": ["Illinois", "New Jersey", "Rhode Island", "Wisconsin"]}},
-  {"id": 191, "category": "US States", "prompt": "Click a state, district, or territory whose state flower is the magnolia.(thefactfile.org)", "rule": {"list": ["Louisiana", "Mississippi"]}},
   {"id": 192, "category": "US Sports", "prompt": "Click a state, district, or territory that hosts a Triple Crown horse race (Kentucky Derby, Preakness, Belmont).(wikipedia.org)", "rule": {"list": ["Kentucky", "Maryland", "New York"]}},
   {"id": 193, "category": "US Sports", "prompt": "Click a state, district, or territory that is home to the Baseball, Pro Football, or Basketball Hall of Fame.(wikipedia.org)", "rule": {"list": ["New York", "Ohio", "Massachusetts"]}},
   {"id": 194, "category": "US Space", "prompt": "Click a state, district, or territory that has a spaceport used for orbital rocket launches.(faa.gov)", "rule": {"list": ["Florida", "California", "Virginia", "Texas", "Alaska"]}},
