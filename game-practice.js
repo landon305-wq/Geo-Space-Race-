@@ -480,6 +480,7 @@ window.practiceGame = (function () {
     }
 
     function baseMap(opts) {
+        $('practice-map').classList.remove('prac-micro-small');
         return L.map('practice-map', Object.assign({
             zoomControl: true, doubleClickZoom: false, attributionControl: false, zoomSnap: 0.25
         }, opts));
@@ -522,7 +523,8 @@ window.practiceGame = (function () {
         paintAll();
     }
 
-    // EUROPE: tiny countries are small squares on their real location (no label)
+    // EUROPE (and WORLD): tiny countries are fixed-size squares on their real location (no label),
+    // the same as Europe elimination mode. The squares stay the same size when you zoom.
     const EU_MICRO = {
         AD: [42.54, 1.58], MC: [43.74, 7.42], LI: [47.16, 9.55], SM: [43.94, 12.46], VA: [41.90, 12.45], MT: [35.90, 14.40]
     };
@@ -538,6 +540,7 @@ window.practiceGame = (function () {
             if (!sq) return;
             sq.style.borderColor = st.color;
             sq.style.background = st.fillColor;
+            sq.style.opacity = st.fillOpacity;
             sq.style.borderWidth = (st.weight >= 2.5 ? 3 : 2) + 'px';
         };
         marker.on('add', apply);
@@ -570,7 +573,13 @@ window.practiceGame = (function () {
     }
 
     // WORLD: same map file as Global elimination - island countries get a dashed clickable zone,
-    // tiny countries get a small square. No names are drawn.
+    // and micro nations get the same fixed-size squares as the Europe map. No names are drawn.
+    // Zoomed all the way out the squares would pile up over Italy, so below zoom 4 they are drawn smaller
+    // (still a fixed size on screen).
+    const WORLD_MICRO = {
+        AD: [42.54, 1.58], MC: [43.74, 7.42], LI: [47.16, 9.55], SM: [43.94, 12.46], VA: [41.90, 12.45], MT: [35.90, 14.40], SG: [1.35, 103.82]
+    };
+    const WORLD_MICRO_FULL_ZOOM = 4;
     const zoneStyle = s => ({ ...s, weight: Math.max(1.1, (s.weight || 1) * 0.8), dashArray: '5 4', fillOpacity: (s.fillOpacity || 0) * 0.35 });
     const thinStyle = s => ({ ...s, weight: Math.max(0.6, (s.weight || 1) * 0.65) });
     function buildWorld(geo) {
@@ -586,11 +595,12 @@ window.practiceGame = (function () {
             const lyr = L.polygon(ring.map(([x, y]) => [y, x]), tf(STYLE_BASE)).addTo(pMap);
             addPart(entry, lyr, tf);
         };
+        const isMicro = p => !!WORLD_MICRO[String(p.abbr || '').toUpperCase()];
         const feats = (geo.features || []).filter(f => f.properties && f.properties.name);
-        feats.forEach(f => { if (!f.properties.neutral && f.properties.zones) f.properties.zones.forEach(r => outline(entryFor(f.properties), r, 'zone')); });
+        feats.forEach(f => { if (!f.properties.neutral && !isMicro(f.properties) && f.properties.zones) f.properties.zones.forEach(r => outline(entryFor(f.properties), r, 'zone')); });
         feats.forEach(f => {
             const p = f.properties;
-            if (!f.geometry) return;
+            if (!f.geometry || isMicro(p)) return;
             if (p.neutral) {
                 L.geoJSON(f, { style: () => ({ color: '#334155', weight: 0.6, fillColor: '#0b1220', fillOpacity: 0.9, dashArray: '3 3' }), interactive: false }).addTo(pMap);
                 return;
@@ -598,7 +608,14 @@ window.practiceGame = (function () {
             const entry = entryFor(p);
             L.geoJSON(f, { style: () => thinStyle(STYLE_BASE), smoothFactor: 1.5 }).eachLayer(l => { l.addTo(pMap); addPart(entry, l, thinStyle); });
         });
-        feats.forEach(f => { if (!f.properties.neutral && f.properties.box) outline(entryFor(f.properties), f.properties.box, 'box'); });
+        feats.forEach(f => { if (!f.properties.neutral && !isMicro(f.properties) && f.properties.box) outline(entryFor(f.properties), f.properties.box, 'box'); });
+        feats.forEach(f => {
+            const center = WORLD_MICRO[String(f.properties.abbr || '').toUpperCase()];
+            if (center && !f.properties.neutral) addPart(entryFor(f.properties), microSquare(center));
+        });
+        const sizeMicro = () => { if (pMap) $('practice-map').classList.toggle('prac-micro-small', pMap.getZoom() < WORLD_MICRO_FULL_ZOOM); };
+        pMap.on('zoomend', sizeMicro);
+        sizeMicro();
         paintAll();
     }
 
