@@ -657,7 +657,7 @@ window.practiceGame = (function () {
         feats.forEach(f => {
             const p = f.properties;
             if (p.cat === 'land') {
-                L.geoJSON(f, { style: () => ({ color: '#334155', weight: 0.6, fillColor: '#111827', fillOpacity: 1 }), interactive: false }).addTo(pMap);
+                L.geoJSON(f, { style: () => ({ color: '#6b7280', weight: 0.8, fillColor: '#3f4550', fillOpacity: 1 }), interactive: false }).addTo(pMap);
                 return;
             }
             const entry = newEntry(p.name, p.cat);
