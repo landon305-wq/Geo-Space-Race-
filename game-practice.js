@@ -549,7 +549,7 @@ window.practiceGame = (function () {
         // 1) island zones underneath, 2) real borders, 3) boxes for tiny countries on top (same order as Global)
         feats.forEach(f => { const z = EU_ZONES[abbrOf(f)]; if (z) outline(entryOf(f), z, 'zone'); });
         feats.forEach(f => {
-            if (!f.geometry) return;
+            if (!f.geometry || EU_BOXES[abbrOf(f)]) return;   // tiny countries are only their square
             const entry = entryOf(f);
             L.geoJSON(f, { style: () => STYLE_BASE }).eachLayer(l => { l.addTo(pMap); addPart(entry, l); });
         });
@@ -578,7 +578,7 @@ window.practiceGame = (function () {
         feats.forEach(f => { if (!f.properties.neutral && f.properties.zones) f.properties.zones.forEach(r => outline(entryFor(f.properties), r, 'zone')); });
         feats.forEach(f => {
             const p = f.properties;
-            if (!f.geometry) return;
+            if (!f.geometry || (p.box && !p.neutral)) return;   // tiny countries are only their square
             if (p.neutral) {
                 L.geoJSON(f, { style: () => ({ color: '#334155', weight: 0.6, fillColor: '#0b1220', fillOpacity: 0.9, dashArray: '3 3' }), interactive: false }).addTo(pMap);
                 return;
