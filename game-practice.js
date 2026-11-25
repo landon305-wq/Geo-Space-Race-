@@ -164,7 +164,13 @@ window.practiceGame = (function () {
     }
 
     // ---------- SOUND ----------
+    // use the same sounds as the Elimination modes (playSound in index.html) so clicks sound identical
+    const SHARED_SOUND = { ok: 'confirm', good: 'correct', bad: 'wrong' };
     function beep(type) {
+        if (SHARED_SOUND[type] && typeof window.playSound === 'function') {
+            try { window.playSound(SHARED_SOUND[type]); } catch (e) {}
+            return;
+        }
         try {
             if (!pAudio) pAudio = new (window.AudioContext || window.webkitAudioContext)();
             if (pAudio.state === 'suspended') pAudio.resume();
@@ -196,7 +202,7 @@ window.practiceGame = (function () {
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
             }
             osc.connect(gain); gain.connect(pAudio.destination);
-            osc.start(now); osc.stop(now + 0.8);
+            osc.start(now); osc.stop(now + 0.75);
         } catch (e) {}
     }
 
