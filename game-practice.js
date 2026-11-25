@@ -652,6 +652,8 @@ window.practiceGame = (function () {
             worldCopyJump: false, maxBounds: [[-85, -200], [88, 215]], maxBoundsViscosity: 1.0,
             renderer: L.canvas({ padding: 0.15, tolerance: 6 })
         });
+        // plain water underneath everything, so straits and channels that are not in the quiz still look like water
+        L.rectangle([[-90, -200], [90, 215]], { stroke: false, fillColor: '#0a3958', fillOpacity: 1, interactive: false }).addTo(pMap);
         const feats = (geo.features || []).filter(f => f.properties && f.geometry)
             .sort((a, b) => (WATER_ORDER[a.properties.cat] || 0) - (WATER_ORDER[b.properties.cat] || 0));
         feats.forEach(f => {
