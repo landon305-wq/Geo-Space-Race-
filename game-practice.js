@@ -480,7 +480,6 @@ window.practiceGame = (function () {
     }
 
     function baseMap(opts) {
-        $('practice-map').classList.remove('prac-micro-small');
         return L.map('practice-map', Object.assign({
             zoomControl: true, doubleClickZoom: false, attributionControl: false, zoomSnap: 0.25
         }, opts));
@@ -523,63 +522,43 @@ window.practiceGame = (function () {
         paintAll();
     }
 
-    // EUROPE (and WORLD): tiny countries are fixed-size squares on their real location (no label),
-    // the same as Europe elimination mode. The squares stay the same size when you zoom.
-    const EU_MICRO = {
-        AD: [42.54, 1.58], MC: [43.74, 7.42], LI: [47.16, 9.55], SM: [43.94, 12.46], VA: [41.90, 12.45], MT: [35.90, 14.40]
+    // EUROPE: tiny countries work like Global elimination mode - a small box drawn on the map itself
+    // (it grows when you zoom in and shrinks when you zoom out), and Malta gets a dashed island zone.
+    // The shapes are copied from world-countries.geojson so both maps match exactly.
+    const EU_BOXES = {
+        AD: [[1.295, 42.34], [1.865, 42.34], [1.865, 42.76], [1.295, 42.76], [1.295, 42.34]],
+        LI: [[9.285, 46.98], [9.815, 46.98], [9.815, 47.34], [9.285, 47.34], [9.285, 46.98]],
+        MC: [[7.171, 43.56], [7.669, 43.56], [7.669, 43.92], [7.171, 43.92], [7.171, 43.56]],
+        SM: [[12.196, 43.75], [12.724, 43.75], [12.724, 44.13], [12.196, 44.13], [12.196, 43.75]],
+        VA: [[12.208, 41.72], [12.692, 41.72], [12.692, 42.08], [12.208, 42.08], [12.208, 41.72]]
     };
-    function microSquare(center) {
-        const marker = L.marker(L.latLng(...center), {
-            icon: L.divIcon({ className: 'prac-micro-icon', html: '<div class="prac-micro-sq"></div>', iconSize: [34, 34], iconAnchor: [17, 17] }),
-            keyboard: false, zIndexOffset: 900
-        }).addTo(pMap);
-        let st = STYLE_BASE;
-        const apply = () => {
-            const el = marker.getElement();
-            const sq = el && el.querySelector('.prac-micro-sq');
-            if (!sq) return;
-            sq.style.borderColor = st.color;
-            sq.style.background = st.fillColor;
-            sq.style.opacity = st.fillOpacity;
-            sq.style.borderWidth = (st.weight >= 2.5 ? 3 : 2) + 'px';
-        };
-        marker.on('add', apply);
-        apply();
-        return {
-            setStyle(s) { st = s; apply(); },
-            on(evt, fn) { marker.on(evt, fn); return this; },
-            getBounds() { const c = marker.getLatLng(); return L.latLngBounds(c, c); }
-        };
-    }
+    const EU_ZONES = {
+        MT: [[14.299, 35.511], [14.2, 35.548], [14.124, 35.6], [14.04, 35.72], [13.887, 35.84], [13.833, 35.96], [13.83, 36.12], [13.872, 36.24], [13.953, 36.323], [14.101, 36.389], [14.348, 36.397], [14.496, 36.354], [14.677, 36.2], [14.852, 36.12], [14.928, 36.04], [14.963, 35.96], [14.963, 35.84], [14.928, 35.76], [14.744, 35.574], [14.645, 35.524], [14.546, 35.502], [14.299, 35.511]]
+    };
     function buildEurope(geo) {
         pMap = baseMap({ center: [54.5, 14], zoom: 4, minZoom: 2.5, maxZoom: 11 });
         const abbrOf = f => String((f.properties && f.properties.abbr) || '').toUpperCase();
-        L.geoJSON(geo, {
-            style: () => STYLE_BASE,
-            filter: f => !EU_MICRO[abbrOf(f)],
-            onEachFeature: (feature, layer) => {
-                const name = feature.properties && feature.properties.name;
-                if (!name) return;
-                addPart(newEntry(name), layer);
-            }
-        }).addTo(pMap);
-        (geo.features || []).forEach(f => {
-            const center = EU_MICRO[abbrOf(f)];
-            const name = f.properties && f.properties.name;
-            if (!center || !name) return;
-            addPart(newEntry(name), microSquare(center));
+        const byAbbr = {};
+        const entryOf = f => byAbbr[abbrOf(f)] || (byAbbr[abbrOf(f)] = newEntry(f.properties.name));
+        const outline = (entry, ring, kind) => {
+            const tf = kind === 'zone' ? zoneStyle : (s => ({ ...s }));
+            const lyr = L.polygon(ring.map(([x, y]) => [y, x]), tf(STYLE_BASE)).addTo(pMap);
+            addPart(entry, lyr, tf);
+        };
+        const feats = (geo.features || []).filter(f => f.properties && f.properties.name);
+        // 1) island zones underneath, 2) real borders, 3) boxes for tiny countries on top (same order as Global)
+        feats.forEach(f => { const z = EU_ZONES[abbrOf(f)]; if (z) outline(entryOf(f), z, 'zone'); });
+        feats.forEach(f => {
+            if (!f.geometry) return;
+            const entry = entryOf(f);
+            L.geoJSON(f, { style: () => STYLE_BASE }).eachLayer(l => { l.addTo(pMap); addPart(entry, l); });
         });
+        feats.forEach(f => { const b = EU_BOXES[abbrOf(f)]; if (b) outline(entryOf(f), b, 'box'); });
         paintAll();
     }
 
     // WORLD: same map file as Global elimination - island countries get a dashed clickable zone,
-    // and micro nations get the same fixed-size squares as the Europe map. No names are drawn.
-    // Zoomed all the way out the squares would pile up over Italy, so below zoom 4 they are drawn smaller
-    // (still a fixed size on screen).
-    const WORLD_MICRO = {
-        AD: [42.54, 1.58], MC: [43.74, 7.42], LI: [47.16, 9.55], SM: [43.94, 12.46], VA: [41.90, 12.45], MT: [35.90, 14.40], SG: [1.35, 103.82]
-    };
-    const WORLD_MICRO_FULL_ZOOM = 4;
+    // tiny countries get a small square. No names are drawn.
     const zoneStyle = s => ({ ...s, weight: Math.max(1.1, (s.weight || 1) * 0.8), dashArray: '5 4', fillOpacity: (s.fillOpacity || 0) * 0.35 });
     const thinStyle = s => ({ ...s, weight: Math.max(0.6, (s.weight || 1) * 0.65) });
     function buildWorld(geo) {
@@ -595,12 +574,11 @@ window.practiceGame = (function () {
             const lyr = L.polygon(ring.map(([x, y]) => [y, x]), tf(STYLE_BASE)).addTo(pMap);
             addPart(entry, lyr, tf);
         };
-        const isMicro = p => !!WORLD_MICRO[String(p.abbr || '').toUpperCase()];
         const feats = (geo.features || []).filter(f => f.properties && f.properties.name);
-        feats.forEach(f => { if (!f.properties.neutral && !isMicro(f.properties) && f.properties.zones) f.properties.zones.forEach(r => outline(entryFor(f.properties), r, 'zone')); });
+        feats.forEach(f => { if (!f.properties.neutral && f.properties.zones) f.properties.zones.forEach(r => outline(entryFor(f.properties), r, 'zone')); });
         feats.forEach(f => {
             const p = f.properties;
-            if (!f.geometry || isMicro(p)) return;
+            if (!f.geometry) return;
             if (p.neutral) {
                 L.geoJSON(f, { style: () => ({ color: '#334155', weight: 0.6, fillColor: '#0b1220', fillOpacity: 0.9, dashArray: '3 3' }), interactive: false }).addTo(pMap);
                 return;
@@ -608,14 +586,7 @@ window.practiceGame = (function () {
             const entry = entryFor(p);
             L.geoJSON(f, { style: () => thinStyle(STYLE_BASE), smoothFactor: 1.5 }).eachLayer(l => { l.addTo(pMap); addPart(entry, l, thinStyle); });
         });
-        feats.forEach(f => { if (!f.properties.neutral && !isMicro(f.properties) && f.properties.box) outline(entryFor(f.properties), f.properties.box, 'box'); });
-        feats.forEach(f => {
-            const center = WORLD_MICRO[String(f.properties.abbr || '').toUpperCase()];
-            if (center && !f.properties.neutral) addPart(entryFor(f.properties), microSquare(center));
-        });
-        const sizeMicro = () => { if (pMap) $('practice-map').classList.toggle('prac-micro-small', pMap.getZoom() < WORLD_MICRO_FULL_ZOOM); };
-        pMap.on('zoomend', sizeMicro);
-        sizeMicro();
+        feats.forEach(f => { if (!f.properties.neutral && f.properties.box) outline(entryFor(f.properties), f.properties.box, 'box'); });
         paintAll();
     }
 
