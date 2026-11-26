@@ -1,10 +1,13 @@
-window.usaEliminationGame = (() => {
+// The engine is a factory so themed modes (e.g. Sports Elimination) can reuse it with their own
+// question file, high scores and leaderboard. cfg options (all optional):
+//   questionFile, normalKey, hardKey, localLbKey, table, authKey
+window.createUsaElimination = (cfg = {}) => {
     // ============================================
     // GEO-ODYSSEY: USA ELIMINATION MODE ENGINE
     // ============================================
 
     const USA_MAP_FILE = 'us-states.geojson';
-    const USA_QUESTION_FILE = 'questions-usa-elimination.json';
+    const USA_QUESTION_FILE = cfg.questionFile || 'questions-usa-elimination.json';
 
     const USA_NORMAL_LIVES = 3;
     const USA_HARD_LIVES = 1;
@@ -22,7 +25,7 @@ window.usaEliminationGame = (() => {
 
     if (window.supabase && SUPABASE_URL && SUPABASE_KEY) {
         try {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, cfg.authKey ? { auth: { storageKey: cfg.authKey } } : undefined);
             initAuth();
         } catch (e) {
             console.warn('[Leaderboard] Supabase init warning:', e);
@@ -63,9 +66,9 @@ window.usaEliminationGame = (() => {
     let usaTimer = null;
     let usaTimeLeft = USA_QUESTION_TIME;
 
-    const USA_NORMAL_KEY = 'astro_geo_usa_elim_states_highscore';
-    const USA_HARD_KEY = 'astro_geo_usa_elim_states_hard_highscore';
-    const USA_LOCAL_LB_KEY = 'astro_geo_usa_elim_leaderboard';
+    const USA_NORMAL_KEY = cfg.normalKey || 'astro_geo_usa_elim_states_highscore';
+    const USA_HARD_KEY = cfg.hardKey || 'astro_geo_usa_elim_states_hard_highscore';
+    const USA_LOCAL_LB_KEY = cfg.localLbKey || 'astro_geo_usa_elim_leaderboard';
 
     let usaNormalHighScore = Number(localStorage.getItem(USA_NORMAL_KEY)) || 0;
     let usaHardHighScore = Number(localStorage.getItem(USA_HARD_KEY)) || 0;
@@ -234,7 +237,7 @@ window.usaEliminationGame = (() => {
     function usaLB() {
         if (!usaBoard && window.GeoLeaderboard) {
             usaBoard = window.GeoLeaderboard.create({
-                table: 'usa_leaderboard',
+                table: cfg.table || 'usa_leaderboard',
                 localKey: USA_LOCAL_LB_KEY,
                 unit: 'States',
                 getClient: () => supabaseClient,
@@ -1090,4 +1093,6 @@ window.usaEliminationGame = (() => {
             usaSetRewardPanelVisible(true);
         }
     };
-})();
+};
+
+window.usaEliminationGame = window.createUsaElimination();

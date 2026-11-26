@@ -13,17 +13,17 @@ window.otherModes = (function () {
             id: 'soccer',
             icon: '⚽',
             title: 'Soccer Elimination',
-            desc: 'World Cup winners, famous clubs, star players and stadiums. Find every country that fits.',
-            ready: false,
-            start: null
+            desc: 'World Cup winners, famous clubs and star players on the world map. Find every country that fits.',
+            ready: true,
+            start: () => window.openThemedElimination && window.openThemedElimination('soccer')
         },
         {
             id: 'sports',
             icon: '🏟️',
             title: 'Sports Elimination',
-            desc: 'NFL, NBA, MLB and NHL teams, championships and arenas across the USA.',
-            ready: false,
-            start: null
+            desc: 'NFL, NBA, MLB and NHL teams, college mascots, championships and famous venues across the USA.',
+            ready: true,
+            start: () => window.openThemedElimination && window.openThemedElimination('sports')
         }
     ];
 

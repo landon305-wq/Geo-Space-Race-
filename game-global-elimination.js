@@ -1,11 +1,15 @@
-window.globalEliminationGame = (() => {
+// The engine is a factory so themed modes (e.g. Soccer Elimination) can reuse it with their own
+// question file, high scores and leaderboard. cfg options (all optional):
+//   questionFile, normalKey, hardKey, localLbKey, table, authKey,
+//   coveredOnly: count only the countries that appear in the question file (themed modes)
+window.createGlobalElimination = (cfg = {}) => {
     // ============================================
     // GEO-SPACERACE: GLOBAL ELIMINATION MODE ENGINE
     // ============================================
 
     const GL_MAP_FILE = 'world-countries.geojson';
     const GL_MAP_VERSION = '7';   // bump when world-countries.geojson changes so browsers fetch the new map
-    const GL_QUESTION_FILE = 'questions-global-elimination.json';
+    const GL_QUESTION_FILE = cfg.questionFile || 'questions-global-elimination.json';
 
     const GL_NORMAL_LIVES = 3;
     const GL_HARD_LIVES = 1;
@@ -23,7 +27,7 @@ window.globalEliminationGame = (() => {
 
     if (window.supabase && SUPABASE_URL && SUPABASE_KEY) {
         try {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'sb-global-auth' } });
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: cfg.authKey || 'sb-global-auth' } });
             initAuth();
         } catch (e) {
             console.warn('[Leaderboard] Supabase init warning:', e);
@@ -65,9 +69,9 @@ window.globalEliminationGame = (() => {
     let glTimer = null;
     let glTimeLeft = GL_QUESTION_TIME;
 
-    const GL_NORMAL_KEY = 'astro_geo_global_elim_highscore';
-    const GL_HARD_KEY = 'astro_geo_global_elim_hard_highscore';
-    const GL_LOCAL_LB_KEY = 'astro_geo_global_elim_leaderboard';
+    const GL_NORMAL_KEY = cfg.normalKey || 'astro_geo_global_elim_highscore';
+    const GL_HARD_KEY = cfg.hardKey || 'astro_geo_global_elim_hard_highscore';
+    const GL_LOCAL_LB_KEY = cfg.localLbKey || 'astro_geo_global_elim_leaderboard';
 
     let glNormalHighScore = Number(localStorage.getItem(GL_NORMAL_KEY)) || 0;
     let glHardHighScore = Number(localStorage.getItem(GL_HARD_KEY)) || 0;
@@ -236,7 +240,7 @@ window.globalEliminationGame = (() => {
     function glLB() {
         if (!glBoard && window.GeoLeaderboard) {
             glBoard = window.GeoLeaderboard.create({
-                table: 'global_leaderboard',
+                table: cfg.table || 'global_leaderboard',
                 localKey: GL_LOCAL_LB_KEY,
                 unit: 'Countries',
                 getClient: () => supabaseClient,
@@ -297,7 +301,8 @@ window.globalEliminationGame = (() => {
 
         items = Array.from(track.querySelectorAll('.milestone'));
         items.forEach((el, i) => {
-            const target = i === GL_MILESTONE_STATES.length - 1 ? glTotal() : GL_MILESTONE_STATES[i];
+            const target = i === GL_MILESTONE_STATES.length - 1 ? glTotal()
+                : cfg.coveredOnly ? Math.round(glTotal() * i / (GL_MILESTONE_STATES.length - 1)) : GL_MILESTONE_STATES[i];
             const data = GL_MILESTONE_DATA[i];
             if (target === undefined || !data) return;
 
@@ -376,7 +381,9 @@ window.globalEliminationGame = (() => {
     let glKnownNames = {};   // squashed name -> real lower-case name (filled from the map file)
     const glSquash = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]/g, '');
 
+    let glCoveredCount = 0;   // themed modes: how many countries the question file can eliminate
     function glTotal() {
+        if (cfg.coveredOnly && glCoveredCount) return glCoveredCount;
         return glEntries.length || 197;
     }
 
@@ -712,6 +719,12 @@ window.globalEliminationGame = (() => {
             if (!response.ok) throw new Error('Could not load questions.');
             const bank = await response.json();
             glQuestions = glPrepareQuestions(bank);
+            if (cfg.coveredOnly) {
+                const covered = new Set();
+                glQuestions.forEach(q => q.matchingEntries.forEach(e => covered.add(glNormalizeState(e.name))));
+                glCoveredCount = covered.size;
+                glApplyMilestones();
+            }
             glResetGame();
             setTimeout(() => { if (glMap) glMap.invalidateSize(); }, 150);
         } catch (error) {
@@ -1073,4 +1086,6 @@ window.globalEliminationGame = (() => {
             glSetRewardPanelVisible(true);
         }
     };
-})();
+};
+
+window.globalEliminationGame = window.createGlobalElimination();
