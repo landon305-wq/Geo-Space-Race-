@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="style-usa-daily.css?v=25">
     <link rel="stylesheet" href="style-global-elimination.css?v=20">
     <link rel="stylesheet" href="style-practice.css?v=5">
-    <link rel="stylesheet" href="style-other-modes.css?v=2">
+    <link rel="stylesheet" href="style-other-modes.css?v=3">
     <link rel="stylesheet" href="site-fixes.css?v=1">
     <!-- keeps only one home menu visible even if a stylesheet is slow or missing -->
     <style>.home-menu.hidden { display: none !important; }</style>
@@ -692,10 +692,6 @@
                 📚 PRACTICE MODE <span>States · Countries · Capitals</span>
             </button>
 
-            <button id="show-other-btn" class="space-btn secondary-btn">
-                🎮 OTHER GAME MODES <span>Soccer · Sports · more themed missions</span>
-            </button>
-
         </div>
 
         <!-- OTHER GAME MODES MENU (cards are built by other-modes.js) -->
@@ -710,6 +706,12 @@
 
         <!-- ELIMINATION MENU -->
         <div id="elim-menu" class="home-menu hidden">
+
+        <!-- choose the theme (geography or sports), then the map -->
+        <div class="theme-switch" id="theme-switch" role="group" aria-label="Choose a theme">
+            <button class="theme-pick active" data-theme="geo" type="button">🗺️ GEOGRAPHY</button>
+            <button class="theme-pick" data-theme="sports" type="button">🏆 SPORTS</button>
+        </div>
 
         <!-- choose which elimination map to play -->
         <div class="mode-picker" id="mode-picker" role="group" aria-label="Choose a map">
@@ -1198,6 +1200,12 @@ const MODE_TEXT = {
     }
 };
 const THEMED_MODES = ['sports', 'eusoccer', 'worldsports'];
+// each mode sits on one map; the Sports theme swaps in the sports mode for that map
+const MAP_OF_MODE = { usa: 'usa', europe: 'europe', global: 'global', sports: 'usa', eusoccer: 'europe', worldsports: 'global' };
+const SPORTS_MODE_OF_MAP = { usa: 'sports', europe: 'eusoccer', global: 'worldsports' };
+function modeFor(theme, map) {
+    return theme === 'sports' ? SPORTS_MODE_OF_MAP[map] : map;
+}
 
 function setGameMode(mode) {
     if (!MODE_TEXT[mode] || mode === gameMode) return;
@@ -1212,15 +1220,15 @@ function setGameMode(mode) {
     home.classList.toggle('europe-mode', mode === 'europe' || mode === 'eusoccer');
     home.classList.toggle('global-mode', mode === 'global' || mode === 'worldsports');
     home.classList.toggle('themed-mode', THEMED_MODES.includes(mode));
-    const picker = document.getElementById('mode-picker');
-    if (picker) picker.classList.toggle('hidden', THEMED_MODES.includes(mode));
-    const backBtn = document.getElementById('back-daily-btn');
-    if (backBtn) backBtn.textContent = THEMED_MODES.includes(mode) ? '⬅ BACK TO OTHER GAME MODES' : '⬅ BACK TO DAILY CHALLENGE';
+    const theme = THEMED_MODES.includes(mode) ? 'sports' : 'geo';
+    document.querySelectorAll('#theme-switch .theme-pick').forEach(b => {
+        b.classList.toggle('active', b.dataset.theme === theme);
+    });
     document.getElementById('home-subtitle').textContent = t.subtitle;
     document.getElementById('home-unit').textContent = t.unit;
     document.getElementById('home-desc').innerHTML = t.desc;
     document.querySelectorAll('#mode-picker .mode-pick').forEach(b => {
-        b.classList.toggle('active', b.dataset.mode === mode);
+        b.classList.toggle('active', b.dataset.mode === MAP_OF_MODE[mode]);
     });
 
     const entering = window.getActiveGame();
@@ -1233,7 +1241,16 @@ document.querySelectorAll('#mode-picker .mode-pick').forEach(btn => {
     btn.addEventListener('click', () => {
         initAudio();
         playSound('confirm');
-        setGameMode(btn.dataset.mode);
+        const theme = THEMED_MODES.includes(gameMode) ? 'sports' : 'geo';
+        setGameMode(modeFor(theme, btn.dataset.mode));
+    });
+});
+
+document.querySelectorAll('#theme-switch .theme-pick').forEach(btn => {
+    btn.addEventListener('click', () => {
+        initAudio();
+        playSound('confirm');
+        setGameMode(modeFor(btn.dataset.theme, MAP_OF_MODE[gameMode]));
     });
 });
 
@@ -1354,16 +1371,11 @@ window.openThemedElimination = function(mode) {
 document.getElementById('back-daily-btn').addEventListener('click', () => {
     initAudio();
     playSound('confirm');
-    const fromThemed = THEMED_MODES.includes(gameMode);
     // the daily challenge is USA only, so switch back to the USA map if needed
     setGameMode('usa');
     document.getElementById('elim-menu').classList.add('hidden');
-    if (fromThemed) {
-        document.getElementById('other-menu').classList.remove('hidden');
-    } else {
-        document.getElementById('daily-menu').classList.remove('hidden');
-        window.refreshDailyHome();
-    }
+    document.getElementById('daily-menu').classList.remove('hidden');
+    window.refreshDailyHome();
 });
 
 // SHOW ANSWER BUTTON & QUESTION REVEAL LOGIC

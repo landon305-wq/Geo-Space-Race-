@@ -106,3 +106,37 @@
 
 /* themed elimination modes (Soccer, Sports) have a fixed map, so the map picker is hidden */
 #mode-picker.hidden { display: none !important; }
+
+/* Geography | Sports switch above the map picker on the Elimination menu */
+.theme-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0 0 10px;
+    padding: 4px;
+    border-radius: 999px;
+    border: 1px solid var(--text-muted);
+    background: rgba(15, 23, 42, 0.9);
+}
+.theme-pick {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.theme-pick:hover { color: var(--text-main); }
+.theme-pick.active {
+    color: #0f172a;
+    background: var(--border-color);
+    box-shadow: 0 0 14px var(--accent-glow);
+}
+@media (max-width: 420px) {
+    .theme-pick { font-size: 0.68rem; letter-spacing: 0.5px; }
+}
