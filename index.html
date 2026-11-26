@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="style-usa-daily.css?v=25">
     <link rel="stylesheet" href="style-global-elimination.css?v=20">
     <link rel="stylesheet" href="style-practice.css?v=5">
+    <link rel="stylesheet" href="style-other-modes.css?v=1">
     <link rel="stylesheet" href="site-fixes.css?v=1">
     <!-- keeps only one home menu visible even if a stylesheet is slow or missing -->
     <style>.home-menu.hidden { display: none !important; }</style>
@@ -691,6 +692,20 @@
                 📚 PRACTICE MODE <span>States · Countries · Capitals</span>
             </button>
 
+            <button id="show-other-btn" class="space-btn secondary-btn">
+                🎮 OTHER GAME MODES <span>Soccer · Sports · more themed missions</span>
+            </button>
+
+        </div>
+
+        <!-- OTHER GAME MODES MENU (cards are built by other-modes.js) -->
+        <div id="other-menu" class="home-menu hidden">
+            <div class="other-badge">🎮 OTHER GAME MODES</div>
+            <p class="game-desc">Themed missions that go beyond plain geography. Pick a mode to launch.</p>
+            <div class="other-modes-list" id="other-modes-list"></div>
+            <button id="other-back-btn" class="space-btn secondary-btn">
+                ⬅ BACK TO DAILY CHALLENGE
+            </button>
         </div>
 
         <!-- ELIMINATION MENU -->
@@ -934,6 +949,7 @@
 <script src="game-global-elimination.js?v=20"></script>
 <script src="game-usa-daily.js?v=26"></script>
 <script src="game-practice.js?v=11"></script>
+<script src="other-modes.js?v=1"></script>
 
 
 <!-- AUDIO & UI SCRIPT -->
