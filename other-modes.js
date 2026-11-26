@@ -10,20 +10,28 @@ window.otherModes = (function () {
 
     const OTHER_MODES = [
         {
-            id: 'soccer',
-            icon: '⚽',
-            title: 'Soccer Elimination',
-            desc: 'World Cup winners, famous clubs and star players on the world map. Find every country that fits.',
-            ready: true,
-            start: () => window.openThemedElimination && window.openThemedElimination('soccer')
-        },
-        {
             id: 'sports',
             icon: '🏟️',
-            title: 'Sports Elimination',
-            desc: 'NFL, NBA, MLB and NHL teams, college mascots, championships and famous venues across the USA.',
+            title: 'USA Sports Elimination',
+            desc: 'Pro teams, college conferences, champions and famous events on the USA map.',
             ready: true,
             start: () => window.openThemedElimination && window.openThemedElimination('sports')
+        },
+        {
+            id: 'eusoccer',
+            icon: '⚽',
+            title: 'Europe Soccer Elimination',
+            desc: 'World Cups, Euros, clubs and leagues on the Europe map.',
+            ready: true,
+            start: () => window.openThemedElimination && window.openThemedElimination('eusoccer')
+        },
+        {
+            id: 'worldsports',
+            icon: '🌍',
+            title: 'Global Sports Elimination',
+            desc: 'Soccer, Olympics, rugby, cricket and F1. All 197 countries are in play.',
+            ready: true,
+            start: () => window.openThemedElimination && window.openThemedElimination('worldsports')
         }
     ];
 

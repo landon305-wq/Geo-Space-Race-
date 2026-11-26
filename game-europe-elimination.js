@@ -1,10 +1,12 @@
-window.europeEliminationGame = (() => {
+// createEuropeElimination(cfg) builds a Europe elimination game. cfg (all optional) lets themed modes
+// reuse this engine: questionFile, normalKey, hardKey, localLbKey, table, authKey.
+window.createEuropeElimination = (cfg = {}) => {
     // ============================================
     // GEO-SPACERACE: EUROPE ELIMINATION MODE ENGINE
     // ============================================
 
     const EU_MAP_FILE = 'europe-countries.geojson';
-    const EU_QUESTION_FILE = 'questions-europe-elimination.json';
+    const EU_QUESTION_FILE = cfg.questionFile || 'questions-europe-elimination.json';
 
     const EU_NORMAL_LIVES = 3;
     const EU_HARD_LIVES = 1;
@@ -22,7 +24,7 @@ window.europeEliminationGame = (() => {
 
     if (window.supabase && SUPABASE_URL && SUPABASE_KEY) {
         try {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'sb-europe-auth' } });
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: cfg.authKey || 'sb-europe-auth' } });
             initAuth();
         } catch (e) {
             console.warn('[Leaderboard] Supabase init warning:', e);
@@ -64,9 +66,9 @@ window.europeEliminationGame = (() => {
     let euTimer = null;
     let euTimeLeft = EU_QUESTION_TIME;
 
-    const EU_NORMAL_KEY = 'astro_geo_europe_elim_states_highscore';
-    const EU_HARD_KEY = 'astro_geo_europe_elim_states_hard_highscore';
-    const EU_LOCAL_LB_KEY = 'astro_geo_europe_elim_leaderboard';
+    const EU_NORMAL_KEY = cfg.normalKey || 'astro_geo_europe_elim_states_highscore';
+    const EU_HARD_KEY = cfg.hardKey || 'astro_geo_europe_elim_states_hard_highscore';
+    const EU_LOCAL_LB_KEY = cfg.localLbKey || 'astro_geo_europe_elim_leaderboard';
 
     let euNormalHighScore = Number(localStorage.getItem(EU_NORMAL_KEY)) || 0;
     let euHardHighScore = Number(localStorage.getItem(EU_HARD_KEY)) || 0;
@@ -235,7 +237,7 @@ window.europeEliminationGame = (() => {
     function euLB() {
         if (!euBoard && window.GeoLeaderboard) {
             euBoard = window.GeoLeaderboard.create({
-                table: 'europe_leaderboard',
+                table: cfg.table || 'europe_leaderboard',
                 localKey: EU_LOCAL_LB_KEY,
                 unit: 'Countries',
                 getClient: () => supabaseClient,
@@ -1053,4 +1055,5 @@ window.europeEliminationGame = (() => {
             euSetRewardPanelVisible(true);
         }
     };
-})();
+};
+window.europeEliminationGame = window.createEuropeElimination();

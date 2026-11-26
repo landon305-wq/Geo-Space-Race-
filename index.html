@@ -944,13 +944,13 @@
 
 <!-- CRITICAL: LOAD GAME ENGINE FIRST BEFORE UI SCRIPTS -->
 <script src="leaderboard-shared.js?v=21"></script>
-<script src="game-usa-elimination.js?v=21"></script>
-<script src="game-europe-elimination.js?v=21"></script>
-<script src="game-global-elimination.js?v=21"></script>
+<script src="game-usa-elimination.js?v=22"></script>
+<script src="game-europe-elimination.js?v=22"></script>
+<script src="game-global-elimination.js?v=22"></script>
 <script src="game-usa-daily.js?v=26"></script>
 <script src="game-practice.js?v=11"></script>
-<script src="themed-elimination.js?v=1"></script>
-<script src="other-modes.js?v=2"></script>
+<script src="themed-elimination.js?v=2"></script>
+<script src="other-modes.js?v=3"></script>
 
 
 <!-- AUDIO & UI SCRIPT -->
@@ -1142,15 +1142,17 @@ const GAMES_BY_MODE = {
     usa: () => window.usaEliminationGame,
     europe: () => window.europeEliminationGame,
     global: () => window.globalEliminationGame,
-    soccer: () => window.soccerEliminationGame,
-    sports: () => window.sportsEliminationGame
+    sports: () => window.sportsEliminationGame,
+    eusoccer: () => window.euSoccerEliminationGame,
+    worldsports: () => window.worldSportsEliminationGame
 };
 const GAME_FILE_BY_MODE = {
     usa: 'game-usa-elimination.js',
     europe: 'game-europe-elimination.js',
     global: 'game-global-elimination.js',
-    soccer: 'themed-elimination.js',
-    sports: 'themed-elimination.js'
+    sports: 'themed-elimination.js',
+    eusoccer: 'themed-elimination.js',
+    worldsports: 'themed-elimination.js'
 };
 
 window.getActiveGame = function() {
@@ -1176,20 +1178,26 @@ const MODE_TEXT = {
         board: 'GLOBAL',
         desc: 'The race to the Moon goes worldwide! Beat the clock and answer world trivia correctly to eliminate all 197 countries from the map and launch your rocket all the way to the Moon!'
     },
-    soccer: {
-        subtitle: '⚽ SOCCER ELIMINATION',
-        unit: 'COUNTRIES',
-        board: 'SOCCER',
-        desc: 'World Cups, famous clubs and star players! Answer soccer trivia by clicking the right countries on the world map. Find every soccer nation in the question bank to land on the Moon!'
-    },
     sports: {
-        subtitle: '🏟️ SPORTS ELIMINATION',
+        subtitle: '🏟️ USA SPORTS ELIMINATION',
         unit: 'STATES',
-        board: 'SPORTS',
-        desc: 'NFL, NBA, MLB and NHL teams, college mascots, championships and famous venues! Answer sports trivia by clicking the right states to eliminate all of them and land on the Moon!'
+        board: 'USA SPORTS',
+        desc: 'Pro teams, college conferences, champions and famous events! Answer sports trivia by clicking the right states. Eliminate every state, D.C. and Puerto Rico to land on the Moon!'
+    },
+    eusoccer: {
+        subtitle: '⚽ EUROPE SOCCER ELIMINATION',
+        unit: 'COUNTRIES',
+        board: 'EUROPE SOCCER',
+        desc: 'World Cups, Euros, famous clubs and leagues! Answer soccer trivia by clicking the right countries. Eliminate all 47 European countries to land on the Moon!'
+    },
+    worldsports: {
+        subtitle: '🌍 GLOBAL SPORTS ELIMINATION',
+        unit: 'COUNTRIES',
+        board: 'GLOBAL SPORTS',
+        desc: 'Soccer, the Olympics, rugby, cricket, F1 and more! Every one of the 197 countries is in play. Eliminate them all with sports trivia to land on the Moon!'
     }
 };
-const THEMED_MODES = ['soccer', 'sports'];
+const THEMED_MODES = ['sports', 'eusoccer', 'worldsports'];
 
 function setGameMode(mode) {
     if (!MODE_TEXT[mode] || mode === gameMode) return;
@@ -1201,8 +1209,8 @@ function setGameMode(mode) {
     gameMode = mode;
     const t = MODE_TEXT[mode];
     const home = document.getElementById('home-screen');
-    home.classList.toggle('europe-mode', mode === 'europe');
-    home.classList.toggle('global-mode', mode === 'global' || mode === 'soccer');
+    home.classList.toggle('europe-mode', mode === 'europe' || mode === 'eusoccer');
+    home.classList.toggle('global-mode', mode === 'global' || mode === 'worldsports');
     home.classList.toggle('themed-mode', THEMED_MODES.includes(mode));
     const picker = document.getElementById('mode-picker');
     if (picker) picker.classList.toggle('hidden', THEMED_MODES.includes(mode));
