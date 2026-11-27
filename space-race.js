@@ -9,7 +9,8 @@
     const A = window.SRAnswers;
 
     // ---------- settings ----------
-    const TARGET = 12;                 // right answers needed to land
+    const DAILY_TARGET = 12;           // right answers needed to land (daily race)
+    let TARGET = DAILY_TARGET;         // rooms can choose 12 or 20
     const STALL_MS = 2500;             // asteroid stall after a miss
     const REVEAL_MS = 1300;            // how long the right answer shows after a miss
     const LANES = 5;                   // you + 4 others
@@ -129,7 +130,7 @@
     }
 
     // The deck: easy first, harder later. Enough questions for misses.
-    function buildDeck(seedStr) {
+    function buildDeck(seedStr, set = 'mixed') {
         const r = rng(hashStr(seedStr));
         const allStates = A.STATES.filter(s => GEO.stateBy[s]);
         const hardStates = allStates.filter(s => !EASY_STATES.includes(s));
@@ -150,6 +151,10 @@
             { count: 8, pick: [['state', allStates], ['country', MEDIUM_COUNTRIES], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => EASY_COUNTRIES.includes(c) || MEDIUM_COUNTRIES.includes(c))], ['capState', stateCapStates]] },
             { count: 27, pick: [['state', hardStates], ['country', MEDIUM_COUNTRIES.concat(hardCountries.slice())], ['stateCap', stateCapStates], ['countryCap', capCountries], ['capState', stateCapStates]] }
         ];
+        // USA-only or World-only rooms keep just those question types
+        const keep = set === 'usa' ? ['state', 'stateCap', 'capState'] : set === 'world' ? ['country', 'countryCap'] : null;
+        if (keep) tiers.forEach(tr => { tr.pick = tr.pick.filter(([type]) => keep.includes(type)); });
+        tiers[2].count += Math.max(0, TARGET - DAILY_TARGET) * 2;
         const used = new Set(), deck = [];
         let lastType = '';
         for (const tier of tiers) {
@@ -211,7 +216,7 @@
         try {
             const { data, error } = await sb.from(TABLE).select('user_id,name,finish_ms,splits,misses').eq('day', DAY).order('finish_ms', { ascending: true }).limit(limit);
             if (error) throw error;
-            return (data || []).filter(d => Array.isArray(d.splits) && d.splits.length === TARGET);
+            return (data || []).filter(d => Array.isArray(d.splits) && d.splits.length === DAILY_TARGET);
         } catch (e) { console.warn('[SpaceRace] fetch runs', e); return []; }
     }
     async function saveRun(run) {
@@ -299,29 +304,43 @@
         </div>`).join('');
     }
 
-    function startRace() {
+    let raceMode = 'daily';      // daily | practice | room
+    function startRace(roomRace) {
         ac();
-        const official = (() => { try { return localStorage.getItem(OFFICIAL_KEY + DAY); } catch (e) { return null; } })();
-        isOfficial = !official;
-        raceSeed = isOfficial ? DAY : DAY + ':practice:' + Date.now();
-        deck = buildDeck(raceSeed);
+        let field;
+        if (roomRace) {
+            raceMode = 'room'; isOfficial = false;
+            TARGET = roomRace.target; raceSeed = roomRace.seed;
+            deck = buildDeck(raceSeed, roomRace.set);
+            field = roomRace.field;
+        } else {
+            TARGET = DAILY_TARGET;
+            const official = (() => { try { return localStorage.getItem(OFFICIAL_KEY + DAY); } catch (e) { return null; } })();
+            isOfficial = !official;
+            raceMode = isOfficial ? 'daily' : 'practice';
+            raceSeed = isOfficial ? DAY : DAY + ':practice:' + Date.now();
+            deck = buildDeck(raceSeed);
+            field = lineupData;
+        }
         qIndex = 0; streak = 0; bestStreak = 0; attempts = 0; stalledUntil = 0;
-        racers = lineupData.map((f, i) => ({
+        FX.finaleStart = 0; FX.landedDust = false; FX.flagAt = 0; FX.confetti = [];
+        racers = field.map((f, i) => ({
             ...f, lane: i, p: 0, dp: 0, knock: 0, count: 0, finished: false, place: 0,
-            splits: f.kind === 'you' ? [] : (f.kind === 'bot' && !isOfficial ? botRun(raceSeed + f.name, BOT_SKILLS.find(s => s.label === f.skill)).splits : f.splits),
-            misses: f.kind === 'you' ? [] : f.misses, missIdx: 0, landedAt: null, wobble: Math.random() * 6
+            splits: f.kind === 'you' || f.kind === 'friend' ? [] : (f.kind === 'bot' && !isOfficial ? botRun(raceSeed + f.name, BOT_SKILLS.find(s => s.label === f.skill)).splits : f.splits),
+            misses: f.kind === 'you' || f.kind === 'friend' ? [] : (f.kind === 'bot' && !isOfficial ? botRun(raceSeed + f.name, BOT_SKILLS.find(s => s.label === f.skill)).misses : f.misses),
+            missIdx: 0, landedAt: null, wobble: Math.random() * 6, left: false
         }));
-        racers.forEach(rc => { if (rc.kind !== 'you') rc.finish = rc.splits[TARGET - 1]; });
-        me = racers[0];
+        racers.forEach(rc => { if (rc.kind === 'bot' || rc.kind === 'ghost') rc.finish = rc.splits[TARGET - 1]; else if (rc.kind === 'friend') rc.finish = Infinity; });
+        me = racers.find(rc => rc.kind === 'you');
         // your rocket races in the middle lane
         const mid = Math.floor(racers.length / 2);
-        const order = racers.slice(1);
+        const order = racers.filter(rc => rc !== me);
         order.splice(mid, 0, me);
         order.forEach((rc, i) => { rc.lane = i; });
         showScreen('sr-race');
         document.querySelector('.sr-hud').classList.remove('fade');
         resize();
-        $('sr-prompt').innerHTML = isOfficial ? "Today's official race. Get ready…" : 'Practice race (new questions). Get ready…';
+        $('sr-prompt').innerHTML = raceMode === 'room' ? `Room <b>${esc(Room.code || '')}</b> race. Get ready…` : isOfficial ? "Today's official race. Get ready…" : 'Practice race (new questions). Get ready…';
         $('sr-count').textContent = `0 / ${TARGET}`; $('sr-streak').textContent = '0'; $('sr-clock').textContent = '0:00.0';
         setMapView(null);
         countdown();
@@ -394,6 +413,7 @@
     function onCorrect(pick) {
         const t = raceTime();
         me.splits.push(Math.round(t)); me.count++; me.p = me.count / TARGET;
+        Room.send('prog', { n: me.count });
         streak++; bestStreak = Math.max(bestStreak, streak);
         $('sr-input').className = 'good';
         feedback(`✓ ${pick}`, 'good');
@@ -409,6 +429,7 @@
     }
     function onWrong(pick) {
         me.misses.push(Math.round(raceTime()));
+        Room.send('miss', {});
         streak = 0; $('sr-streak').textContent = '0'; $('sr-streak').classList.remove('hot');
         $('sr-input').className = 'bad';
         feedback(pick ? `✗ It was ${q.answer}` : `⏭ It was ${q.answer}`, 'bad');
@@ -442,6 +463,7 @@
     function finishRace() {
         const t = raceTime();
         me.finish = t; me.finished = true;
+        Room.send('fin', { t: Math.round(t) });
         state = 'finale';
         FX.finaleStart = now(); FX.landedDust = false; FX.flagAt = 0;
         $('sr-input').disabled = true; $('sr-go-btn').disabled = true; $('sr-skip-btn').disabled = true;
@@ -454,10 +476,24 @@
     }
     function abortRace() {
         if (state !== 'racing' && state !== 'countdown') return;
+        if (raceMode === 'room') {
+            if (!confirm('Leave this room race?')) return;
+            Room.leave(); return;
+        }
         if (!confirm('Abort this mission? This race will not count.')) return;
         state = 'lobby'; showScreen('sr-lobby');
     }
 
+    function renderStandings() {
+        const order = racers.map(rc => ({ rc, t: rc.kind === 'you' ? me.finish : rc.finish })).sort((a, b) => a.t - b.t);
+        $('sr-standings').innerHTML = order.map((o, i) => {
+            const nm = o.rc === me ? (raceMode === 'room' ? me.name : storedName() || 'You') : o.rc.name;
+            const icon = o.rc.kind === 'bot' ? '🤖' : o.rc.kind === 'ghost' ? '👻' : o.rc.kind === 'friend' ? '🧑‍🚀' : '';
+            const tm = isFinite(o.t) ? fmtTime(o.t) : o.rc.left ? 'left' : 'racing…';
+            return `<li class="${o.rc === me ? 'me' : ''}"><span class="pl">${isFinite(o.t) ? i + 1 : '–'}</span><span class="nm">${esc(nm)} ${icon}</span><span class="tm">${tm}</span></li>`;
+        }).join('');
+        return order;
+    }
     async function showResults() {
         state = 'done';
         const order = racers.map(rc => ({ rc, t: rc.kind === 'you' ? me.finish : rc.finish })).sort((a, b) => a.t - b.t);
@@ -469,12 +505,20 @@
         $('sr-res-time').textContent = fmtTime(me.finish);
         $('sr-res-acc').textContent = `${Math.round(TARGET / Math.max(attempts, TARGET) * 100)}%`;
         $('sr-res-streak').textContent = bestStreak;
-        $('sr-standings').innerHTML = order.map((o, i) => `<li class="${o.rc === me ? 'me' : ''}"><span class="pl">${i + 1}</span>
-            <span class="nm">${esc(o.rc === me ? (storedName() || 'You') : o.rc.name)} ${o.rc.kind === 'bot' ? '🤖' : o.rc.kind === 'ghost' ? '👻' : ''}</span><span class="tm">${fmtTime(o.t)}</span></li>`).join('');
+        renderStandings();
+        const inRoom = raceMode === 'room';
+        $('sr-res-lb-title').classList.toggle('hidden', inRoom); $('sr-res-lb').classList.toggle('hidden', inRoom);
+        $('sr-again-btn').classList.toggle('hidden', inRoom); $('sr-home-btn').classList.toggle('hidden', inRoom);
+        $('sr-room-btns').classList.toggle('hidden', !inRoom);
         $('sr-results').classList.remove('hidden');
         if (place === 1) confettiRain();
 
         let sub = '';
+        if (inRoom) {
+            $('sr-res-sub').textContent = Room.quick ? 'Quick match · online races don\'t count for the daily leaderboard.' : `Room ${Room.code} · private races don't count for the daily leaderboard.`;
+            Room.renderResultButtons();
+            return;
+        }
         if (isOfficial) {
             try { localStorage.setItem(OFFICIAL_KEY + DAY, String(Math.round(me.finish))); } catch (e) {}
             let name = storedName();
@@ -862,7 +906,7 @@
         racers.forEach(rc => {
             if (fin && rc === me) return;            // you get the landing animation instead
             const [x, y] = rocketPos(rc, G);
-            c.save(); if (fin) c.globalAlpha = 1 - ft;
+            c.save(); if (fin) c.globalAlpha = 1 - ft; if (rc.left && !rc.finished) c.globalAlpha *= 0.3;
             const moving = Math.abs(rc.p - rc.dp) > 0.002;
             if (state === 'racing' && Math.random() < (moving ? 0.9 : 0.25)) {
                 FX.particles.push({ x: x - 16 * scale, y: y + (Math.random() - 0.5) * 3, vx: -60 - Math.random() * 80 - (moving ? 200 : 0), vy: (Math.random() - 0.5) * 20, life: 0, max: 0.3 + Math.random() * 0.3, size: 2 + Math.random() * 3, kind: 'fire', hue: rc.kind === 'ghost' ? 'ghost' : 'fire' });
@@ -876,9 +920,9 @@
             // name tag
             c.font = `700 ${Math.round(11 * scale)}px Rajdhani, sans-serif`;
             c.textAlign = 'center';
-            const label = rc === me ? (storedName() || 'YOU') : rc.name;
+            const label = rc === me ? (raceMode === 'room' ? me.name : storedName() || 'YOU') : rc.name;
             c.fillStyle = rc === me ? '#7dd3fc' : rc.kind === 'ghost' ? '#c4b5fd' : 'rgba(226,232,240,0.75)';
-            c.fillText((rc.kind === 'ghost' ? '👻 ' : rc.kind === 'bot' ? '🤖 ' : '') + label, x, y - 15 * scale);
+            c.fillText((rc.kind === 'ghost' ? '👻 ' : rc.kind === 'bot' ? '🤖 ' : rc.kind === 'friend' ? '🧑‍🚀 ' : '') + label + (rc.left && !rc.finished ? ' (left)' : ''), x, y - 15 * scale);
             if (rc.finished && rc.kind !== 'you') { c.fillStyle = '#fbbf24'; c.fillText('🚩', x + 30 * scale, y + 4); }
             c.restore();
         });
@@ -951,7 +995,7 @@
             }
             c.font = `900 ${Math.round(12 * s)}px Orbitron, sans-serif`; c.textAlign = 'center';
             c.fillStyle = `rgba(253,230,138,${ft2})`;
-            c.fillText(storedName() || 'YOU', padX, padY - 30 * s);
+            c.fillText((raceMode === 'room' ? me.name : storedName()) || 'YOU', padX, padY - 30 * s);
         }
     }
 
@@ -1006,10 +1050,281 @@
     function resize() { sizeCanvas(trackCv); sizeCanvas(mapCv); }
     window.addEventListener('resize', resize);
 
+
+    // ==========================================
+    // ROOMS: private rooms + quick match (Supabase Realtime)
+    // Presence = who is in the room (and the host's settings).
+    // Broadcast = start, each right answer, misses, finishes, rematch.
+    // ==========================================
+    const CLIENT_ID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)) ;
+    const CODE_LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';   // no I or O, so codes are easy to read out loud
+    const MAX_PLAYERS = 6;
+    const QUICK_WAIT_MS = 15000;
+    const Room = {
+        code: null, ch: null, quick: false, joinedAt: 0, players: [], hostId: null,
+        settings: { set: 'mixed', target: 12, bots: true }, racing: false, roster: null,
+        lobbyCh: null, quickCreated: 0, quickTimer: 0, tickTimer: 0, startedRace: false,
+
+        get isHost() { return this.hostId === CLIENT_ID; },
+        newCode() { let c = ''; for (let i = 0; i < 4; i++) c += CODE_LETTERS[Math.floor(Math.random() * CODE_LETTERS.length)]; return c; },
+
+        async ensureName() {
+            let n = storedName();
+            if (!n) n = await askName('Pick a name so the other racers know who you are.');
+            if (!n) n = 'Racer-' + CLIENT_ID.slice(0, 4).toUpperCase();
+            renderCallsign();
+            return n;
+        },
+
+        async open(code, opts = {}) {
+            if (!sb) { alert('Online play needs an internet connection. Please try again.'); return; }
+            await this.leave(true);
+            this.code = code.toUpperCase(); this.quick = !!opts.quick; this.joinedAt = Date.now();
+            this.settings = opts.quick ? { set: 'mixed', target: 12, bots: true } : { set: 'mixed', target: 12, bots: true };
+            this.players = []; this.hostId = null; this.racing = false; this.roster = null; this.startedRace = false; this._sig = null;
+            this.myName = await this.ensureName();
+            showScreen('sr-room');
+            this.render();
+            try { history.replaceState(null, '', opts.quick ? 'space-race.html' : `space-race.html?room=${this.code}`); } catch (e) {}
+            const ch = sb.channel('sr-room-' + this.code, { config: { broadcast: { self: false }, presence: { key: CLIENT_ID } } });
+            this.ch = ch;
+            ch.on('presence', { event: 'sync' }, () => this.onPresence());
+            ch.on('broadcast', { event: 'start' }, ({ payload }) => this.onStart(payload));
+            ch.on('broadcast', { event: 'prog' }, ({ payload }) => this.onProg(payload));
+            ch.on('broadcast', { event: 'miss' }, ({ payload }) => this.onMiss(payload));
+            ch.on('broadcast', { event: 'fin' }, ({ payload }) => this.onFin(payload));
+            ch.on('broadcast', { event: 'lobby' }, () => this.backToRoom());
+            ch.subscribe(async status => {
+                if (status === 'SUBSCRIBED') { await this.track(); }
+                else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') { $('sr-room-status').textContent = 'Connection problem. Trying again…'; }
+            });
+            // nobody here after a few seconds? tell them (they are now hosting this code)
+            setTimeout(() => { if (this.ch === ch && this.players.length <= 1 && !this.quick) $('sr-room-status').innerHTML = `Nobody else is in room <b>${esc(this.code)}</b> yet. Share the code or link with your friends!`; }, 3500);
+        },
+        track() {
+            if (!this.ch) return;
+            const meta = { name: this.myName, joinedAt: this.joinedAt };
+            if (this.isHost) { meta.settings = this.settings; meta.racing = this.racing; meta.quick = this.quick; meta.created = this.quickCreated; }
+            return this.ch.track(meta);
+        },
+        onPresence() {
+            if (!this.ch) return;
+            const st = this.ch.presenceState();
+            const list = Object.entries(st).map(([id, metas]) => ({ id, ...(metas[metas.length - 1] || {}) }));
+            list.sort((a, b) => (a.joinedAt - b.joinedAt) || a.id.localeCompare(b.id));
+            const prevHost = this.hostId;
+            this.players = list;
+            this.hostId = list.length ? list[0].id : CLIENT_ID;
+            const host = list[0];
+            if (host && host.id !== CLIENT_ID) {
+                if (host.settings) this.settings = host.settings;
+                this.racing = !!host.racing;
+                if (host.quick) this.quick = true;
+                if (host.created) this.quickCreated = host.created;
+            }
+            if (this.isHost && list[0] && list[0].id === CLIENT_ID && !list[0].settings) this.track();   // I'm host: publish settings
+            // full room: the late arrivals leave
+            const myIdx = list.findIndex(p => p.id === CLIENT_ID);
+            if (myIdx >= MAX_PLAYERS) { alert(`Room ${this.code} is full (${MAX_PLAYERS} racers).`); this.leave(); return; }
+            // racers who left mid-race
+            if (racers.length && raceMode === 'room') {
+                const here = new Set(list.map(p => p.id));
+                racers.forEach(rc => { if (rc.kind === 'friend' && !here.has(rc.id) && !rc.left) { rc.left = true; if (!rc.finished) feedbackRival(`${rc.name} left the race`); } });
+                if (!$('sr-results').classList.contains('hidden')) { renderStandings(); this.renderResultButtons(); }
+            }
+            if (this.quick) this.quickHostCheck();
+            this.render();
+        },
+
+        // ---------- room screen ----------
+        render() {
+            if (!this.code) return;
+            $('sr-room-title').textContent = this.quick ? '⚡ QUICK MATCH' : '🔒 PRIVATE ROOM';
+            $('sr-room-code').textContent = this.quick ? 'ONLINE' : this.code;
+            document.querySelector('.sr-room-code-label').textContent = this.quick ? 'PUBLIC RACE' : 'ROOM CODE';
+            $('sr-room-share').classList.toggle('hidden', this.quick);
+            $('sr-room-link').textContent = `${location.origin}${location.pathname.replace(/[^/]*$/, '')}space-race.html?room=${this.code}`;
+            const humans = this.players.slice(0, MAX_PLAYERS);
+            const sig = humans.map(p => p.id + p.name).join('|') + this.hostId;
+            if (sig !== this._sig) $('sr-room-players').innerHTML = humans.map((p, i) => `<div class="sr-lane-chip"><span class="dot" style="background:${COLORS[i % COLORS.length]};color:${COLORS[i % COLORS.length]}"></span>
+                <span class="nm">${esc(p.name || 'Racer')}${p.id === CLIENT_ID ? ' (you)' : ''}</span>
+                <span class="tag ${i === 0 ? 'tag-ghost' : 'tag-you'}">${i === 0 ? '👑 HOST' : 'READY'}</span></div>`).join('') || '<div class="sr-muted">Connecting…</div>';
+            this._sig = sig;
+            // settings: host can change them, everyone else sees them
+            const st = this.settings;
+            document.querySelectorAll('#sr-room-settings [data-set]').forEach(b => { b.classList.toggle('active', b.dataset.set === st.set); b.disabled = !this.isHost; });
+            document.querySelectorAll('#sr-room-settings [data-target]').forEach(b => { b.classList.toggle('active', +b.dataset.target === st.target); b.disabled = !this.isHost; });
+            document.querySelectorAll('#sr-room-settings [data-bots]').forEach(b => { b.classList.toggle('active', (b.dataset.bots === 'on') === st.bots); b.disabled = !this.isHost; });
+            $('sr-room-settings').classList.toggle('hidden', this.quick);
+            const startBtn = $('sr-room-start');
+            startBtn.classList.toggle('hidden', !this.isHost);
+            startBtn.disabled = this.racing;
+            startBtn.textContent = this.quick ? '🚀 LAUNCH NOW' : humans.length < 2 && !st.bots ? '🚀 START (add a friend or turn bots on)' : '🚀 START RACE';
+            if (this.isHost && !this.quick && humans.length < 2 && !st.bots) startBtn.disabled = true;
+            let status = '';
+            if (this.racing && !this.startedRace) status = 'A race is in progress. You\'ll join the next one!';
+            else if (this.quick) status = '';
+            else if (this.isHost) status = humans.length > 1 ? `${humans.length} racers in the room. Press start when everyone is here!` : 'Share the code with your friends, then press start.';
+            else status = 'Waiting for the host to start the race…';
+            if (status) $('sr-room-status').textContent = status;
+        },
+        changeSetting(key, val) {
+            if (!this.isHost) return;
+            this.settings = { ...this.settings, [key]: val };
+            this.track(); this.render();
+        },
+
+        // ---------- starting a race ----------
+        hostStart() {
+            if (!this.isHost || this.racing) return;
+            const humans = this.players.slice(0, MAX_PLAYERS).map(p => ({ id: p.id, name: p.name || 'Racer' }));
+            const st = this.settings;
+            const nBots = st.bots ? Math.max(0, LANES - humans.length) : 0;
+            const payload = { seed: this.code + ':' + Date.now() + ':' + Math.random().toString(36).slice(2, 7), set: st.set, target: st.target, roster: humans, bots: nBots };
+            this.racing = true; this.track();
+            if (this.lobbyCh) { this.lobbyCh.untrack(); }
+            clearInterval(this.tickTimer);
+            this.ch.send({ type: 'broadcast', event: 'start', payload });
+            this.onStart(payload);
+        },
+        onStart(payload) {
+            this.racing = true;
+            if (!payload.roster.some(r => r.id === CLIENT_ID)) { this.startedRace = false; this.render(); return; }   // joined too late: watch the next one
+            clearInterval(this.tickTimer);
+            this.startedRace = true;
+            const r = rng(hashStr(payload.seed + 'bots'));
+            const botNames = shuffle(BOT_NAMES, r), skills = shuffle(BOT_SKILLS, r);
+            const field = payload.roster.map((p, i) => ({ id: p.id, name: p.id === CLIENT_ID ? this.myName : p.name, kind: p.id === CLIENT_ID ? 'you' : 'friend', color: COLORS[i % COLORS.length] }));
+            for (let i = 0; i < payload.bots; i++) field.push({ name: botNames[i], kind: 'bot', skill: skills[i % skills.length].label, color: COLORS[(field.length) % COLORS.length] });
+            TARGET = payload.target;
+            startRace({ seed: payload.seed, set: payload.set, target: payload.target, field });
+        },
+        send(event, payload) {
+            if (raceMode !== 'room' || !this.ch) return;
+            this.ch.send({ type: 'broadcast', event, payload: { id: CLIENT_ID, ...payload } });
+        },
+        friend(id) { return racers.find(rc => rc.kind === 'friend' && rc.id === id); },
+        onProg({ id, n }) {
+            const rc = this.friend(id); if (!rc || n <= rc.count) return;
+            rc.count = n; rc.p = n / TARGET; burst(rc, 'thrust', 14);
+        },
+        onMiss({ id }) { const rc = this.friend(id); if (rc) asteroidHit(rc); },
+        onFin({ id, t }) {
+            const rc = this.friend(id); if (!rc) return;
+            rc.count = TARGET; rc.p = 1; rc.finished = true; rc.finish = t; burst(rc, 'dust', 20);
+            if (state === 'racing') { feedbackRival(`${rc.name} landed!`); SFX.rival(); }
+            if (!$('sr-results').classList.contains('hidden')) { renderStandings(); this.renderResultButtons(); }
+        },
+
+        // ---------- after the race ----------
+        renderResultButtons() {
+            const racing = racers.filter(rc => rc.kind === 'friend' && !rc.finished && !rc.left).length;
+            const again = $('sr-room-again');
+            if (this.quick) { again.textContent = '⚡ FIND ANOTHER MATCH'; again.disabled = false; }
+            else if (this.isHost) { again.textContent = racing ? `🔁 REMATCH (${racing} still racing)` : '🔁 REMATCH'; again.disabled = false; }
+            else { again.textContent = 'Waiting for the host to start a rematch…'; again.disabled = true; }
+        },
+        rematch() {
+            if (this.quick) { this.leave(true).then(() => quickMatch()); return; }
+            if (!this.isHost) return;
+            this.racing = false; this.track();
+            this.ch.send({ type: 'broadcast', event: 'lobby', payload: {} });
+            this.backToRoom();
+        },
+        backToRoom() {
+            if (!this.code) return;
+            this.racing = false; this.startedRace = false;
+            state = 'lobby'; raceMode = 'daily'; racers = [];
+            $('sr-results').classList.add('hidden');
+            showScreen('sr-room'); this.render();
+        },
+        async leave(silent) {
+            clearInterval(this.tickTimer); clearTimeout(this.quickTimer);
+            if (this.ch) { try { await this.ch.untrack(); sb.removeChannel(this.ch); } catch (e) {} }
+            if (this.lobbyCh) { try { await this.lobbyCh.untrack(); sb.removeChannel(this.lobbyCh); } catch (e) {} }
+            this.ch = null; this.lobbyCh = null; this.code = null; this.quick = false; this.players = []; this.racing = false; this.startedRace = false;
+            try { history.replaceState(null, '', 'space-race.html'); } catch (e) {}
+            if (silent) return;
+            state = 'lobby'; raceMode = 'daily'; racers = [];
+            $('sr-results').classList.add('hidden');
+            showScreen('sr-lobby'); updateStartBtn(); buildLineup();
+        },
+
+        // ---------- quick match: the host launches after 15s (or when full), bots fill the rest ----------
+        quickHostCheck() {
+            if (this.racing || !this.quickCreated) return;
+            const humans = this.players.length;
+            if (humans >= LANES && this.isHost) { this.hostStart(); return; }
+            clearInterval(this.tickTimer);
+            const tick = () => {
+                const left = Math.max(0, Math.ceil((this.quickCreated + QUICK_WAIT_MS - Date.now()) / 1000));
+                $('sr-room-status').innerHTML = `🔎 Searching for racers… <b>${this.players.length}</b> found. Launching in <b>${left}s</b> (bots fill empty lanes)`;
+                if (left <= 0 && this.isHost && !this.racing) this.hostStart();
+            };
+            tick(); this.tickTimer = setInterval(tick, 500);
+        }
+    };
+
+    async function quickMatch() {
+        if (!sb) { alert('Online play needs an internet connection. Please try again.'); return; }
+        $('sr-quick-btn').disabled = true;
+        try {
+            await authReady;
+            const lobby = sb.channel('sr-quick-lobby', { config: { presence: { key: CLIENT_ID } } });
+            const open = await new Promise(resolve => {
+                let done = false;
+                const finish = v => { if (!done) { done = true; resolve(v); } };
+                lobby.on('presence', { event: 'sync' }, () => {
+                    const rooms = Object.values(lobby.presenceState()).map(m => m[m.length - 1]).filter(m => m && m.room && m.open && Date.now() - m.created < QUICK_WAIT_MS - 3000);
+                    rooms.sort((a, b) => a.created - b.created);
+                    finish(rooms[0] || null);
+                });
+                lobby.subscribe(st => { if (st === 'SUBSCRIBED') setTimeout(() => finish(null), 1500); });
+                setTimeout(() => finish(null), 4000);
+            });
+            if (open) {
+                sb.removeChannel(lobby);
+                await Room.open(open.room, { quick: true });
+            } else {
+                const code = 'Q' + Room.newCode().slice(1);
+                await Room.open(code, { quick: true });
+                Room.lobbyCh = lobby;
+                Room.quickCreated = Date.now();
+                await lobby.track({ room: code, open: true, created: Room.quickCreated });
+                Room.track();
+                Room.quickHostCheck();
+            }
+        } finally { $('sr-quick-btn').disabled = false; }
+    }
+
     // ---------- wiring ----------
     function setSoundBtn() { const b = $('sr-sound-btn'); b.textContent = soundOn ? '🔊 Sound: On' : '🔇 Sound: Off'; b.setAttribute('aria-pressed', soundOn); }
     $('sr-sound-btn').onclick = () => { soundOn = !soundOn; try { localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0'); } catch (e) {} setSoundBtn(); if (soundOn) SFX.beep(); };
     $('sr-start-btn').onclick = () => { if (lineupData) startRace(); };
+    $('sr-quick-btn').onclick = () => { ac(); quickMatch(); };
+    $('sr-create-btn').onclick = () => { ac(); Room.open(Room.newCode()); };
+    const joinFromBox = () => {
+        const code = $('sr-join-code').value.toUpperCase().replace(/[^A-Z]/g, '');
+        if (code.length !== 4) { $('sr-join-code').classList.remove('shake'); void $('sr-join-code').offsetWidth; $('sr-join-code').classList.add('shake'); return; }
+        ac(); Room.open(code);
+    };
+    $('sr-join-btn').onclick = joinFromBox;
+    $('sr-join-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinFromBox(); });
+    $('sr-join-code').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4); });
+    $('sr-room-start').onclick = () => { ac(); Room.hostStart(); };
+    $('sr-room-leave').onclick = () => Room.leave();
+    $('sr-room-again').onclick = () => Room.rematch();
+    $('sr-room-exit').onclick = () => Room.leave();
+    $('sr-room-copy').onclick = async () => {
+        const link = $('sr-room-link').textContent;
+        try { await navigator.clipboard.writeText(link); $('sr-room-copy').textContent = '✓ Copied!'; }
+        catch (e) { $('sr-room-copy').textContent = 'Select the link to copy'; }
+        setTimeout(() => { $('sr-room-copy').textContent = '📋 Copy link'; }, 1800);
+    };
+    document.querySelectorAll('#sr-room-settings [data-set]').forEach(b => b.onclick = () => Room.changeSetting('set', b.dataset.set));
+    document.querySelectorAll('#sr-room-settings [data-target]').forEach(b => b.onclick = () => Room.changeSetting('target', +b.dataset.target));
+    document.querySelectorAll('#sr-room-settings [data-bots]').forEach(b => b.onclick = () => Room.changeSetting('bots', b.dataset.bots === 'on'));
+    window.addEventListener('pagehide', () => { if (Room.ch) Room.ch.untrack(); });
     $('sr-again-btn').onclick = async () => { $('sr-results').classList.add('hidden'); FX.finaleStart = 0; FX.landedDust = false; FX.flagAt = 0; FX.confetti = []; state = 'lobby'; showScreen('sr-lobby'); updateStartBtn(); await buildLineup(); };
     $('sr-abort-btn').onclick = abortRace;
     $('sr-lb-btn').onclick = () => { $('sr-lb').classList.remove('hidden'); fillLeaderboard($('sr-lb-list')); };
@@ -1037,8 +1352,10 @@
         await buildLineup();
         updateStartBtn();
         requestAnimationFrame(frame);
+        const linkCode = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-Z]/g, '');
+        if (linkCode.length === 4) Room.open(linkCode);
     })();
 
     // test hook (used by automated tests only)
-    window.__spaceRace = { get state() { return state; }, get q() { return q; }, get me() { return me; }, get racers() { return racers; }, submit, skip, DAY };
+    window.__spaceRace = { Room, CLIENT_ID, get raceMode() { return raceMode; }, get state() { return state; }, get q() { return q; }, get me() { return me; }, get racers() { return racers; }, submit, skip, DAY };
 })();
