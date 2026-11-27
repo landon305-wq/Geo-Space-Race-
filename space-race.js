@@ -506,7 +506,7 @@
         showScreen('sr-race');
         document.querySelector('.sr-hud').classList.remove('fade');
         resize();
-        $('sr-prompt').innerHTML = raceMode === 'room' ? `Room <b>${esc(Room.code || '')}</b> race. Get ready…` : isOfficial ? "Today's official race. Get ready…" : 'Practice race (new questions). Get ready…';
+        $('sr-prompt').innerHTML = raceMode === 'room' ? `Room <b>${esc(Room.code || '')}</b> race. Get ready…` : isOfficial ? "Today's official race. Get ready…" : 'Practice race. Get ready…';
         $('sr-count').textContent = `0 / ${TARGET}`; $('sr-streak').textContent = '0'; $('sr-clock').textContent = '0:00.0';
         setMapView(null);
         countdown();
