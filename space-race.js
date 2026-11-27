@@ -66,6 +66,19 @@
         g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
         src.connect(f).connect(g).connect(c.destination); src.start(t);
     }
+    // play a little chiptune: notes like 'C5', 'Bb4' or 0 for a rest, each with a length in steps
+    function song(notes, step, type, vol, delay = 0) {
+        const N = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+        let t = delay;
+        for (const [n, len] of notes) {
+            if (n) {
+                const m = n.match(/^([A-G])(b|#)?(\d)$/);
+                const midi = 12 * (+m[3] + 1) + N[m[1]] + (m[2] === 'b' ? -1 : m[2] === '#' ? 1 : 0);
+                tone(440 * Math.pow(2, (midi - 69) / 12), len * step * 0.92, type, vol, 0, t);
+            }
+            t += len * step;
+        }
+    }
     const SFX = {
         beep: () => tone(660, 0.18, 'square', 0.09),
         go: () => { tone(990, 0.35, 'square', 0.1); noise(1.6, 0.28, 1400, 90); },
@@ -73,7 +86,37 @@
         boost: () => { tone(440, 0.5, 'sawtooth', 0.06, 900); noise(0.6, 0.12, 3000, 200); },
         wrong: () => { tone(160, 0.35, 'sawtooth', 0.13, -90); noise(0.45, 0.25, 600, 60); },
         key: () => tone(1800 + Math.random() * 400, 0.02, 'square', 0.015),
-        land: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.4, 'triangle', 0.12, 0, i * 0.12)); noise(0.8, 0.15, 900, 80, 0.1); },
+        land: () => { noise(0.8, 0.15, 900, 80); SFX.victory(0.25); },
+        // original touchdown fanfare (~3 seconds)
+        victory: (d = 0) => {
+            const st = 0.12;
+            song([['G4',1],['C5',1],['E5',1],['G5',1],['C6',3],['B5',1],['A5',1],['F5',1],['A5',1],['C6',1],['G5',3],[0,1],
+                  ['E5',1],['G5',1],['C6',1],['D6',1],['E6',6]], st, 'square', 0.055, d);
+            song([['E4',4],['A4',4],['C5',4],['B4',4],['G4',2],['B4',2],['G5',6]], st, 'triangle', 0.07, d);
+            song([['C3',4],['F3',4],['F3',4],['G3',4],['C3',2],['G3',2],['C3',6]], st, 'triangle', 0.14, d);
+            [0, 4, 8, 12, 16, 18, 20].forEach(i => noise(0.12, 0.09, 4000, 600, d + i * st));
+            noise(1.0, 0.07, 7000, 2000, d + 20 * st);
+        },
+        // original, bigger fanfare for a new personal best (~5 seconds)
+        newBest: (d = 0) => {
+            const st = 0.11;
+            song([['G4',1],['G4',1],['C5',2],['E5',1],['G5',2],['E5',1],['C6',4],[0,1],
+                  ['A4',1],['A4',1],['C5',2],['F5',1],['A5',2],['F5',1],['D6',4],[0,1],
+                  ['Bb5',1],['C6',1],['D6',1],['F6',1],['E6',2],['D6',1],['C6',1],['D6',1],['E6',1],['G6',2],
+                  ['C6',1],['E6',1],['G6',1],['C7',6]], st, 'square', 0.05, d);
+            song([['E4',2],['G4',2],['E4',2],['G4',2],['G4',2],['E4',3],
+                  ['F4',2],['A4',2],['F4',2],['A4',2],['F4',2],['B4',3],
+                  ['D5',2],['F5',2],['D5',2],['B4',2],['D5',2],['F5',2],
+                  ['G5',3],['E5',6]], st, 'triangle', 0.065, d);
+            song([['C3',2],['G3',2],['C3',2],['G3',2],['C3',2],['E3',3],
+                  ['F2',2],['C3',2],['F2',2],['C3',2],['D3',2],['G3',3],
+                  ['Bb2',2],['F3',2],['G2',2],['D3',2],['G2',2],['B2',2],
+                  ['C3',3],['C3',6]], st, 'triangle', 0.14, d);
+            for (let i = 0; i < 38; i += 2) noise(0.1, i % 4 ? 0.06 : 0.1, 4000, 500, d + i * st);
+            [38, 39, 40].forEach(i => noise(0.12, 0.1, 4000, 500, d + i * st));
+            noise(1.4, 0.08, 8000, 2000, d + 41 * st);
+            [2093, 2637, 3136, 4186].forEach((f, i) => tone(f, 0.25, 'triangle', 0.04, 0, d + 41 * st + i * 0.07));
+        },
         rival: () => tone(330, 0.25, 'sine', 0.07, -60),
         // someone touched down on the Moon before you: a whoosh, a thud, and a sad "wah-wah"
         rivalLand: () => {
@@ -1010,7 +1053,7 @@
         rememberSeen();
         const pb = recordStats(place);
         $('sr-res-pb').classList.toggle('hidden', !pb);
-        if (pb) setTimeout(() => { callout('⭐ PERSONAL BEST!', 'small gold'); SFX.rare(); }, 700);
+        if (pb) setTimeout(() => { callout('⭐ PERSONAL BEST!', 'small gold'); SFX.newBest(); }, 700);
         $('sr-review').classList.add('hidden'); $('sr-review-btn').textContent = `📋 Review your answers (${answerLog.length})`;
         const inRoom = raceMode === 'room';
         $('sr-res-lb-title').classList.toggle('hidden', inRoom); $('sr-res-lb').classList.toggle('hidden', inRoom);
