@@ -1716,6 +1716,7 @@
             this.ch = ch;
             ch.on('presence', { event: 'sync' }, () => this.onPresence());
             ch.on('broadcast', { event: 'start' }, ({ payload }) => this.onStart(payload));
+            ch.on('broadcast', { event: 'qtick' }, ({ payload }) => { this.hostEndsAt = { code: this.code, at: Date.now() + payload.ms }; });
             ch.on('broadcast', { event: 'prog' }, ({ payload }) => this.onProg(payload));
             ch.on('broadcast', { event: 'miss' }, ({ payload }) => this.onMiss(payload));
             ch.on('broadcast', { event: 'fin' }, ({ payload }) => this.onFin(payload));
@@ -1900,7 +1901,11 @@
             if (humans >= LANES && this.isHost) { this.hostStart(); return; }
             clearInterval(this.tickTimer);
             const tick = () => {
-                const left = Math.max(0, Math.ceil((this.quickCreated + QUICK_WAIT_MS - Date.now()) / 1000));
+                // device clocks can differ by a few seconds, so everyone shows the host's countdown
+                let endAt = this.quickCreated + QUICK_WAIT_MS;
+                if (!this.isHost && this.hostEndsAt && this.hostEndsAt.code === this.code) endAt = this.hostEndsAt.at;
+                const left = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+                if (this.isHost && this.ch && left !== this._sentLeft) { this._sentLeft = left; this.ch.send({ type: 'broadcast', event: 'qtick', payload: { ms: Math.max(0, endAt - Date.now()) } }); }
                 $('sr-room-status').innerHTML = `🔎 Searching for racers… <b>${this.players.length}</b> found. Launching in <b>${left}s</b>`;
                 if (left <= 0 && this.isHost && !this.racing) this.hostStart();
                 // timer ran out long ago and nothing arrived (host gone or message lost): find a fresh match
