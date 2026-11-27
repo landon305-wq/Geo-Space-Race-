@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Space Race | GEO-SPACERACE</title>
+    <meta name="description" content="Race rockets to the Moon by typing the names of states, countries and capitals. A new race every day, with bots and ghost rockets from real players.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+    <link rel="stylesheet" href="space-race.css?v=2">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div id="sr-app">
+
+    <!-- ================= LOBBY ================= -->
+    <section id="sr-lobby" class="sr-screen active">
+        <div class="sr-lobby-card">
+            <a class="sr-home-link" href="index.html">⬅ Home</a>
+            <div class="sr-logo">🚀 SPACE RACE</div>
+            <div class="sr-date" id="sr-date">Today's race</div>
+            <p class="sr-intro">
+                The map lights up a place. <b>Type its name</b> as fast as you can.
+                Every right answer fires your engines. First rocket to land on the Moon wins!
+            </p>
+            <ul class="sr-rules">
+                <li>🎯 <b>12 right answers</b> reach the Moon</li>
+                <li>⌨️ Spelling is forgiving, and suggestions pop up as you type</li>
+                <li>☄️ A wrong answer or skip means an asteroid hit and a 2.5-second stall</li>
+                <li>🔥 3 in a row gives you a boost</li>
+            </ul>
+
+            <div class="sr-lineup-title">TODAY'S LINEUP</div>
+            <div class="sr-lineup" id="sr-lineup">
+                <div class="sr-lineup-loading">Scanning for rockets…</div>
+            </div>
+
+            <button id="sr-start-btn" class="sr-btn sr-btn-main" disabled>LOADING MAPS…</button>
+            <div class="sr-lobby-row">
+                <button id="sr-lb-btn" class="sr-btn sr-btn-ghost">🏆 Today's Leaderboard</button>
+                <button id="sr-sound-btn" class="sr-btn sr-btn-ghost" aria-pressed="true">🔊 Sound: On</button>
+            </div>
+            <div class="sr-callsign" id="sr-callsign"></div>
+        </div>
+    </section>
+
+    <!-- ================= RACE ================= -->
+    <section id="sr-race" class="sr-screen">
+        <div class="sr-track-wrap">
+            <canvas id="sr-track"></canvas>
+            <div class="sr-hud">
+                <div class="sr-hud-item"><span class="sr-hud-label">TIME</span><span id="sr-clock">0:00.0</span></div>
+                <div class="sr-hud-item"><span class="sr-hud-label">TO THE MOON</span><span id="sr-count">0 / 12</span></div>
+                <div class="sr-hud-item"><span class="sr-hud-label">STREAK</span><span id="sr-streak">0</span></div>
+                <button id="sr-abort-btn" class="sr-abort" title="Abort mission">✕</button>
+            </div>
+        </div>
+
+        <div class="sr-question-panel">
+            <div class="sr-prompt" id="sr-prompt">Get ready…</div>
+            <div class="sr-map-wrap">
+                <canvas id="sr-map"></canvas>
+                <div class="sr-map-tag" id="sr-map-tag"></div>
+                <div class="sr-feedback" id="sr-feedback"></div>
+            </div>
+            <div class="sr-answer">
+                <div class="sr-suggest" id="sr-suggest" role="listbox" aria-label="Suggestions"></div>
+                <div class="sr-input-row">
+                    <input id="sr-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off"
+                           spellcheck="false" enterkeyhint="go" placeholder="Type your answer…" aria-label="Your answer" disabled>
+                    <button id="sr-go-btn" class="sr-go" disabled>GO</button>
+                    <button id="sr-skip-btn" class="sr-skip" disabled title="Skip (counts as a miss)">SKIP</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= RESULTS ================= -->
+    <div id="sr-results" class="sr-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sr-res-title">
+        <div class="sr-res-card">
+            <div class="sr-res-medal" id="sr-res-medal">🥇</div>
+            <div class="sr-res-title" id="sr-res-title">1ST PLACE!</div>
+            <div class="sr-res-sub" id="sr-res-sub"></div>
+            <div class="sr-res-stats">
+                <div><span id="sr-res-time">0:00.0</span><label>Time</label></div>
+                <div><span id="sr-res-acc">0%</span><label>Accuracy</label></div>
+                <div><span id="sr-res-streak">0</span><label>Best streak</label></div>
+            </div>
+            <div class="sr-res-section">RACE RESULTS</div>
+            <ol class="sr-standings" id="sr-standings"></ol>
+            <div class="sr-res-section">TODAY'S FASTEST</div>
+            <ol class="sr-leaderboard" id="sr-res-lb"><li class="sr-muted">Loading…</li></ol>
+            <div class="sr-res-btns">
+                <button id="sr-again-btn" class="sr-btn sr-btn-main">🔁 RACE AGAIN</button>
+                <a class="sr-btn sr-btn-ghost" href="index.html">⬅ HOME</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= LEADERBOARD ================= -->
+    <div id="sr-lb" class="sr-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sr-lb-title">
+        <div class="sr-res-card">
+            <div class="sr-res-title" id="sr-lb-title">🏆 TODAY'S FASTEST</div>
+            <div class="sr-res-sub">The fastest time to the Moon in today's race. Only each player's first race of the day counts.</div>
+            <ol class="sr-leaderboard" id="sr-lb-list"><li class="sr-muted">Loading…</li></ol>
+            <div class="sr-res-btns">
+                <button id="sr-lb-close" class="sr-btn sr-btn-main">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- countdown + big callouts -->
+    <div id="sr-callout" class="sr-callout"></div>
+</div>
+
+<script src="space-race-answers.js?v=1"></script>
+<script src="space-race.js?v=2"></script>
+</body>
+</html>
