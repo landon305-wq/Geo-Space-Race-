@@ -1716,7 +1716,6 @@
             this.ch = ch;
             ch.on('presence', { event: 'sync' }, () => this.onPresence());
             ch.on('broadcast', { event: 'start' }, ({ payload }) => this.onStart(payload));
-            ch.on('broadcast', { event: 'qtick' }, ({ payload }) => { this.hostEndsAt = { code: this.code, at: Date.now() + payload.ms }; });
             ch.on('broadcast', { event: 'prog' }, ({ payload }) => this.onProg(payload));
             ch.on('broadcast', { event: 'miss' }, ({ payload }) => this.onMiss(payload));
             ch.on('broadcast', { event: 'fin' }, ({ payload }) => this.onFin(payload));
@@ -1771,7 +1770,8 @@
         render() {
             if (!this.code) return;
             $('sr-room-title').textContent = this.quick ? '⚡ QUICK MATCH' : '🔒 PRIVATE ROOM';
-            $('sr-room-code').textContent = this.quick ? 'ONLINE' : this.code;
+            if (this.intro) return;   // MATCH FOUND! 3-2-1 is on screen
+            $('sr-room-code').textContent = this.quick ? 'ONLINE' : this.code; $('sr-room-code').classList.remove('mf-small', 'mf-pop');
             document.querySelector('.sr-room-code-label').textContent = this.quick ? 'PUBLIC RACE' : 'ROOM CODE';
             $('sr-room-share').classList.toggle('hidden', this.quick);
             $('sr-room-link').textContent = `${location.origin}${location.pathname.replace(/[^/]*$/, '')}space-race.html?room=${this.code}`;
@@ -1841,7 +1841,16 @@
             const field = payload.roster.map((p, i) => ({ id: p.id, name: p.id === CLIENT_ID ? this.myName : p.name, kind: p.id === CLIENT_ID ? 'you' : 'friend', color: COLORS[i % COLORS.length] }));
             for (let i = 0; i < payload.bots; i++) field.push({ name: bNames[i], kind: 'bot', skill: skills[i % skills.length].label, color: COLORS[(field.length) % COLORS.length] });
             TARGET = payload.target;
-            startRace({ seed: payload.seed, set: payload.set, target: payload.target, field });
+            const go = () => startRace({ seed: payload.seed, set: payload.set, target: payload.target, field });
+            if (!this.quick) { go(); return; }
+            // quick match: "MATCH FOUND!" and a 3-2-1 in the lobby, then the race's own countdown
+            const code = this.code, humans = payload.roster.length;
+            $('sr-room-status').innerHTML = `⚡ <b>MATCH FOUND!</b> ${humans} ${humans === 1 ? 'racer' : 'racers'}${payload.bots ? ` + ${payload.bots} computer` : ''}`;
+            const big = $('sr-room-code'), label = document.querySelector('.sr-room-code-label');
+            const flash = (text, small) => { big.textContent = text; big.classList.toggle('mf-small', !!small); big.classList.remove('mf-pop'); void big.offsetWidth; big.classList.add('mf-pop'); };
+            this.intro = true; label.textContent = 'GET READY'; flash('MATCH FOUND!', true); SFX.rare();
+            ['3', '2', '1'].forEach((n, i) => setTimeout(() => { if (this.code === code) { flash(n); SFX.beep(); } }, 1500 + i * 900));
+            setTimeout(() => { this.intro = false; if (this.code === code && this.startedRace) go(); }, 1500 + 3 * 900);
         },
         send(event, payload) {
             if (raceMode !== 'room' || !this.ch) return;
@@ -1886,7 +1895,7 @@
             clearInterval(this.tickTimer); clearTimeout(this.quickTimer);
             if (this.ch) { try { await this.ch.untrack(); sb.removeChannel(this.ch); } catch (e) {} }
             if (this.lobbyCh) { try { await this.lobbyCh.untrack(); sb.removeChannel(this.lobbyCh); } catch (e) {} }
-            this.ch = null; this.lobbyCh = null; this.code = null; this.quick = false; this.players = []; this.racing = false; this.startedRace = false; this.startPayload = null;
+            this.ch = null; this.lobbyCh = null; this.code = null; this.quick = false; this.players = []; this.racing = false; this.startedRace = false; this.startPayload = null; this.intro = false;
             try { history.replaceState(null, '', 'space-race.html'); } catch (e) {}
             if (silent) return;
             state = 'lobby'; raceMode = 'daily'; racers = [];
@@ -1901,12 +1910,11 @@
             if (humans >= LANES && this.isHost) { this.hostStart(); return; }
             clearInterval(this.tickTimer);
             const tick = () => {
-                // device clocks can differ by a few seconds, so everyone shows the host's countdown
-                let endAt = this.quickCreated + QUICK_WAIT_MS;
-                if (!this.isHost && this.hostEndsAt && this.hostEndsAt.code === this.code) endAt = this.hostEndsAt.at;
-                const left = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
-                if (this.isHost && this.ch && left !== this._sentLeft) { this._sentLeft = left; this.ch.send({ type: 'broadcast', event: 'qtick', payload: { ms: Math.max(0, endAt - Date.now()) } }); }
-                $('sr-room-status').innerHTML = `🔎 Searching for racers… <b>${this.players.length}</b> found. Launching in <b>${left}s</b>`;
+                // no seconds shown: device clocks differ, so only the host's clock decides the launch,
+                // and everyone gets the same "MATCH FOUND! 3-2-1" when it happens
+                const left = Math.max(0, Math.ceil((this.quickCreated + QUICK_WAIT_MS - Date.now()) / 1000));
+                const dots = '.'.repeat(1 + Math.floor(Date.now() / 500) % 3);
+                $('sr-room-status').innerHTML = `🔎 Searching for racers${dots} <b>${this.players.length}</b> found`;
                 if (left <= 0 && this.isHost && !this.racing) this.hostStart();
                 // timer ran out long ago and nothing arrived (host gone or message lost): find a fresh match
                 if (!this.isHost && !this.startedRace && Date.now() > this.joinedAt + QUICK_WAIT_MS + 9000) {

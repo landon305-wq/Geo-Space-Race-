@@ -353,3 +353,8 @@ body {
 .sr-res-pb { display: inline-block; margin-top: 8px; padding: 4px 12px; border-radius: 999px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: .75rem; letter-spacing: 1.5px;
     color: #1c1917; background: linear-gradient(90deg, #fde047, #f59e0b); box-shadow: 0 0 22px rgba(250,204,21,.6); animation: srAlert .6s ease 3; }
 .sr-res-pb.hidden { display: none; }
+
+/* quick match: MATCH FOUND! 3-2-1 in the room card */
+#sr-room-code.mf-small { font-size: clamp(1.6rem, 6vw, 2.6rem); letter-spacing: 3px; }
+#sr-room-code.mf-pop { animation: srMfPop .6s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes srMfPop { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
