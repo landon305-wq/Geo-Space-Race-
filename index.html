@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="style-global-elimination.css?v=20">
     <link rel="stylesheet" href="style-practice.css?v=5">
     <link rel="stylesheet" href="style-other-modes.css?v=4">
-    <link rel="stylesheet" href="site-fixes.css?v=1">
+    <link rel="stylesheet" href="site-fixes.css?v=2">
     <!-- keeps only one home menu visible even if a stylesheet is slow or missing -->
     <style>.home-menu.hidden { display: none !important; }</style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -662,9 +662,7 @@
 
 
             <p class="game-desc">
-                You have 60 seconds to find every <span id="daily-home-place">state</span> that fits
-                today's mission. Each wrong answer burns 5 seconds of
-                fuel. A new mission launches every day!
+                60 seconds to find every <span id="daily-home-place">state</span> that fits today's mission. Wrong answers cost 5 seconds.
             </p>
 
             <div class="daily-home-schedule" id="daily-home-schedule">
@@ -686,16 +684,17 @@
 
             <a id="show-race-btn" class="space-btn" href="space-race.html">
                 🚀 SPACE RACE <em class="race-new">NEW</em>
-                <span>Race rockets to the Moon by typing answers</span>
+                <span>Type answers, race friends to the Moon</span>
             </a>
 
-            <button id="show-elim-btn" class="space-btn secondary-btn">
-                🎯 PLAY ELIMINATION MODES
-            </button>
-
-            <button id="show-practice-btn" class="space-btn secondary-btn">
-                📚 PRACTICE MODE <span>States · Countries · Capitals</span>
-            </button>
+            <div class="home-btn-row">
+                <button id="show-elim-btn" class="space-btn secondary-btn">
+                    🎯 ELIMINATION
+                </button>
+                <button id="show-practice-btn" class="space-btn secondary-btn">
+                    📚 PRACTICE
+                </button>
+            </div>
 
         </div>
 
@@ -730,10 +729,7 @@
         </div>
 
         <p class="game-desc" id="home-desc">
-            The race to the Moon is on! Beat the clock and
-            answer U.S. state trivia correctly to eliminate
-            states from the map, advance your mission, and
-            launch your rocket all the way to the Moon!
+            Answer U.S. state trivia to eliminate every state and launch your rocket to the Moon!
         </p>
 
         <div class="home-stats">
@@ -746,18 +742,17 @@
             INITIATE LAUNCH
         </button>
 
-        <button id="hard-mode-btn" class="space-btn secondary-btn">
-            HARD MODE: OFF
-        </button>
+        <div class="home-btn-row">
+            <button id="hard-mode-btn" class="space-btn secondary-btn">
+                HARD MODE: OFF
+            </button>
+            <button id="view-leaderboard-btn" class="space-btn secondary-btn">
+                🏆 LEADERBOARD
+            </button>
+        </div>
 
-
-
-        <button id="view-leaderboard-btn" class="space-btn secondary-btn" style="margin-top: 12px;">
-            VIEW LEADERBOARD
-        </button>
-
-            <button id="back-daily-btn" class="space-btn secondary-btn" style="margin-top: 12px;">
-                ⬅ BACK TO DAILY CHALLENGE
+            <button id="back-daily-btn" class="space-btn secondary-btn home-back-btn">
+                ⬅ BACK
             </button>
 
         </div>
@@ -1177,31 +1172,31 @@ const MODE_TEXT = {
         subtitle: 'EUROPE COUNTRY TRIVIA GAME',
         unit: 'COUNTRIES',
         board: 'EUROPE',
-        desc: 'The race to the Moon is on! Beat the clock and answer European trivia correctly to eliminate countries from the map, advance your mission, and launch your rocket all the way to the Moon!'
+        desc: 'Answer European trivia to eliminate every country and launch your rocket to the Moon!'
     },
     global: {
         subtitle: 'WORLD COUNTRY TRIVIA GAME',
         unit: 'COUNTRIES',
         board: 'GLOBAL',
-        desc: 'The race to the Moon goes worldwide! Beat the clock and answer world trivia correctly to eliminate all 197 countries from the map and launch your rocket all the way to the Moon!'
+        desc: 'Answer world trivia to eliminate all 197 countries and launch your rocket to the Moon!'
     },
     sports: {
         subtitle: '🏟️ USA SPORTS ELIMINATION',
         unit: 'STATES',
         board: 'USA SPORTS',
-        desc: 'Pro teams, college conferences, champions and famous events! Answer sports trivia by clicking the right states. Eliminate every state, D.C. and Puerto Rico to land on the Moon!'
+        desc: 'Pro teams, colleges and champions. Click the right states to eliminate them all!'
     },
     eusoccer: {
         subtitle: '⚽ EUROPE SOCCER ELIMINATION',
         unit: 'COUNTRIES',
         board: 'EUROPE SOCCER',
-        desc: 'World Cups, Euros, famous clubs and leagues! Answer soccer trivia by clicking the right countries. Eliminate all 47 European countries to land on the Moon!'
+        desc: 'World Cups, Euros, clubs and leagues. Eliminate all 47 European countries!'
     },
     worldsports: {
         subtitle: '🌍 GLOBAL SPORTS ELIMINATION',
         unit: 'COUNTRIES',
         board: 'GLOBAL SPORTS',
-        desc: 'Soccer, the Olympics, rugby, cricket, F1 and more! Every one of the 197 countries is in play. Eliminate them all with sports trivia to land on the Moon!'
+        desc: 'Soccer, Olympics, rugby, cricket, F1 and more. All 197 countries are in play!'
     }
 };
 const THEMED_MODES = ['sports', 'eusoccer', 'worldsports'];
