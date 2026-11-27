@@ -1904,7 +1904,7 @@
                 $('sr-room-status').innerHTML = `🔎 Searching for racers… <b>${this.players.length}</b> found. Launching in <b>${left}s</b>`;
                 if (left <= 0 && this.isHost && !this.racing) this.hostStart();
                 // timer ran out long ago and nothing arrived (host gone or message lost): find a fresh match
-                if (!this.isHost && !this.startedRace && Date.now() > this.quickCreated + QUICK_WAIT_MS + 7000) {
+                if (!this.isHost && !this.startedRace && Date.now() > this.joinedAt + QUICK_WAIT_MS + 9000) {
                     clearInterval(this.tickTimer);
                     $('sr-room-status').innerHTML = '🔄 Lost the launch signal. Finding you another match…';
                     this.leave(true).then(() => quickMatch());
@@ -1919,12 +1919,13 @@
         $('sr-quick-btn').disabled = true;
         try {
             await authReady;
+            if (!storedName()) await Room.ensureName();
             const lobby = sb.channel('sr-quick-lobby', { config: { presence: { key: CLIENT_ID } } });
             const open = await new Promise(resolve => {
                 let done = false;
                 const finish = v => { if (!done) { done = true; resolve(v); } };
                 lobby.on('presence', { event: 'sync' }, () => {
-                    const rooms = Object.values(lobby.presenceState()).map(m => m[m.length - 1]).filter(m => m && m.room && m.open && Date.now() - m.created < QUICK_WAIT_MS - 3000);
+                    const rooms = Object.values(lobby.presenceState()).map(m => m[m.length - 1]).filter(m => m && m.room && m.open && Date.now() - m.created < QUICK_WAIT_MS - 1500);
                     rooms.sort((a, b) => a.created - b.created);
                     finish(rooms[0] || null);
                 });
