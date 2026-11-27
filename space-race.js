@@ -1055,8 +1055,8 @@
         $('sr-standings').innerHTML = order.map((o, i) => {
             const nm = o.rc === me ? (raceMode === 'room' ? me.name : storedName() || 'You') : o.rc.name;
             const icon = o.rc.kind === 'ghost' ? '👻' : o.rc.kind === 'friend' ? '🧑‍🚀' : '';
-            const tm = isFinite(o.t) ? fmtTime(o.t) : o.rc.left ? 'left' : 'racing…';
-            return `<li class="${o.rc === me ? 'me' : ''}"><span class="pl">${isFinite(o.t) ? i + 1 : '–'}</span><span class="nm">${esc(nm)} ${icon}</span><span class="tm">${tm}</span></li>`;
+            const tm = isFinite(o.t) ? fmtTime(o.t) : (o.rc.dnf || (o.rc === me && me.dnf)) ? 'didn\'t finish' : o.rc.left ? 'left' : 'racing…';
+            return `<li class="${o.rc === me ? 'me' : ''}"><span class="pl">${isFinite(o.t) || o.rc.dnf || (o.rc === me && me.dnf) ? i + 1 : '–'}</span><span class="nm">${esc(nm)} ${icon}</span><span class="tm">${tm}</span></li>`;
         }).join('');
         return order;
     }
@@ -1067,8 +1067,8 @@
         const medals = ['🥇', '🥈', '🥉', '🚀', '🛰️'];
         const names = ['1ST PLACE!', '2ND PLACE!', '3RD PLACE!', '4TH PLACE', '5TH PLACE'];
         $('sr-res-medal').textContent = medals[place - 1] || '🚀';
-        $('sr-res-title').textContent = names[place - 1] || `${place}TH PLACE`;
-        $('sr-res-time').textContent = fmtTime(me.finish);
+        $('sr-res-title').textContent = me.dnf ? 'LAST PLACE' : names[place - 1] || `${place}TH PLACE`;
+        $('sr-res-time').textContent = me.dnf ? 'DNF' : fmtTime(me.finish);
         $('sr-res-acc').textContent = `${Math.round(rightN / Math.max(attempts, 1) * 100)}%`;
         $('sr-res-streak').textContent = bestStreak;
         renderStandings();
@@ -1450,6 +1450,27 @@
         SFX.rivalLand();
         FX.shake = Math.max(FX.shake, 6);
         burst(rc, 'dust', 30);
+        checkLastOneLeft();
+    }
+    // everyone else has landed (or left): the race is over and you finish last.
+    // Not in the official daily race, where your own time still goes on the leaderboard.
+    function checkLastOneLeft() {
+        if (state !== 'racing' || isOfficial || !me || me.finished) return;
+        const others = racers.filter(rc => rc !== me);
+        if (!others.some(rc => rc.finished && !rc.dnf) || !others.every(rc => rc.finished || rc.left)) return;
+        setTimeout(() => {
+            if (state !== 'racing' || me.finished) return;
+            me.dnf = true; me.finish = Infinity;
+            Room.send('dnf', {});
+            state = 'finale';
+            FX.finaleStart = now(); FX.landedDust = false; FX.flagAt = 0;
+            $('sr-input').disabled = true; $('sr-go-btn').disabled = true; $('sr-skip-btn').disabled = true;
+            $('sr-suggest').innerHTML = '';
+            $('sr-prompt').innerHTML = '🏁 <b>RACE OVER</b> · everyone else has landed';
+            document.querySelector('.sr-hud').classList.add('fade');
+            callout('RACE OVER', 'small');
+            setTimeout(showResults, 2600);
+        }, 1400);
     }
     let rivalTimer = 0;
     function feedbackRival(text) {
@@ -1698,6 +1719,7 @@
             ch.on('broadcast', { event: 'prog' }, ({ payload }) => this.onProg(payload));
             ch.on('broadcast', { event: 'miss' }, ({ payload }) => this.onMiss(payload));
             ch.on('broadcast', { event: 'fin' }, ({ payload }) => this.onFin(payload));
+            ch.on('broadcast', { event: 'dnf' }, ({ payload }) => { const rc = this.friend(payload.id); if (rc) { rc.dnf = true; rc.finished = true; if (!$('sr-results').classList.contains('hidden')) { renderStandings(); this.renderResultButtons(); } } });
             ch.on('broadcast', { event: 'lobby' }, () => this.backToRoom());
             ch.subscribe(async status => {
                 if (status === 'SUBSCRIBED') { await this.track(); }
@@ -1737,6 +1759,7 @@
             if (racers.length && raceMode === 'room') {
                 const here = new Set(list.map(p => p.id));
                 racers.forEach(rc => { if (rc.kind === 'friend' && !here.has(rc.id) && !rc.left) { rc.left = true; if (!rc.finished) feedbackRival(`${rc.name} left the race`); } });
+                checkLastOneLeft();
                 if (!$('sr-results').classList.contains('hidden')) { renderStandings(); this.renderResultButtons(); }
             }
             if (this.quick) this.quickHostCheck();
@@ -1764,9 +1787,9 @@
             document.querySelectorAll('#sr-room-settings [data-bots]').forEach(b => { b.classList.toggle('active', (b.dataset.bots === 'on') === st.bots); b.disabled = !this.isHost; });
             $('sr-room-settings').classList.toggle('hidden', this.quick);
             const startBtn = $('sr-room-start');
-            startBtn.classList.toggle('hidden', !this.isHost);
+            startBtn.classList.toggle('hidden', !this.isHost || this.quick);   // quick matches launch on their own timer
             startBtn.disabled = this.racing;
-            startBtn.textContent = this.quick ? '🚀 LAUNCH NOW' : humans.length < 2 && !st.bots ? '🚀 START (add a friend or fill empty lanes)' : '🚀 START RACE';
+            startBtn.textContent = humans.length < 2 && !st.bots ? '🚀 START (add a friend or fill empty lanes)' : '🚀 START RACE';
             if (this.isHost && !this.quick && humans.length < 2 && !st.bots) startBtn.disabled = true;
             let status = '';
             if (this.racing && !this.startedRace) status = 'A race is in progress. You\'ll join the next one!';
@@ -1937,7 +1960,7 @@
     $('sr-join-btn').onclick = joinFromBox;
     $('sr-join-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinFromBox(); });
     $('sr-join-code').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4); });
-    $('sr-room-start').onclick = () => { ac(); Room.hostStart(); };
+    $('sr-room-start').onclick = () => { ac(); if (!Room.quick) Room.hostStart(); };
     $('sr-room-leave').onclick = () => Room.leave();
     $('sr-room-again').onclick = () => Room.rematch();
     $('sr-room-exit').onclick = () => Room.leave();
