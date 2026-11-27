@@ -1709,7 +1709,7 @@
         track() {
             if (!this.ch) return;
             const meta = { name: this.myName, joinedAt: this.joinedAt };
-            if (this.isHost) { meta.settings = this.settings; meta.racing = this.racing; meta.quick = this.quick; meta.created = this.quickCreated; }
+            if (this.isHost) { meta.settings = this.settings; meta.racing = this.racing; meta.quick = this.quick; meta.created = this.quickCreated; if (this.racing && this.startPayload) meta.start = this.startPayload; }
             return this.ch.track(meta);
         },
         onPresence() {
@@ -1726,6 +1726,8 @@
                 this.racing = !!host.racing;
                 if (host.quick) this.quick = true;
                 if (host.created) this.quickCreated = host.created;
+                // backup for a missed 'start' message: the host's presence carries the race it launched
+                if (host.racing && host.start && !this.startedRace && host.start.seed !== this.lastSeed) this.onStart(host.start);
             }
             if (this.isHost && list[0] && list[0].id === CLIENT_ID && !list[0].settings) this.track();   // I'm host: publish settings
             // full room: the late arrivals leave
@@ -1786,16 +1788,29 @@
             const st = this.settings;
             const nBots = st.bots ? Math.max(0, LANES - humans.length) : 0;
             const payload = { seed: this.code + ':' + Date.now() + ':' + Math.random().toString(36).slice(2, 7), set: st.set, target: st.target, roster: humans, bots: nBots };
-            this.racing = true; this.track();
+            this.racing = true; this.startPayload = payload; this.track();
             if (this.lobbyCh) { this.lobbyCh.untrack(); }
             clearInterval(this.tickTimer);
-            this.ch.send({ type: 'broadcast', event: 'start', payload });
+            const ch = this.ch;
+            ch.send({ type: 'broadcast', event: 'start', payload });
+            // send it again in case someone's connection dropped the first one
+            [1200, 3000].forEach(ms => setTimeout(() => { if (this.ch === ch && this.startPayload === payload) ch.send({ type: 'broadcast', event: 'start', payload }); }, ms));
             this.onStart(payload);
         },
         onStart(payload) {
+            if (!payload || payload.seed === this.lastSeed) return;   // already racing this one
             this.racing = true;
-            if (!payload.roster.some(r => r.id === CLIENT_ID)) { this.startedRace = false; this.render(); return; }   // joined too late: watch the next one
-            clearInterval(this.tickTimer);
+            if (!payload.roster.some(r => r.id === CLIENT_ID)) {   // joined too late
+                this.lastSeed = payload.seed; this.startedRace = false; clearInterval(this.tickTimer);
+                if (this.quick) {
+                    $('sr-room-status').innerHTML = '🚀 That race launched just before you joined. Finding you another match…';
+                    clearTimeout(this.quickTimer);
+                    this.quickTimer = setTimeout(() => { if (this.quick && !this.startedRace) this.leave(true).then(() => quickMatch()); }, 1800);
+                } else this.render();
+                return;
+            }
+            this.lastSeed = payload.seed;
+            clearInterval(this.tickTimer); clearTimeout(this.quickTimer);
             this.startedRace = true;
             const r = rng(hashStr(payload.seed + 'bots'));
             const bNames = botNames(r), skills = shuffle(BOT_SKILLS, r);
@@ -1847,7 +1862,7 @@
             clearInterval(this.tickTimer); clearTimeout(this.quickTimer);
             if (this.ch) { try { await this.ch.untrack(); sb.removeChannel(this.ch); } catch (e) {} }
             if (this.lobbyCh) { try { await this.lobbyCh.untrack(); sb.removeChannel(this.lobbyCh); } catch (e) {} }
-            this.ch = null; this.lobbyCh = null; this.code = null; this.quick = false; this.players = []; this.racing = false; this.startedRace = false;
+            this.ch = null; this.lobbyCh = null; this.code = null; this.quick = false; this.players = []; this.racing = false; this.startedRace = false; this.startPayload = null;
             try { history.replaceState(null, '', 'space-race.html'); } catch (e) {}
             if (silent) return;
             state = 'lobby'; raceMode = 'daily'; racers = [];
@@ -1865,6 +1880,12 @@
                 const left = Math.max(0, Math.ceil((this.quickCreated + QUICK_WAIT_MS - Date.now()) / 1000));
                 $('sr-room-status').innerHTML = `🔎 Searching for racers… <b>${this.players.length}</b> found. Launching in <b>${left}s</b>`;
                 if (left <= 0 && this.isHost && !this.racing) this.hostStart();
+                // timer ran out long ago and nothing arrived (host gone or message lost): find a fresh match
+                if (!this.isHost && !this.startedRace && Date.now() > this.quickCreated + QUICK_WAIT_MS + 7000) {
+                    clearInterval(this.tickTimer);
+                    $('sr-room-status').innerHTML = '🔄 Lost the launch signal. Finding you another match…';
+                    this.leave(true).then(() => quickMatch());
+                }
             };
             tick(); this.tickTimer = setInterval(tick, 500);
         }
