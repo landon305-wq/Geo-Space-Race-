@@ -154,6 +154,7 @@ body {
 .sr-chip.hi { background: var(--cyan); color: #04111f; box-shadow: 0 0 14px var(--cyan-glow); }
 @keyframes srChipPop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
 .sr-input-row { display: flex; gap: 8px; }
+.sr-skip-hint { font-family: 'Orbitron', sans-serif; font-size: .75rem; letter-spacing: 1px; color: #fcd34d; align-self: center; }
 #sr-input {
     flex: 1; min-width: 0; padding: 14px 16px; border-radius: 14px; outline: none;
     font-family: 'Rajdhani', sans-serif; font-size: 1.35rem; font-weight: 700; letter-spacing: .5px;

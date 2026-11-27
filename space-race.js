@@ -358,10 +358,12 @@
     // ---------- typing ----------
     function renderSuggest() {
         const inp = $('sr-input');
-        suggestions = q && state === 'racing' ? A.suggest(inp.value, q.pool, 5) : [];
+        const typedSkip = SKIP_WORDS.includes(A.norm(inp.value));
+        suggestions = q && state === 'racing' && !typedSkip ? A.suggest(inp.value, q.pool, 5) : [];
         hiIdx = 0;
         const exact = q ? A.match(inp.value, q.pool) : null;
         if (exact) { suggestions = [exact].concat(suggestions.filter(s => s !== exact)).slice(0, 5); }
+        if (typedSkip) { $('sr-suggest').innerHTML = '<span class="sr-skip-hint">⏭ Press Enter to skip</span>'; return; }
         $('sr-suggest').innerHTML = suggestions.map((s, i) => `<button type="button" class="sr-chip${i === hiIdx ? ' hi' : ''}" data-i="${i}" role="option">${esc(s)}</button>`).join('');
     }
     function moveHi(d) {
@@ -369,9 +371,12 @@
         hiIdx = (hiIdx + d + suggestions.length) % suggestions.length;
         [...$('sr-suggest').children].forEach((c, i) => c.classList.toggle('hi', i === hiIdx));
     }
+    // typing one of these skips the question (same as the SKIP button)
+    const SKIP_WORDS = ['idk', 'i dk', 'skip', 'pass', 'i dont know', 'dont know', 'dunno', 'no idea', 'next'];
     function submit(chosen) {
         if (state !== 'racing' || !q || now() < stalledUntil) return;
         const inp = $('sr-input');
+        if (!chosen && SKIP_WORDS.includes(A.norm(inp.value))) return skip();
         let pick = chosen || A.match(inp.value, q.pool) || (suggestions.length && A.norm(inp.value).length >= 2 ? suggestions[hiIdx] : null);
         if (!pick) {
             inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake');
