@@ -1921,13 +1921,19 @@
             await authReady;
             if (!storedName()) await Room.ensureName();
             const lobby = sb.channel('sr-quick-lobby', { config: { presence: { key: CLIENT_ID } } });
+            const openRooms = () => Object.values(lobby.presenceState()).map(m => m[m.length - 1])
+                .filter(m => m && m.room && m.open && Date.now() - m.created < QUICK_WAIT_MS - 1500);
+            let mine = null;   // the room I created, once I have one
             const open = await new Promise(resolve => {
                 let done = false;
                 const finish = v => { if (!done) { done = true; resolve(v); } };
                 lobby.on('presence', { event: 'sync' }, () => {
-                    const rooms = Object.values(lobby.presenceState()).map(m => m[m.length - 1]).filter(m => m && m.room && m.open && Date.now() - m.created < QUICK_WAIT_MS - 1500);
-                    rooms.sort((a, b) => a.created - b.created);
-                    finish(rooms[0] || null);
+                    if (!mine) { finish(openRooms().sort((a, b) => a.created - b.created)[0] || null); return; }
+                    // two people clicked at the same moment and each made a room: the newer, still-empty room moves into the older one
+                    if (Room.code !== mine.room || Room.racing || Room.players.length > 1 || !Room.isHost) return;
+                    const older = openRooms().filter(m => m.room !== mine.room && (m.created < mine.created || (m.created === mine.created && m.room < mine.room)))
+                        .sort((a, b) => a.created - b.created)[0];
+                    if (older) { mine = { room: null }; Room.open(older.room, { quick: true }); }
                 });
                 lobby.subscribe(st => { if (st === 'SUBSCRIBED') setTimeout(() => finish(null), 1500); });
                 setTimeout(() => finish(null), 4000);
@@ -1940,7 +1946,9 @@
                 await Room.open(code, { quick: true });
                 Room.lobbyCh = lobby;
                 Room.quickCreated = Date.now();
+                mine = { room: code, created: Room.quickCreated };
                 await lobby.track({ room: code, open: true, created: Room.quickCreated });
+                if (Room.code !== code) return;   // already moved into an older room
                 Room.track();
                 Room.quickHostCheck();
             }
