@@ -28,6 +28,7 @@
     const easeOut = t => 1 - Math.pow(1 - t, 3);
     const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const fmtDist = n => { const w = Math.floor(n + 1e-9), h = n - w > 0.25; return h ? (w ? w + '½' : '½') : String(w); };
     function fmtTime(ms) {
         if (!isFinite(ms)) return '—';
         const s = ms / 1000, m = Math.floor(s / 60);
@@ -73,7 +74,17 @@
         wrong: () => { tone(160, 0.35, 'sawtooth', 0.13, -90); noise(0.45, 0.25, 600, 60); },
         key: () => tone(1800 + Math.random() * 400, 0.02, 'square', 0.015),
         land: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.4, 'triangle', 0.12, 0, i * 0.12)); noise(0.8, 0.15, 900, 80, 0.1); },
-        rival: () => tone(330, 0.25, 'sine', 0.07, -60)
+        rival: () => tone(330, 0.25, 'sine', 0.07, -60),
+        // someone touched down on the Moon before you: a whoosh, a thud, and a sad "wah-wah"
+        rivalLand: () => {
+            noise(0.7, 0.22, 2600, 150);
+            tone(90, 0.5, 'sine', 0.22, -40, 0.35);
+            noise(0.35, 0.18, 500, 60, 0.35);
+            tone(392, 0.32, 'triangle', 0.12, -20, 0.65);
+            tone(349, 0.55, 'triangle', 0.12, -70, 0.98);
+        },
+        // a rare answer: sparkly arpeggio
+        rare: () => { [880, 1175, 1568, 2093].forEach((f, i) => tone(f, 0.22, 'triangle', 0.09, 0, i * 0.06)); }
     };
 
     // ---------- map data ----------
@@ -183,13 +194,6 @@
             ['Ho Chi Minh City', 'Vietnam', 3], ['Busan', 'South Korea', 3], ['Karachi', 'Pakistan', 3], ['Guadalajara', 'Mexico', 3], ['Seville', 'Spain', 3],
             ['Bangalore', 'India', 3], ['Mecca', 'Saudi Arabia', 3], ['Medellín', 'Colombia', 3], ['Cusco', 'Peru', 3], ['Mombasa', 'Kenya', 3], ['Zanzibar', 'Tanzania', 3],
             ['Valparaíso', 'Chile', 3], ['Glasgow', 'United Kingdom', 3], ['Zurich', 'Switzerland', 3]
-        ],
-        money: [
-            ['the yen', 'Japan', 2], ['the yuan', 'China', 2], ['the real', 'Brazil', 2], ['the rand', 'South Africa', 2], ['the baht', 'Thailand', 2],
-            ['the zloty', 'Poland', 3], ['the forint', 'Hungary', 3], ['the shekel', 'Israel', 3], ['the rupiah', 'Indonesia', 3], ['the ringgit', 'Malaysia', 3],
-            ['the naira', 'Nigeria', 3], ['the hryvnia', 'Ukraine', 3], ['the dong', 'Vietnam', 3], ['the cedi', 'Ghana', 3], ['the birr', 'Ethiopia', 3],
-            ['the quetzal', 'Guatemala', 3], ['the sol', 'Peru', 3], ['the bolívar', 'Venezuela', 3], ['the tenge', 'Kazakhstan', 3], ['the taka', 'Bangladesh', 3],
-            ['the lev', 'Bulgaria', 3], ['the Turkish lira', 'Turkey', 2], ['the guaraní', 'Paraguay', 3], ['the riel', 'Cambodia', 3]
         ]
     };
     const CLUE_INFO = {
@@ -197,10 +201,46 @@
         usCity: { map: 'us', pool: 'states', tag: 'USA · CITY', ask: c => `Which state is <b>${esc(c)}</b> in?` },
         usLandmark: { map: 'us', pool: 'states', tag: 'USA · LANDMARK', ask: c => `Which state is home to <b>${esc(c)}</b>?` },
         wLandmark: { map: 'world', pool: 'countries', tag: 'WORLD · LANDMARK', ask: c => `Which country is home to <b>${esc(c)}</b>?` },
-        wCity: { map: 'world', pool: 'countries', tag: 'WORLD · CITY', ask: c => `Which country is <b>${esc(c)}</b> in?` },
-        money: { map: 'world', pool: 'countries', tag: 'WORLD · MONEY', ask: c => `Which country pays with <b>${esc(c)}</b>?` }
+        wCity: { map: 'world', pool: 'countries', tag: 'WORLD · CITY', ask: c => `Which country is <b>${esc(c)}</b> in?` }
     };
     const clueList = (type, maxLevel) => CLUES[type].filter(c => c[2] <= maxLevel);
+
+    // ---------- multi-answer questions: any right answer counts, RARE answers (not in "common") fly you twice as far ----------
+    const MULTI = [
+        // world
+        { id: 'sa', map: 'world', lvl: 1, ask: 'Name a country in <b>South America</b>', all: ['Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela'], common: ['Brazil', 'Argentina', 'Chile', 'Peru', 'Colombia', 'Venezuela'] },
+        { id: 'euro', map: 'world', lvl: 1, ask: 'Name a country that uses the <b>euro</b> 💶', all: ['Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Netherlands', 'Portugal', 'Slovakia', 'Slovenia', 'Spain', 'Monaco', 'San Marino', 'Vatican City', 'Andorra', 'Montenegro', 'Kosovo'], common: ['France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Greece', 'Netherlands', 'Belgium', 'Ireland', 'Austria', 'Finland'] },
+        { id: 'dollar', map: 'world', lvl: 1, ask: 'Name a country whose money is called the <b>dollar</b> 💵', all: ['United States', 'Canada', 'Australia', 'New Zealand', 'Ecuador', 'El Salvador', 'Panama', 'Singapore', 'Jamaica', 'Bahamas', 'Barbados', 'Belize', 'Fiji', 'Liberia', 'Namibia', 'Taiwan', 'Brunei', 'Guyana', 'Suriname', 'Trinidad and Tobago', 'Timor-Leste', 'Marshall Islands', 'Micronesia', 'Palau', 'Kiribati', 'Tuvalu', 'Solomon Islands', 'Antigua and Barbuda', 'Dominica', 'Grenada', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines'], common: ['United States', 'Canada', 'Australia', 'New Zealand'] },
+        { id: 'island', map: 'world', lvl: 1, ask: 'Name an <b>island country</b> 🏝️', all: ['Japan', 'United Kingdom', 'Ireland', 'Iceland', 'Madagascar', 'Philippines', 'Indonesia', 'New Zealand', 'Cuba', 'Jamaica', 'Sri Lanka', 'Taiwan', 'Fiji', 'Malta', 'Cyprus', 'Singapore', 'Bahamas', 'Barbados', 'Trinidad and Tobago', 'Maldives', 'Mauritius', 'Seychelles', 'Bahrain', 'Samoa', 'Tonga', 'Vanuatu', 'Solomon Islands', 'Cape Verde', 'Comoros', 'São Tomé and Príncipe', 'Dominica', 'Grenada', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Saint Kitts and Nevis', 'Antigua and Barbuda', 'Kiribati', 'Tuvalu', 'Nauru', 'Palau', 'Marshall Islands', 'Micronesia', 'Papua New Guinea', 'Haiti', 'Dominican Republic', 'Timor-Leste'], common: ['Japan', 'United Kingdom', 'Ireland', 'Iceland', 'Madagascar', 'Philippines', 'Indonesia', 'New Zealand', 'Cuba', 'Jamaica'] },
+        { id: 'spanish', map: 'world', lvl: 1, ask: 'Name a country where most people speak <b>Spanish</b>', all: ['Spain', 'Mexico', 'Argentina', 'Colombia', 'Peru', 'Venezuela', 'Chile', 'Ecuador', 'Guatemala', 'Cuba', 'Bolivia', 'Dominican Republic', 'Honduras', 'Paraguay', 'El Salvador', 'Nicaragua', 'Costa Rica', 'Panama', 'Uruguay', 'Equatorial Guinea'], common: ['Spain', 'Mexico', 'Argentina', 'Colombia', 'Peru', 'Chile', 'Venezuela'] },
+        { id: 'nordic', map: 'world', lvl: 1, ask: 'Name a <b>Nordic</b> country', all: ['Norway', 'Sweden', 'Denmark', 'Finland', 'Iceland'], common: ['Norway', 'Sweden', 'Denmark'] },
+        { id: 'olympics', map: 'world', lvl: 1, ask: 'Name a country that has hosted the <b>Summer Olympics</b> 🏅', all: ['United States', 'United Kingdom', 'France', 'Greece', 'Sweden', 'Belgium', 'Netherlands', 'Germany', 'Finland', 'Australia', 'Italy', 'Japan', 'Mexico', 'Canada', 'Russia', 'South Korea', 'Spain', 'China', 'Brazil'], common: ['United States', 'United Kingdom', 'France', 'Greece', 'Australia', 'Japan', 'China', 'Brazil'] },
+        { id: 'africa', map: 'world', lvl: 2, ask: 'Name a country in <b>Africa</b>', all: ['Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi', 'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad', 'Comoros', 'Democratic Republic of the Congo', 'Republic of the Congo', "Côte d'Ivoire", 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'São Tomé and Príncipe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe'], common: ['Egypt', 'South Africa', 'Nigeria', 'Kenya', 'Morocco', 'Ethiopia', 'Ghana', 'Madagascar', 'Algeria', 'Libya'] },
+        { id: 'china', map: 'world', lvl: 2, ask: 'Name a country that borders <b>China</b>', all: ['Afghanistan', 'Bhutan', 'India', 'Kazakhstan', 'Kyrgyzstan', 'Laos', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea', 'Pakistan', 'Russia', 'Tajikistan', 'Vietnam'], common: ['Russia', 'India', 'Mongolia', 'North Korea', 'Vietnam', 'Pakistan'] },
+        { id: 'brazil', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Brazil</b>', all: ['Argentina', 'Bolivia', 'Colombia', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela', 'France'], common: ['Argentina', 'Bolivia', 'Colombia', 'Paraguay', 'Peru', 'Uruguay', 'Venezuela'] },
+        { id: 'germany', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Germany</b>', all: ['Denmark', 'Poland', 'Czechia', 'Austria', 'Switzerland', 'France', 'Luxembourg', 'Belgium', 'Netherlands'], common: ['Denmark', 'Poland', 'Austria', 'Switzerland', 'France', 'Netherlands', 'Belgium'] },
+        { id: 'camerica', map: 'world', lvl: 2, ask: 'Name a country in <b>Central America</b>', all: ['Belize', 'Guatemala', 'Honduras', 'El Salvador', 'Nicaragua', 'Costa Rica', 'Panama'], common: ['Costa Rica', 'Panama', 'Guatemala'] },
+        { id: 'portuguese', map: 'world', lvl: 2, ask: 'Name a country where <b>Portuguese</b> is an official language', all: ['Portugal', 'Brazil', 'Angola', 'Mozambique', 'Cape Verde', 'Guinea-Bissau', 'São Tomé and Príncipe', 'Timor-Leste', 'Equatorial Guinea'], common: ['Portugal', 'Brazil'] },
+        { id: 'equator', map: 'world', lvl: 2, ask: 'Name a country on the <b>equator</b>', all: ['Ecuador', 'Colombia', 'Brazil', 'São Tomé and Príncipe', 'Gabon', 'Republic of the Congo', 'Democratic Republic of the Congo', 'Uganda', 'Kenya', 'Somalia', 'Maldives', 'Indonesia', 'Kiribati'], common: ['Ecuador', 'Colombia', 'Brazil', 'Kenya', 'Indonesia'] },
+        { id: 'stan', map: 'world', lvl: 2, ask: 'Name a country ending in <b>-stan</b>', all: ['Afghanistan', 'Kazakhstan', 'Kyrgyzstan', 'Pakistan', 'Tajikistan', 'Turkmenistan', 'Uzbekistan'], common: ['Afghanistan', 'Kazakhstan', 'Pakistan'] },
+        { id: 'russia', map: 'world', lvl: 3, ask: 'Name a country that borders <b>Russia</b>', all: ['Norway', 'Finland', 'Estonia', 'Latvia', 'Lithuania', 'Poland', 'Belarus', 'Ukraine', 'Georgia', 'Azerbaijan', 'Kazakhstan', 'China', 'Mongolia', 'North Korea'], common: ['Finland', 'Ukraine', 'China', 'Kazakhstan', 'Mongolia', 'Norway'] },
+        { id: 'landlocked', map: 'world', lvl: 3, ask: 'Name a <b>landlocked</b> country (no coastline)', all: ['Afghanistan', 'Andorra', 'Armenia', 'Austria', 'Azerbaijan', 'Belarus', 'Bhutan', 'Bolivia', 'Botswana', 'Burkina Faso', 'Burundi', 'Central African Republic', 'Chad', 'Czechia', 'Eswatini', 'Ethiopia', 'Hungary', 'Kazakhstan', 'Kosovo', 'Kyrgyzstan', 'Laos', 'Lesotho', 'Liechtenstein', 'Luxembourg', 'Malawi', 'Mali', 'Moldova', 'Mongolia', 'Nepal', 'Niger', 'North Macedonia', 'Paraguay', 'Rwanda', 'San Marino', 'Serbia', 'Slovakia', 'South Sudan', 'Switzerland', 'Tajikistan', 'Turkmenistan', 'Uganda', 'Uzbekistan', 'Vatican City', 'Zambia', 'Zimbabwe'], common: ['Switzerland', 'Austria', 'Bolivia', 'Paraguay', 'Mongolia', 'Nepal', 'Afghanistan', 'Hungary', 'Czechia', 'Kazakhstan'] },
+        // USA
+        { id: 'mexicoBorder', map: 'us', lvl: 1, ask: 'Name a state that borders <b>Mexico</b>', all: ['California', 'Arizona', 'New Mexico', 'Texas'], common: ['California', 'Texas', 'Arizona'] },
+        { id: 'pacific', map: 'us', lvl: 1, ask: 'Name a state on the <b>Pacific Ocean</b> 🌊', all: ['California', 'Oregon', 'Washington', 'Alaska', 'Hawaii'], common: ['California', 'Oregon', 'Washington'] },
+        { id: 'texasBorder', map: 'us', lvl: 1, ask: 'Name a state that borders <b>Texas</b>', all: ['New Mexico', 'Oklahoma', 'Arkansas', 'Louisiana'], common: ['New Mexico', 'Oklahoma', 'Louisiana'] },
+        { id: 'gulf', map: 'us', lvl: 1, ask: 'Name a state on the <b>Gulf Coast</b>', all: ['Texas', 'Louisiana', 'Mississippi', 'Alabama', 'Florida'], common: ['Texas', 'Louisiana', 'Florida'] },
+        { id: 'caBorder', map: 'us', lvl: 1, ask: 'Name a state that borders <b>California</b>', all: ['Oregon', 'Nevada', 'Arizona'], common: ['Oregon', 'Nevada', 'Arizona'] },
+        { id: 'newEngland', map: 'us', lvl: 2, ask: 'Name a <b>New England</b> state', all: ['Maine', 'New Hampshire', 'Vermont', 'Massachusetts', 'Rhode Island', 'Connecticut'], common: ['Maine', 'Massachusetts', 'Vermont'] },
+        { id: 'greatLakes', map: 'us', lvl: 2, ask: 'Name a state on the <b>Great Lakes</b>', all: ['Minnesota', 'Wisconsin', 'Illinois', 'Indiana', 'Michigan', 'Ohio', 'Pennsylvania', 'New York'], common: ['Michigan', 'Ohio', 'Illinois', 'New York', 'Wisconsin'] },
+        { id: 'fourCorners', map: 'us', lvl: 2, ask: 'Name one of the <b>Four Corners</b> states', all: ['Arizona', 'New Mexico', 'Colorado', 'Utah'], common: ['Arizona', 'Colorado', 'Utah', 'New Mexico'] },
+        { id: 'canadaBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Canada</b>', all: ['Alaska', 'Washington', 'Idaho', 'Montana', 'North Dakota', 'Minnesota', 'Michigan', 'Ohio', 'Pennsylvania', 'New York', 'Vermont', 'New Hampshire', 'Maine'], common: ['Alaska', 'Washington', 'Montana', 'Michigan', 'New York', 'Maine', 'Minnesota'] },
+        { id: 'mississippi', map: 'us', lvl: 2, ask: 'Name a state on the <b>Mississippi River</b>', all: ['Minnesota', 'Wisconsin', 'Iowa', 'Illinois', 'Missouri', 'Kentucky', 'Tennessee', 'Arkansas', 'Mississippi', 'Louisiana'], common: ['Louisiana', 'Mississippi', 'Missouri', 'Minnesota', 'Tennessee'] },
+        { id: 'colonies', map: 'us', lvl: 2, ask: 'Name one of the original <b>13 colonies</b>', all: ['New Hampshire', 'Massachusetts', 'Rhode Island', 'Connecticut', 'New York', 'New Jersey', 'Pennsylvania', 'Delaware', 'Maryland', 'Virginia', 'North Carolina', 'South Carolina', 'Georgia'], common: ['New York', 'Massachusetts', 'Pennsylvania', 'Virginia', 'Georgia'] }
+    ];
+    // "Name a state/country that starts with ..." (common = the well-known ones)
+    const US_LETTERS = ['A', 'C', 'I', 'K', 'M', 'N', 'O', 'T', 'V', 'W'];
+    const WORLD_LETTERS = ['E', 'I', 'J', 'K', 'O', 'P', 'Q', 'U', 'V', 'Z'];
 
     // A capital that is basically the same word as its country makes no question (Kuwait City, Singapore...)
     function capIsGiveaway(country, cap) {
@@ -214,7 +254,6 @@
         const allStates = A.STATES.filter(s => GEO.stateBy[s]);
         const hardStates = allStates.filter(s => !EASY_STATES.includes(s));
         const allCountries = A.COUNTRIES.filter(c => GEO.worldBy[c]);
-        const hardCountries = allCountries.filter(c => !EASY_COUNTRIES.includes(c) && !MEDIUM_COUNTRIES.includes(c));
         const stateCapStates = Object.keys(A.US_CAPITALS);
         const capCountries = allCountries.filter(c => A.WORLD_CAPITALS[c] && !capIsGiveaway(c, A.WORLD_CAPITALS[c]));
 
@@ -229,18 +268,40 @@
             const inf = CLUE_INFO[type];
             mk[type] = ([clue, ans]) => ({ type, target: null, clue: true, answer: ans, pool: inf.pool, map: inf.map, prompt: inf.ask(clue), tag: inf.tag });
         });
-        const placeOf = (type, item) => Array.isArray(item) ? item[1] : item;
-        const mapOf = type => (mk[type](type in CLUE_INFO ? ['', ''] : 'x').map);
+        // multi-answer: item = {id, map, ask, all, common}
+        const mkMulti = (type, m) => ({ type, target: null, clue: true, multi: true, answers: m.all, rare: m.all.filter(a => !m.common.includes(a)),
+            answer: m.common[0] || m.all[0], examples: (m.common.length ? m.common : m.all).slice(0, 2), pool: m.map === 'us' ? 'states' : 'countries', map: m.map, prompt: m.ask,
+            tag: (m.map === 'us' ? 'USA' : 'WORLD') + ' · MANY ANSWERS' });
+        mk.usMulti = m => mkMulti('usMulti', m);
+        mk.wMulti = m => mkMulti('wMulti', m);
+        const letterQ = (type, L) => {
+            const isUS = type === 'usLetter';
+            const all = (isUS ? allStates : allCountries).filter(n => A.norm(n).startsWith(L.toLowerCase()));
+            const easy = isUS ? EASY_STATES : EASY_COUNTRIES;
+            const common = all.length <= 2 ? all : all.filter(n => easy.includes(n));
+            return mkMulti(type, { id: type + L, map: isUS ? 'us' : 'world', ask: `Name a ${isUS ? 'state' : 'country'} that starts with <b>${L}</b>`, all, common });
+        };
+        mk.usLetter = L => letterQ('usLetter', L);
+        mk.wLetter = L => letterQ('wLetter', L);
+        const TYPE_MAP = { state: 'us', country: 'world', stateCap: 'us', countryCap: 'world', capState: 'us', usMulti: 'us', wMulti: 'world', usLetter: 'us', wLetter: 'world' };
+        Object.keys(CLUE_INFO).forEach(t => { TYPE_MAP[t] = CLUE_INFO[t].map; });
+        const mapOf = type => TYPE_MAP[type];
+        const keyOf = (type, item) => item && item.id ? 'M:' + item.id : typeof item === 'string' && (type === 'usLetter' || type === 'wLetter') ? 'L:' + type + item : (mapOf(type) === 'us' ? 'US:' : 'W:') + (Array.isArray(item) ? item[1] : item);
         const clues = (lvl, types) => types.map(t => [t, clueList(t, lvl).filter(([, ans]) => (CLUE_INFO[t].map === 'us' ? A.STATES : A.COUNTRIES).includes(ans))]);
-        const ALL_CLUES = ['usNick', 'usCity', 'usLandmark', 'wLandmark', 'wCity'];
-        // map questions ("name this place") count double so the map stays the star
+        const multis = (map, lvl) => MULTI.filter(m => m.map === map && m.lvl <= lvl);
+        const US_CLUES = ['usNick', 'usCity', 'usLandmark'], W_CLUES = ['wLandmark', 'wCity'];
+        const knownCountries = EASY_COUNTRIES.concat(MEDIUM_COUNTRIES);
+        // weights: map questions x2, many-answer questions x2, everything else x1
         const tiers = [
-            { count: 5, pick: [['state', EASY_STATES], ['state', EASY_STATES], ['country', EASY_COUNTRIES], ['country', EASY_COUNTRIES], ['stateCap', EASY_STATE_CAPS], ['countryCap', EASY_COUNTRY_CAPS]]
-                .concat(clues(1, ALL_CLUES)) },
-            { count: 8, pick: [['state', allStates], ['state', allStates], ['country', MEDIUM_COUNTRIES], ['country', MEDIUM_COUNTRIES], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => EASY_COUNTRIES.includes(c) || MEDIUM_COUNTRIES.includes(c))], ['capState', stateCapStates]]
-                .concat(clues(2, ALL_CLUES.concat('money'))) },
-            { count: 27, pick: [['state', hardStates], ['state', hardStates], ['country', MEDIUM_COUNTRIES.concat(hardCountries)], ['country', MEDIUM_COUNTRIES.concat(hardCountries)], ['stateCap', stateCapStates], ['countryCap', capCountries], ['capState', stateCapStates]]
-                .concat(clues(3, ALL_CLUES.concat('money'))) }
+            { count: 5, pick: [['state', EASY_STATES], ['state', EASY_STATES], ['country', EASY_COUNTRIES], ['country', EASY_COUNTRIES], ['stateCap', EASY_STATE_CAPS], ['countryCap', EASY_COUNTRY_CAPS],
+                ['usMulti', multis('us', 1)], ['wMulti', multis('world', 1)], ['wMulti', multis('world', 1)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS]]
+                .concat(clues(1, US_CLUES), clues(1, W_CLUES)) },
+            { count: 8, pick: [['state', allStates], ['state', allStates], ['country', knownCountries], ['country', MEDIUM_COUNTRIES], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates],
+                ['usMulti', multis('us', 2)], ['usMulti', multis('us', 2)], ['wMulti', multis('world', 2)], ['wMulti', multis('world', 2)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS]]
+                .concat(clues(2, US_CLUES), clues(2, W_CLUES)) },
+            { count: 27, pick: [['state', hardStates], ['state', allStates], ['country', MEDIUM_COUNTRIES], ['country', knownCountries], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates],
+                ['usMulti', multis('us', 3)], ['usMulti', multis('us', 3)], ['wMulti', multis('world', 3)], ['wMulti', multis('world', 3)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS]]
+                .concat(clues(3, US_CLUES), clues(2, W_CLUES)) }
         ];
         // USA-only or World-only rooms keep just those question types
         if (set === 'usa' || set === 'world') tiers.forEach(tr => { tr.pick = tr.pick.filter(([type]) => mapOf(type) === (set === 'usa' ? 'us' : 'world')); });
@@ -255,7 +316,7 @@
                     if (type === lastType && tries < 40) continue;
                     const item = list[Math.floor(r() * list.length)];
                     if (!item) continue;
-                    const key = (mapOf(type) === 'us' ? 'US:' : 'W:') + placeOf(type, item);
+                    const key = keyOf(type, item);
                     if (used.has(key)) continue;
                     used.add(key); deck.push(mk[type](item)); lastType = type;
                     break;
@@ -288,12 +349,16 @@
     function botRun(seedStr, skill) {
         const r = rng(hashStr(seedStr));
         const splits = [], misses = [];
-        let t = 1200 + r() * 600;
+        let t = 1200 + r() * 600, dist = 0, streak = 0;
         while (splits.length < TARGET) {
             const think = clamp(skill.mean * Math.exp(gauss(r) * 0.33), 1.8, skill.mean * 3) * 1000;
             t += think;
-            if (r() < skill.acc) splits.push(Math.round(t));
-            else { misses.push(Math.round(t)); t += STALL_MS + REVEAL_MS * 0.4; }
+            if (r() < skill.acc) {
+                streak++;
+                // same rules as you: rare answers fly 2 (sometimes), a 3+ streak adds ½
+                dist += (r() < skill.acc * 0.12 ? 2 : 1) + (streak >= 3 ? 0.5 : 0);
+                while (splits.length < Math.min(TARGET, Math.floor(dist + 1e-9))) splits.push(Math.round(t));
+            } else { streak = 0; misses.push(Math.round(t)); t += STALL_MS + REVEAL_MS * 0.4; }
         }
         return { splits, misses, finish: splits[TARGET - 1] };
     }
@@ -369,7 +434,7 @@
     let racers = [];             // [{name, kind:'you'|'bot'|'ghost', color, splits, misses, finish, p, dp, knock, ...}]
     let me = null;
     let state = 'lobby';         // lobby | countdown | racing | finale | done
-    let raceStart = 0, stalledUntil = 0, streak = 0, bestStreak = 0, attempts = 0;
+    let raceStart = 0, stalledUntil = 0, streak = 0, bestStreak = 0, attempts = 0, rightN = 0, landedBeforeMe = 0;
     let lineupData = null, isOfficial = true, raceSeed = DAY;
     let suggestions = [], hiIdx = 0;
 
@@ -423,7 +488,7 @@
             deck = buildDeck(raceSeed);
             field = lineupData;
         }
-        qIndex = 0; streak = 0; bestStreak = 0; attempts = 0; stalledUntil = 0;
+        qIndex = 0; streak = 0; bestStreak = 0; attempts = 0; rightN = 0; landedBeforeMe = 0; stalledUntil = 0;
         FX.finaleStart = 0; FX.landedDust = false; FX.flagAt = 0; FX.confetti = [];
         racers = field.map((f, i) => ({
             ...f, lane: i, p: 0, dp: 0, knock: 0, count: 0, finished: false, place: 0,
@@ -503,7 +568,7 @@
             return;
         }
         attempts++;
-        if (pick === q.answer) onCorrect(pick); else onWrong(pick);
+        if (q.multi ? q.answers.includes(pick) : pick === q.answer) onCorrect(pick); else onWrong(pick);
     }
     function skip() {
         if (state !== 'racing' || !q || now() < stalledUntil) return;
@@ -513,16 +578,22 @@
 
     function onCorrect(pick) {
         const t = raceTime();
-        me.splits.push(Math.round(t)); me.count++; me.p = me.count / TARGET;
+        streak++; bestStreak = Math.max(bestStreak, streak); rightN++;
+        // distance: 1 per right answer, RARE answers to many-answer questions fly 2, and a 3+ streak adds ½
+        const rare = !!(q.multi && q.rare.includes(pick));
+        const boosted = streak >= 3;
+        const gain = (rare ? 2 : 1) + (boosted ? 0.5 : 0);
+        me.count = Math.min(TARGET, me.count + gain); me.p = me.count / TARGET;
+        while (me.splits.length < Math.floor(me.count + 1e-9)) me.splits.push(Math.round(t));   // time each whole step was reached (ghost replays)
         Room.send('prog', { n: me.count });
-        streak++; bestStreak = Math.max(bestStreak, streak);
         $('sr-input').className = 'good';
-        feedback(`✓ ${pick}`, 'good');
+        feedback(`✓ ${pick}` + (rare ? '  💎 RARE ×2' : '') + (boosted ? '  🔥 +½' : ''), rare ? 'good rare' : 'good');
+        if (rare) { callout('💎 RARE! ×2', 'small gold'); SFX.rare(); }
         SFX.correct(streak);
         burst(me, 'thrust', 40);
         FX.flashGood = 1;
         if (streak >= 3) { me.boostUntil = now() + 1600; if (streak === 3 || streak % 5 === 0) { callout(streak >= 5 ? `${streak} STREAK!` : 'BOOST!', 'small gold'); SFX.boost(); } }
-        $('sr-count').textContent = `${me.count} / ${TARGET}`;
+        $('sr-count').textContent = `${fmtDist(me.count)} / ${TARGET}`;
         $('sr-streak').textContent = streak; $('sr-streak').classList.toggle('hot', streak >= 3);
         if (me.count >= TARGET) return finishRace();
         setTimeout(() => { if (state === 'racing') nextQuestion(); }, 380);
@@ -533,7 +604,8 @@
         Room.send('miss', {});
         streak = 0; $('sr-streak').textContent = '0'; $('sr-streak').classList.remove('hot');
         $('sr-input').className = 'bad';
-        feedback(pick ? `✗ It was ${q.answer}` : `⏭ It was ${q.answer}`, 'bad');
+        const right = q.multi ? `e.g. ${q.examples.join(' or ')}` : `It was ${q.answer}`;
+        feedback(pick ? `✗ ${right}` : `⏭ ${right}`, 'bad');
         SFX.wrong();
         asteroidHit(me);
         stalledUntil = now() + STALL_MS;
@@ -604,7 +676,7 @@
         $('sr-res-medal').textContent = medals[place - 1] || '🚀';
         $('sr-res-title').textContent = names[place - 1] || `${place}TH PLACE`;
         $('sr-res-time').textContent = fmtTime(me.finish);
-        $('sr-res-acc').textContent = `${Math.round(TARGET / Math.max(attempts, TARGET) * 100)}%`;
+        $('sr-res-acc').textContent = `${Math.round(rightN / Math.max(attempts, 1) * 100)}%`;
         $('sr-res-streak').textContent = bestStreak;
         renderStandings();
         const inRoom = raceMode === 'room';
@@ -722,6 +794,14 @@
     function revealOnMap() {
         if (!view || !q) return;
         // after a miss, light up the right place (for clue questions too)
+        if (q.multi) {
+            // many-answer questions: light up every right answer on the whole map
+            const by = q.map === 'us' ? GEO.stateBy : GEO.worldBy;
+            const path = new Path2D();
+            q.answers.forEach(n => { const f = by[n]; if (f) f.rings.forEach(ri => { traceRing(path, ri.r, view.P); path.closePath(); }); });
+            view.reveal = path; view.revealAt = now();
+            return;
+        }
         const clueFeat = q.clue ? (q.map === 'us' ? GEO.stateBy : GEO.worldBy)[q.answer] : null;
         if (clueFeat) {
             // clue questions: fly the map to the answer (so Alaska, Hawaii and small countries are easy to see)
@@ -947,7 +1027,7 @@
                     rc.count = n; rc.p = n / TARGET; burst(rc, 'thrust', 14);
                     if (n === TARGET && !rc.finished) {
                         rc.finished = true; burst(rc, 'dust', 20);
-                        if (state === 'racing') { feedbackRival(`${rc.name} landed!`); SFX.rival(); }
+                        if (state === 'racing') rivalLanded(rc);
                     }
                 }
                 while (rc.missIdx < rc.misses.length && rc.misses[rc.missIdx] <= rt) { rc.missIdx++; asteroidHit(rc); }
@@ -957,12 +1037,22 @@
         }
         FX.shake *= Math.pow(0.004, dt);
     }
+    // another rocket reached the Moon while you are still flying
+    function rivalLanded(rc) {
+        landedBeforeMe++;
+        const ord = ['1st', '2nd', '3rd', '4th', '5th', '6th'][landedBeforeMe - 1] || landedBeforeMe + 'th';
+        feedbackRival(`${rc.name} landed ${ord}!`);
+        SFX.rivalLand();
+        FX.shake = Math.max(FX.shake, 6);
+        burst(rc, 'dust', 30);
+    }
     let rivalTimer = 0;
     function feedbackRival(text) {
         const el = $('sr-map-tag');
         const old = q ? q.tag : '';
         el.textContent = '🚀 ' + text; el.style.color = '#fcd34d';
-        clearTimeout(rivalTimer); rivalTimer = setTimeout(() => { el.textContent = q ? q.tag : old; el.style.color = ''; }, 1800);
+        el.classList.remove('alert'); void el.offsetWidth; if (/landed/.test(text)) el.classList.add('alert');
+        clearTimeout(rivalTimer); rivalTimer = setTimeout(() => { el.textContent = q ? q.tag : old; el.style.color = ''; el.classList.remove('alert'); }, 2400);
     }
 
     function drawTrack(t, dt) {
@@ -1322,7 +1412,7 @@
         onFin({ id, t }) {
             const rc = this.friend(id); if (!rc) return;
             rc.count = TARGET; rc.p = 1; rc.finished = true; rc.finish = t; burst(rc, 'dust', 20);
-            if (state === 'racing') { feedbackRival(`${rc.name} landed!`); SFX.rival(); }
+            if (state === 'racing') rivalLanded(rc);
             if (!$('sr-results').classList.contains('hidden')) { renderStandings(); this.renderResultButtons(); }
         },
 
