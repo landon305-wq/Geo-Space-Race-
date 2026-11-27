@@ -1,7 +1,7 @@
 // ==========================================
 // GEO-SPACERACE: SPACE RACE
 // A typing race to the Moon. The map lights up a place, you type its name.
-// 12 right answers land your rocket. You race bots plus "ghost" rockets that
+// 15 points land your rocket. You race bots plus "ghost" rockets that
 // replay real players' runs from today (saved in Supabase).
 // ==========================================
 (function () {
@@ -9,8 +9,8 @@
     const A = window.SRAnswers;
 
     // ---------- settings ----------
-    const DAILY_TARGET = 12;           // right answers needed to land (daily race)
-    let TARGET = DAILY_TARGET;         // rooms can choose 12 or 20
+    const DAILY_TARGET = 15;           // points needed to land (daily race)
+    let TARGET = DAILY_TARGET;         // rooms can choose 15 or 25
     const STALL_MS = 2500;             // asteroid stall after a miss
     const REVEAL_MS = 1300;            // how long the right answer shows after a miss
     const LANES = 5;                   // you + 4 others
@@ -208,14 +208,14 @@
     // ---------- multi-answer questions: any right answer counts, RARE answers (not in "common") fly you twice as far ----------
     const MULTI = [
         // world
-        { id: 'sa', map: 'world', lvl: 1, ask: 'Name a country in <b>South America</b>', all: ['Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela'], common: ['Brazil', 'Argentina', 'Chile', 'Peru', 'Colombia', 'Venezuela'] },
+        { id: 'sa', map: 'world', lvl: 1, ask: 'Name a country in <b>South America</b>', all: ['Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela', 'France', 'United Kingdom'], common: ['Brazil', 'Argentina', 'Chile', 'Peru', 'Colombia', 'Venezuela'] },
         { id: 'euro', map: 'world', lvl: 1, ask: 'Name a country that uses the <b>euro</b> 💶', all: ['Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Netherlands', 'Portugal', 'Slovakia', 'Slovenia', 'Spain', 'Monaco', 'San Marino', 'Vatican City', 'Andorra', 'Montenegro', 'Kosovo'], common: ['France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Greece', 'Netherlands', 'Belgium', 'Ireland', 'Austria', 'Finland'] },
         { id: 'dollar', map: 'world', lvl: 1, ask: 'Name a country whose money is called the <b>dollar</b> 💵', all: ['United States', 'Canada', 'Australia', 'New Zealand', 'Ecuador', 'El Salvador', 'Panama', 'Singapore', 'Jamaica', 'Bahamas', 'Barbados', 'Belize', 'Fiji', 'Liberia', 'Namibia', 'Taiwan', 'Brunei', 'Guyana', 'Suriname', 'Trinidad and Tobago', 'Timor-Leste', 'Marshall Islands', 'Micronesia', 'Palau', 'Kiribati', 'Tuvalu', 'Solomon Islands', 'Antigua and Barbuda', 'Dominica', 'Grenada', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines'], common: ['United States', 'Canada', 'Australia', 'New Zealand'] },
         { id: 'island', map: 'world', lvl: 1, ask: 'Name an <b>island country</b> 🏝️', all: ['Japan', 'United Kingdom', 'Ireland', 'Iceland', 'Madagascar', 'Philippines', 'Indonesia', 'New Zealand', 'Cuba', 'Jamaica', 'Sri Lanka', 'Taiwan', 'Fiji', 'Malta', 'Cyprus', 'Singapore', 'Bahamas', 'Barbados', 'Trinidad and Tobago', 'Maldives', 'Mauritius', 'Seychelles', 'Bahrain', 'Samoa', 'Tonga', 'Vanuatu', 'Solomon Islands', 'Cape Verde', 'Comoros', 'São Tomé and Príncipe', 'Dominica', 'Grenada', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Saint Kitts and Nevis', 'Antigua and Barbuda', 'Kiribati', 'Tuvalu', 'Nauru', 'Palau', 'Marshall Islands', 'Micronesia', 'Papua New Guinea', 'Haiti', 'Dominican Republic', 'Timor-Leste'], common: ['Japan', 'United Kingdom', 'Ireland', 'Iceland', 'Madagascar', 'Philippines', 'Indonesia', 'New Zealand', 'Cuba', 'Jamaica'] },
         { id: 'spanish', map: 'world', lvl: 1, ask: 'Name a country where most people speak <b>Spanish</b>', all: ['Spain', 'Mexico', 'Argentina', 'Colombia', 'Peru', 'Venezuela', 'Chile', 'Ecuador', 'Guatemala', 'Cuba', 'Bolivia', 'Dominican Republic', 'Honduras', 'Paraguay', 'El Salvador', 'Nicaragua', 'Costa Rica', 'Panama', 'Uruguay', 'Equatorial Guinea'], common: ['Spain', 'Mexico', 'Argentina', 'Colombia', 'Peru', 'Chile', 'Venezuela'] },
         { id: 'nordic', map: 'world', lvl: 1, ask: 'Name a <b>Nordic</b> country', all: ['Norway', 'Sweden', 'Denmark', 'Finland', 'Iceland'], common: ['Norway', 'Sweden', 'Denmark'] },
         { id: 'olympics', map: 'world', lvl: 1, ask: 'Name a country that has hosted the <b>Summer Olympics</b> 🏅', all: ['United States', 'United Kingdom', 'France', 'Greece', 'Sweden', 'Belgium', 'Netherlands', 'Germany', 'Finland', 'Australia', 'Italy', 'Japan', 'Mexico', 'Canada', 'Russia', 'South Korea', 'Spain', 'China', 'Brazil'], common: ['United States', 'United Kingdom', 'France', 'Greece', 'Australia', 'Japan', 'China', 'Brazil'] },
-        { id: 'africa', map: 'world', lvl: 2, ask: 'Name a country in <b>Africa</b>', all: ['Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi', 'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad', 'Comoros', 'Democratic Republic of the Congo', 'Republic of the Congo', "Côte d'Ivoire", 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'São Tomé and Príncipe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe'], common: ['Egypt', 'South Africa', 'Nigeria', 'Kenya', 'Morocco', 'Ethiopia', 'Ghana', 'Madagascar', 'Algeria', 'Libya'] },
+        { id: 'africa', map: 'world', lvl: 2, ask: 'Name a country in <b>Africa</b>', all: ['Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi', 'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad', 'Comoros', 'Democratic Republic of the Congo', 'Republic of the Congo', "Côte d'Ivoire", 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'São Tomé and Príncipe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe', 'Spain', 'France'], common: ['Egypt', 'South Africa', 'Nigeria', 'Kenya', 'Morocco', 'Ethiopia', 'Ghana', 'Madagascar', 'Algeria', 'Libya'] },
         { id: 'china', map: 'world', lvl: 2, ask: 'Name a country that borders <b>China</b>', all: ['Afghanistan', 'Bhutan', 'India', 'Kazakhstan', 'Kyrgyzstan', 'Laos', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea', 'Pakistan', 'Russia', 'Tajikistan', 'Vietnam'], common: ['Russia', 'India', 'Mongolia', 'North Korea', 'Vietnam', 'Pakistan'] },
         { id: 'brazil', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Brazil</b>', all: ['Argentina', 'Bolivia', 'Colombia', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela', 'France'], common: ['Argentina', 'Bolivia', 'Colombia', 'Paraguay', 'Peru', 'Uruguay', 'Venezuela'] },
         { id: 'germany', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Germany</b>', all: ['Denmark', 'Poland', 'Czechia', 'Austria', 'Switzerland', 'France', 'Luxembourg', 'Belgium', 'Netherlands'], common: ['Denmark', 'Poland', 'Austria', 'Switzerland', 'France', 'Netherlands', 'Belgium'] },
@@ -434,7 +434,7 @@
     let racers = [];             // [{name, kind:'you'|'bot'|'ghost', color, splits, misses, finish, p, dp, knock, ...}]
     let me = null;
     let state = 'lobby';         // lobby | countdown | racing | finale | done
-    let raceStart = 0, stalledUntil = 0, streak = 0, bestStreak = 0, attempts = 0, rightN = 0, landedBeforeMe = 0;
+    let raceStart = 0, stalledUntil = 0, streak = 0, bestStreak = 0, attempts = 0, rightN = 0, landedBeforeMe = 0, answerLog = [];
     let lineupData = null, isOfficial = true, raceSeed = DAY;
     let suggestions = [], hiIdx = 0;
 
@@ -488,7 +488,7 @@
             deck = buildDeck(raceSeed);
             field = lineupData;
         }
-        qIndex = 0; streak = 0; bestStreak = 0; attempts = 0; rightN = 0; landedBeforeMe = 0; stalledUntil = 0;
+        qIndex = 0; streak = 0; bestStreak = 0; attempts = 0; rightN = 0; landedBeforeMe = 0; answerLog = []; stalledUntil = 0;
         FX.finaleStart = 0; FX.landedDust = false; FX.flagAt = 0; FX.confetti = [];
         racers = field.map((f, i) => ({
             ...f, lane: i, p: 0, dp: 0, knock: 0, count: 0, finished: false, place: 0,
@@ -586,6 +586,7 @@
         me.count = Math.min(TARGET, me.count + gain); me.p = me.count / TARGET;
         while (me.splits.length < Math.floor(me.count + 1e-9)) me.splits.push(Math.round(t));   // time each whole step was reached (ghost replays)
         Room.send('prog', { n: me.count });
+        answerLog.push({ q, pick, ok: true, rare, boosted, gain });
         $('sr-input').className = 'good';
         feedback(`✓ ${pick}` + (rare ? '  💎 RARE ×2' : '') + (boosted ? '  🔥 +½' : ''), rare ? 'good rare' : 'good');
         if (rare) { callout('💎 RARE! ×2', 'small gold'); SFX.rare(); }
@@ -602,6 +603,7 @@
     function onWrong(pick) {
         me.misses.push(Math.round(raceTime()));
         Room.send('miss', {});
+        answerLog.push({ q, pick, ok: false });
         streak = 0; $('sr-streak').textContent = '0'; $('sr-streak').classList.remove('hot');
         $('sr-input').className = 'bad';
         const right = q.multi ? `e.g. ${q.examples.join(' or ')}` : `It was ${q.answer}`;
@@ -657,6 +659,26 @@
         state = 'lobby'; showScreen('sr-lobby');
     }
 
+    // ---------- answer review (results screen) ----------
+    function renderReview() {
+        const box = $('sr-review');
+        if (!answerLog.length) { box.innerHTML = '<li class="sr-muted">No answers this race.</li>'; return; }
+        box.innerHTML = answerLog.map((e, i) => {
+            const q = e.q;
+            const icon = e.ok ? (e.rare ? '💎' : '✅') : e.pick ? '❌' : '⏭️';
+            const you = e.pick ? `You: <b>${esc(e.pick)}</b>` : 'You skipped';
+            const pts = e.ok ? `<span class="sr-rv-pts${e.rare ? ' rare' : ''}">+${fmtDist(e.gain)}${e.rare ? ' · RARE' : ''}${e.boosted ? ' · 🔥' : ''}</span>` : '<span class="sr-rv-pts miss">+0</span>';
+            let more = '';
+            if (q.multi) {
+                const common = q.answers.filter(a => !q.rare.includes(a)), rare = q.rare;
+                const chip = (a, r) => `<span class="sr-rv-ans${r ? ' rare' : ''}${a === e.pick ? ' you' : ''}">${r ? '💎 ' : ''}${esc(a)}</span>`;
+                more = `<div class="sr-rv-all"><span class="sr-rv-lbl">All ${q.answers.length} right answers:</span> ${common.map(a => chip(a, false)).join('')}${rare.map(a => chip(a, true)).join('')}</div>`;
+            } else if (!e.ok) more = `<div class="sr-rv-all"><span class="sr-rv-lbl">Answer:</span> <span class="sr-rv-ans">${esc(q.answer)}</span></div>`;
+            return `<li class="${e.ok ? 'ok' : 'bad'}"><div class="sr-rv-top"><span class="sr-rv-n">${i + 1}</span><span class="sr-rv-icon">${icon}</span>
+                <div class="sr-rv-q"><div class="sr-rv-tag">${esc(q.tag)}</div><div class="sr-rv-prompt">${q.prompt}</div><div class="sr-rv-you">${you}</div></div>${pts}</div>${more}</li>`;
+        }).join('');
+    }
+
     function renderStandings() {
         const order = racers.map(rc => ({ rc, t: rc.kind === 'you' ? me.finish : rc.finish })).sort((a, b) => a.t - b.t);
         $('sr-standings').innerHTML = order.map((o, i) => {
@@ -679,6 +701,8 @@
         $('sr-res-acc').textContent = `${Math.round(rightN / Math.max(attempts, 1) * 100)}%`;
         $('sr-res-streak').textContent = bestStreak;
         renderStandings();
+        renderReview();
+        $('sr-review').classList.add('hidden'); $('sr-review-btn').textContent = `📋 Review your answers (${answerLog.length})`;
         const inRoom = raceMode === 'room';
         $('sr-res-lb-title').classList.toggle('hidden', inRoom); $('sr-res-lb').classList.toggle('hidden', inRoom);
         $('sr-again-btn').classList.toggle('hidden', inRoom); $('sr-home-btn').classList.toggle('hidden', inRoom);
@@ -1262,7 +1286,7 @@
     const QUICK_WAIT_MS = 15000;
     const Room = {
         code: null, ch: null, quick: false, joinedAt: 0, players: [], hostId: null,
-        settings: { set: 'mixed', target: 12, bots: true }, racing: false, roster: null,
+        settings: { set: 'mixed', target: 15, bots: true }, racing: false, roster: null,
         lobbyCh: null, quickCreated: 0, quickTimer: 0, tickTimer: 0, startedRace: false,
 
         get isHost() { return this.hostId === CLIENT_ID; },
@@ -1280,7 +1304,7 @@
             if (!sb) { alert('Online play needs an internet connection. Please try again.'); return; }
             await this.leave(true);
             this.code = code.toUpperCase(); this.quick = !!opts.quick; this.joinedAt = Date.now();
-            this.settings = opts.quick ? { set: 'mixed', target: 12, bots: true } : { set: 'mixed', target: 12, bots: true };
+            this.settings = { set: 'mixed', target: DAILY_TARGET, bots: true };
             this.players = []; this.hostId = null; this.racing = false; this.roster = null; this.startedRace = false; this._sig = null;
             this.myName = await this.ensureName();
             showScreen('sr-room');
@@ -1531,6 +1555,11 @@
     $('sr-lb-close').onclick = () => $('sr-lb').classList.add('hidden');
     $('sr-go-btn').onclick = () => submit();
     $('sr-skip-btn').onclick = skip;
+    $('sr-review-btn').addEventListener('click', () => {
+        const box = $('sr-review'), open = box.classList.toggle('hidden') === false;
+        $('sr-review-btn').textContent = open ? '▲ Hide answers' : `📋 Review your answers (${answerLog.length})`;
+        if (open) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
     $('sr-suggest').addEventListener('click', e => { const b = e.target.closest('.sr-chip'); if (b) submit(suggestions[+b.dataset.i]); });
     $('sr-input').addEventListener('input', () => { SFX.key(); renderSuggest(); });
     $('sr-input').addEventListener('keydown', e => {

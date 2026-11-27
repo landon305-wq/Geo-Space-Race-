@@ -319,3 +319,27 @@ body {
 /* "Ethan landed 1st!" notice */
 #sr-map-tag.alert { font-size: .9rem; letter-spacing: 1.5px; padding: 6px 12px; background: rgba(120, 53, 15, .85); border-color: #fcd34d; box-shadow: 0 0 22px rgba(250, 204, 21, .55); animation: srAlert .5s ease 3; z-index: 3; }
 @keyframes srAlert { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+/* ---------- answer review on the results screen ---------- */
+.sr-review-btn { width: 100%; margin: 0 0 12px; padding: 10px 12px; font-size: .78rem; }
+.sr-review { list-style: none; display: grid; gap: 6px; margin: -4px 0 14px; text-align: left; max-height: 46vh; overflow-y: auto; padding-right: 4px; }
+.sr-review.hidden { display: none; }
+.sr-review li { padding: 8px 10px; border-radius: 10px; background: rgba(2,6,23,.6); border: 1px solid rgba(148,163,184,.18); }
+.sr-review li.ok { border-left: 3px solid #22c55e; }
+.sr-review li.bad { border-left: 3px solid #ef4444; }
+.sr-rv-top { display: flex; align-items: flex-start; gap: 8px; }
+.sr-rv-n { font-family: 'Orbitron', sans-serif; font-size: .62rem; color: var(--muted); min-width: 16px; padding-top: 3px; }
+.sr-rv-icon { font-size: 1rem; line-height: 1.2; }
+.sr-rv-q { flex: 1; min-width: 0; }
+.sr-rv-tag { font-family: 'Orbitron', sans-serif; font-size: .52rem; letter-spacing: 1.5px; color: var(--muted); }
+.sr-rv-prompt { font-weight: 700; line-height: 1.25; }
+.sr-rv-prompt b { color: var(--gold); }
+.sr-rv-you { font-size: .88rem; color: #cbd5e1; }
+.sr-rv-pts { font-family: 'Orbitron', sans-serif; font-size: .65rem; font-weight: 700; white-space: nowrap; color: #86efac; padding-top: 3px; }
+.sr-rv-pts.rare { color: #fde047; }
+.sr-rv-pts.miss { color: #fca5a5; }
+.sr-rv-all { margin: 6px 0 0 24px; font-size: .8rem; line-height: 1.7; color: #cbd5e1; }
+.sr-rv-lbl { color: var(--muted); margin-right: 2px; }
+.sr-rv-ans { display: inline-block; padding: 0 7px; margin: 0 3px 3px 0; border-radius: 999px; background: rgba(148,163,184,.12); line-height: 1.6; }
+.sr-rv-ans.rare { background: rgba(202,138,4,.18); color: #fde68a; }
+.sr-rv-ans.you { outline: 2px solid #38bdf8; color: #fff; font-weight: 700; }
