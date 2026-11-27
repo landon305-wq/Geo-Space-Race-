@@ -217,6 +217,18 @@
         ],
         wAnimal: [
             ['kangaroos', 'Australia', 1], ['giant pandas', 'China', 1], ['kiwi birds', 'New Zealand', 1], ['lemurs', 'Madagascar', 1], ['Komodo dragons', 'Indonesia', 1], ['koalas', 'Australia', 1], ['platypuses', 'Australia', 2], ['Galápagos giant tortoises', 'Ecuador', 2], ['Tasmanian devils', 'Australia', 2], ['quokkas', 'Australia', 3]
+        ],
+        wCompany: [
+            ['Toyota', 'Japan', 1], ['Sony', 'Japan', 1], ['Nintendo', 'Japan', 1], ['Honda', 'Japan', 1], ['Canon', 'Japan', 2], ['Samsung', 'South Korea', 1], ['Hyundai', 'South Korea', 1], ['Kia', 'South Korea', 2], ['LG', 'South Korea', 2], ['IKEA', 'Sweden', 1], ['Volvo', 'Sweden', 1], ['H&M', 'Sweden', 2], ['Spotify', 'Sweden', 2], ['Ericsson', 'Sweden', 3], ['LEGO', 'Denmark', 1], ['Carlsberg', 'Denmark', 3], ['Pandora jewelry', 'Denmark', 3], ['Nokia', 'Finland', 2], ['Volkswagen', 'Germany', 1], ['BMW', 'Germany', 1], ['Mercedes-Benz', 'Germany', 1], ['Porsche', 'Germany', 1], ['Audi', 'Germany', 1], ['Adidas', 'Germany', 1], ['Puma', 'Germany', 2], ['Siemens', 'Germany', 2], ['Nivea', 'Germany', 3], ['Lufthansa', 'Germany', 2], ['Ferrari', 'Italy', 1], ['Lamborghini', 'Italy', 1], ['Fiat', 'Italy', 2], ['Gucci', 'Italy', 2], ['Prada', 'Italy', 2], ['Pirelli tires', 'Italy', 3], ['Rolex', 'Switzerland', 1], ['Nestlé', 'Switzerland', 2], ['Lindt chocolate', 'Switzerland', 2], ['Toblerone', 'Switzerland', 2], ['Louis Vuitton', 'France', 2], ['Chanel', 'France', 2], ['Peugeot', 'France', 2], ['Michelin tires', 'France', 2], ['Lacoste', 'France', 3], ['Heineken', 'Netherlands', 2], ['Philips', 'Netherlands', 3], ['Red Bull', 'Austria', 2], ['Guinness', 'Ireland', 2], ['Zara', 'Spain', 2], ['Škoda cars', 'Czechia', 3], ['Huawei', 'China', 2], ['Lenovo', 'China', 2], ['Xiaomi', 'China', 2], ['Alibaba', 'China', 2], ['Tata', 'India', 3], ['Shopify', 'Canada', 3], ['Tim Hortons', 'Canada', 1], ['Qantas airline', 'Australia', 2], ['Emirates airline', 'United Arab Emirates', 2], ['Corona beer', 'Mexico', 2], ['Havaianas flip-flops', 'Brazil', 3], ['Burberry', 'United Kingdom', 3], ['Rolls-Royce', 'United Kingdom', 2], ['Cadbury chocolate', 'United Kingdom', 2]
+        ],
+        wPeople: [
+            ['Napoleon', 'France', 1], ['Gandhi', 'India', 1], ['Cleopatra', 'Egypt', 1], ['William Shakespeare', 'United Kingdom', 1], ['Mozart', 'Austria', 2], ['Beethoven', 'Germany', 2], ['Pablo Picasso', 'Spain', 2], ['Vincent van Gogh', 'Netherlands', 2], ['Nelson Mandela', 'South Africa', 1], ['Frida Kahlo', 'Mexico', 2], ['Pelé', 'Brazil', 1], ['Lionel Messi', 'Argentina', 1], ['Cristiano Ronaldo', 'Portugal', 1], ['Usain Bolt', 'Jamaica', 1], ['Genghis Khan', 'Mongolia', 2], ['Confucius', 'China', 2], ['Leonardo da Vinci', 'Italy', 1], ['Frédéric Chopin', 'Poland', 3], ['Leo Tolstoy', 'Russia', 3], ['Hans Christian Andersen', 'Denmark', 3], ['Shakira', 'Colombia', 1], ['Bob Marley', 'Jamaica', 1], ['the band ABBA', 'Sweden', 2], ['the Beatles', 'United Kingdom', 1], ['Celine Dion', 'Canada', 2], ['Rihanna', 'Barbados', 2], ['Mohamed Salah', 'Egypt', 2], ['Erling Haaland', 'Norway', 2], ['Kylian Mbappé', 'France', 1], ['Neymar', 'Brazil', 1], ['Luka Modrić', 'Croatia', 2], ['Simón Bolívar', 'Venezuela', 3], ['Antoni Gaudí', 'Spain', 3], ['Michelangelo', 'Italy', 2], ['Galileo', 'Italy', 2], ['Vasco da Gama', 'Portugal', 3], ['Captain James Cook', 'United Kingdom', 3], ['Ibn Battuta', 'Morocco', 3], ['Kofi Annan', 'Ghana', 3], ['Jackie Chan', 'China', 1], ['Hayao Miyazaki', 'Japan', 2], ['the K-pop group BTS', 'South Korea', 1], ['Charles Darwin', 'United Kingdom', 2], ['Marco Polo', 'Italy', 2], ['Julius Caesar', 'Italy', 1], ['Tutankhamun', 'Egypt', 2], ['Atatürk', 'Turkey', 3], ['Rembrandt', 'Netherlands', 3], ['Miguel de Cervantes', 'Spain', 3], ['Victor Hugo', 'France', 3], ['Tchaikovsky', 'Russia', 3], ['Bach', 'Germany', 3], ['Vivaldi', 'Italy', 3], ['Ed Sheeran', 'United Kingdom', 1], ['Justin Bieber', 'Canada', 1], ['Novak Djokovic', 'Serbia', 2], ['Rafael Nadal', 'Spain', 1], ['Roger Federer', 'Switzerland', 1], ['Sachin Tendulkar', 'India', 3], ['Wayne Gretzky', 'Canada', 2], ['Yao Ming', 'China', 2], ['Giannis Antetokounmpo', 'Greece', 2], ['Nikola Jokić', 'Serbia', 2], ['Luka Dončić', 'Slovenia', 2], ['Shohei Ohtani', 'Japan', 1], ['Victor Wembanyama', 'France', 2], ['Eliud Kipchoge', 'Kenya', 3]
+        ],
+        usCompany: [
+            ['Microsoft', 'Washington', 1], ['Amazon', 'Washington', 1], ['Starbucks', 'Washington', 1], ['Costco', 'Washington', 2], ['Coca-Cola', 'Georgia', 1], ['Delta Air Lines', 'Georgia', 2], ['Home Depot', 'Georgia', 2], ['Chick-fil-A', 'Georgia', 2], ['UPS', 'Georgia', 3], ['Waffle House', 'Georgia', 3], ['Walmart', 'Arkansas', 2], ['Tyson Foods', 'Arkansas', 3], ['Nike', 'Oregon', 2], ['Apple', 'California', 1], ['Google', 'California', 1], ['Disney', 'California', 1], ['Netflix', 'California', 1], ['Intel', 'California', 2], ['Mattel (Barbie)', 'California', 2], ["Levi's jeans", 'California', 2], ['Ford', 'Michigan', 1], ['General Motors', 'Michigan', 1], ["Kellogg's cereal", 'Michigan', 3], ["Domino's Pizza", 'Michigan', 2], ["Hershey's chocolate", 'Pennsylvania', 1], ['Crayola crayons', 'Pennsylvania', 2], ['Harley-Davidson', 'Wisconsin', 2], ['John Deere', 'Illinois', 3], ["McDonald's", 'Illinois', 2], ['Walgreens', 'Illinois', 3], ['State Farm', 'Illinois', 3], ['Dell', 'Texas', 2], ['ExxonMobil', 'Texas', 2], ['American Airlines', 'Texas', 2], ['Southwest Airlines', 'Texas', 2], ['Whataburger', 'Texas', 2], ['FedEx', 'Tennessee', 2], ["Jack Daniel's whiskey", 'Tennessee', 2], ['Anheuser-Busch (Budweiser)', 'Missouri', 2], ['Hallmark cards', 'Missouri', 3], ["Ben & Jerry's", 'Vermont', 2], ['L.L.Bean', 'Maine', 2], ['Target', 'Minnesota', 2], ['Best Buy', 'Minnesota', 3], ['3M', 'Minnesota', 3], ['Spam (Hormel)', 'Minnesota', 3], ['Procter & Gamble', 'Ohio', 3], ['Goodyear tires', 'Ohio', 3], ["Wendy's", 'Ohio', 3], ["Dunkin'", 'Massachusetts', 2], ['Gillette', 'Massachusetts', 3], ['Tabasco sauce', 'Louisiana', 2], ['Berkshire Hathaway (Warren Buffett)', 'Nebraska', 3], ['Coors beer', 'Colorado', 2]
+        ],
+        usPeople: [
+            ['Abraham Lincoln', 'Kentucky', 2], ['George Washington', 'Virginia', 1], ['Elvis Presley', 'Mississippi', 2], ['Martin Luther King Jr.', 'Georgia', 1], ['Barack Obama', 'Hawaii', 1], ['Dolly Parton', 'Tennessee', 1], ['Taylor Swift', 'Pennsylvania', 2], ['Beyoncé', 'Texas', 1], ['Oprah Winfrey', 'Mississippi', 3], ['Mark Twain', 'Missouri', 2], ['Amelia Earhart', 'Kansas', 3], ['Neil Armstrong', 'Ohio', 2], ['LeBron James', 'Ohio', 1], ['Babe Ruth', 'Maryland', 3], ['Muhammad Ali', 'Kentucky', 2], ['Walt Disney', 'Illinois', 3], ['Steve Jobs', 'California', 1], ['Prince', 'Minnesota', 2], ['Bob Dylan', 'Minnesota', 3], ['Jimi Hendrix', 'Washington', 3], ['Kurt Cobain', 'Washington', 3], ['Louis Armstrong', 'Louisiana', 2], ['Johnny Cash', 'Arkansas', 3], ['Thomas Jefferson', 'Virginia', 2], ['John F. Kennedy', 'Massachusetts', 1], ['Helen Keller', 'Alabama', 3], ['Rosa Parks', 'Alabama', 2], ['Harriet Tubman', 'Maryland', 3], ['Frederick Douglass', 'Maryland', 3], ['Sitting Bull', 'South Dakota', 3], ['Davy Crockett', 'Tennessee', 3], ['Ernest Hemingway', 'Illinois', 3], ['Willie Nelson', 'Texas', 2], ['Jimmy Carter', 'Georgia', 2], ['Ronald Reagan', 'Illinois', 3], ['Bill Clinton', 'Arkansas', 2]
         ]
     };
     const CLUE_INFO = {
@@ -229,7 +241,11 @@
         usTeam: { map: 'us', pool: 'states', tag: 'USA · SPORTS', ask: c => `Which state do the <b>${esc(c)}</b> play in?` },
         wFood: { map: 'world', pool: 'countries', tag: 'WORLD · FOOD', ask: c => `Which country is famous for <b>${esc(c)}</b>?` },
         wClub: { map: 'world', pool: 'countries', tag: 'WORLD · SOCCER', ask: c => `Which country is the soccer club <b>${esc(c)}</b> from?` },
-        wAnimal: { map: 'world', pool: 'countries', tag: 'WORLD · ANIMALS', ask: c => `Which country is home to wild <b>${esc(c)}</b>?` }
+        wAnimal: { map: 'world', pool: 'countries', tag: 'WORLD · ANIMALS', ask: c => `Which country is home to wild <b>${esc(c)}</b>?` },
+        wCompany: { map: 'world', pool: 'countries', tag: 'WORLD · BRANDS', ask: c => `Which country does <b>${esc(c)}</b> come from?` },
+        wPeople: { map: 'world', pool: 'countries', tag: 'WORLD · FAMOUS PEOPLE', ask: c => `Which country is <b>${esc(c)}</b> from?` },
+        usCompany: { map: 'us', pool: 'states', tag: 'USA · BRANDS', ask: c => `Which state is <b>${esc(c)}</b> based in?` },
+        usPeople: { map: 'us', pool: 'states', tag: 'USA · FAMOUS PEOPLE', ask: c => `In which state was <b>${esc(c)}</b> born?` }
     };
     const clueList = (type, maxLevel) => CLUES[type].filter(c => c[2] <= maxLevel);
 
@@ -315,14 +331,97 @@
         { id: 'pnw', map: 'us', lvl: 1, ask: 'Name a state in the <b>Pacific Northwest</b>', all: ['Washington', 'Oregon', 'Idaho'], common: ['Washington', 'Oregon'] },
         { id: 'nfl', map: 'us', lvl: 1, ask: 'Name a state with an <b>NFL team</b> 🏈', all: ['Arizona', 'California', 'Colorado', 'Florida', 'Georgia', 'Illinois', 'Indiana', 'Louisiana', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Missouri', 'Nevada', 'New Jersey', 'New York', 'North Carolina', 'Ohio', 'Pennsylvania', 'Tennessee', 'Texas', 'Washington', 'Wisconsin'], common: ['California', 'Texas', 'Florida', 'New York', 'Pennsylvania', 'Ohio', 'Illinois'] },
         { id: 'route66', map: 'us', lvl: 3, ask: 'Name a state that <b>Route 66</b> passes through', all: ['Illinois', 'Missouri', 'Kansas', 'Oklahoma', 'Texas', 'New Mexico', 'Arizona', 'California'], common: ['Illinois', 'California', 'Arizona', 'Texas', 'New Mexico', 'Oklahoma'] },
-        { id: 'appalachian', map: 'us', lvl: 3, ask: 'Name a state the <b>Appalachian Trail</b> passes through', all: ['Georgia', 'North Carolina', 'Tennessee', 'Virginia', 'West Virginia', 'Maryland', 'Pennsylvania', 'New Jersey', 'New York', 'Connecticut', 'Massachusetts', 'Vermont', 'New Hampshire', 'Maine'], common: ['Georgia', 'North Carolina', 'Tennessee', 'Virginia', 'Pennsylvania', 'Maine'] }
+        { id: 'appalachian', map: 'us', lvl: 3, ask: 'Name a state the <b>Appalachian Trail</b> passes through', all: ['Georgia', 'North Carolina', 'Tennessee', 'Virginia', 'West Virginia', 'Maryland', 'Pennsylvania', 'New Jersey', 'New York', 'Connecticut', 'Massachusetts', 'Vermont', 'New Hampshire', 'Maine'], common: ['Georgia', 'North Carolina', 'Tennessee', 'Virginia', 'Pennsylvania', 'Maine'] },
+        // ---- world: more borders ----
+        { id: 'turkeyBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Turkey</b>', all: ['Greece', 'Bulgaria', 'Georgia', 'Armenia', 'Azerbaijan', 'Iran', 'Iraq', 'Syria'], common: ['Greece', 'Bulgaria', 'Iran', 'Iraq', 'Syria', 'Georgia'] },
+        { id: 'italyBorder', map: 'world', lvl: 1, ask: 'Name a country that borders <b>Italy</b>', all: ['France', 'Switzerland', 'Austria', 'Slovenia', 'San Marino', 'Vatican City'], common: ['France', 'Switzerland', 'Austria'] },
+        { id: 'peruBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Peru</b>', all: ['Ecuador', 'Colombia', 'Brazil', 'Bolivia', 'Chile'], common: ['Ecuador', 'Colombia', 'Brazil', 'Bolivia', 'Chile'] },
+        { id: 'kenyaBorder', map: 'world', lvl: 3, ask: 'Name a country that borders <b>Kenya</b>', all: ['Ethiopia', 'Somalia', 'Tanzania', 'Uganda', 'South Sudan'], common: ['Ethiopia', 'Somalia', 'Tanzania', 'Uganda'] },
+        { id: 'zaBorder', map: 'world', lvl: 3, ask: 'Name a country that borders <b>South Africa</b>', all: ['Namibia', 'Botswana', 'Zimbabwe', 'Mozambique', 'Eswatini', 'Lesotho'], common: ['Namibia', 'Botswana', 'Zimbabwe', 'Mozambique'] },
+        { id: 'austriaBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Austria</b>', all: ['Germany', 'Czechia', 'Slovakia', 'Hungary', 'Slovenia', 'Italy', 'Switzerland', 'Liechtenstein'], common: ['Germany', 'Czechia', 'Hungary', 'Italy', 'Switzerland', 'Slovakia', 'Slovenia'] },
+        { id: 'polandBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Poland</b>', all: ['Germany', 'Czechia', 'Slovakia', 'Ukraine', 'Belarus', 'Lithuania', 'Russia'], common: ['Germany', 'Czechia', 'Ukraine', 'Belarus', 'Slovakia', 'Lithuania'] },
+        { id: 'ukraineBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Ukraine</b>', all: ['Russia', 'Belarus', 'Poland', 'Slovakia', 'Hungary', 'Romania', 'Moldova'], common: ['Russia', 'Belarus', 'Poland', 'Hungary', 'Romania'] },
+        { id: 'iranBorder', map: 'world', lvl: 3, ask: 'Name a country that borders <b>Iran</b>', all: ['Iraq', 'Turkey', 'Armenia', 'Azerbaijan', 'Turkmenistan', 'Afghanistan', 'Pakistan'], common: ['Iraq', 'Turkey', 'Afghanistan', 'Pakistan'] },
+        { id: 'afghanBorder', map: 'world', lvl: 3, ask: 'Name a country that borders <b>Afghanistan</b>', all: ['Pakistan', 'Iran', 'Turkmenistan', 'Uzbekistan', 'Tajikistan', 'China'], common: ['Pakistan', 'Iran', 'China'] },
+        { id: 'thaiBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Thailand</b>', all: ['Myanmar', 'Laos', 'Cambodia', 'Malaysia'], common: ['Myanmar', 'Laos', 'Cambodia', 'Malaysia'] },
+        { id: 'vietBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Vietnam</b>', all: ['China', 'Laos', 'Cambodia'], common: ['China', 'Laos', 'Cambodia'] },
+        { id: 'colBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Colombia</b>', all: ['Venezuela', 'Brazil', 'Peru', 'Ecuador', 'Panama'], common: ['Venezuela', 'Brazil', 'Peru', 'Ecuador', 'Panama'] },
+        { id: 'swissBorder', map: 'world', lvl: 1, ask: 'Name a country that borders <b>Switzerland</b>', all: ['Germany', 'France', 'Italy', 'Austria', 'Liechtenstein'], common: ['Germany', 'France', 'Italy', 'Austria'] },
+        { id: 'hungaryBorder', map: 'world', lvl: 3, ask: 'Name a country that borders <b>Hungary</b>', all: ['Austria', 'Slovakia', 'Ukraine', 'Romania', 'Serbia', 'Croatia', 'Slovenia'], common: ['Austria', 'Slovakia', 'Romania', 'Serbia', 'Croatia'] },
+        { id: 'israelBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Israel</b>', all: ['Lebanon', 'Syria', 'Jordan', 'Egypt', 'Palestine'], common: ['Lebanon', 'Syria', 'Jordan', 'Egypt'] },
+        // ---- world: groups, seas, rivers, mountains ----
+        { id: 'eu', map: 'world', lvl: 1, ask: 'Name a country in the <b>European Union</b> 🇪🇺', all: ['Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czechia', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia', 'Spain', 'Sweden'], common: ['France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Greece', 'Netherlands', 'Belgium', 'Ireland', 'Austria', 'Poland', 'Sweden', 'Denmark', 'Finland'] },
+        { id: 'nato', map: 'world', lvl: 2, ask: 'Name a member of <b>NATO</b>', all: ['United States', 'Canada', 'United Kingdom', 'France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Netherlands', 'Belgium', 'Luxembourg', 'Denmark', 'Norway', 'Iceland', 'Greece', 'Turkey', 'Poland', 'Czechia', 'Hungary', 'Slovakia', 'Slovenia', 'Estonia', 'Latvia', 'Lithuania', 'Romania', 'Bulgaria', 'Croatia', 'Albania', 'Montenegro', 'North Macedonia', 'Finland', 'Sweden'], common: ['United States', 'Canada', 'United Kingdom', 'France', 'Germany', 'Italy', 'Spain', 'Poland', 'Turkey', 'Norway', 'Netherlands'] },
+        { id: 'blackSea', map: 'world', lvl: 2, ask: 'Name a country on the <b>Black Sea</b>', all: ['Turkey', 'Bulgaria', 'Romania', 'Ukraine', 'Russia', 'Georgia'], common: ['Turkey', 'Ukraine', 'Russia', 'Romania', 'Bulgaria'] },
+        { id: 'redSea', map: 'world', lvl: 3, ask: 'Name a country on the <b>Red Sea</b>', all: ['Egypt', 'Sudan', 'Eritrea', 'Djibouti', 'Saudi Arabia', 'Yemen', 'Israel', 'Jordan'], common: ['Egypt', 'Saudi Arabia', 'Yemen', 'Sudan'] },
+        { id: 'caspian', map: 'world', lvl: 3, ask: 'Name a country on the <b>Caspian Sea</b>', all: ['Russia', 'Kazakhstan', 'Turkmenistan', 'Iran', 'Azerbaijan'], common: ['Russia', 'Kazakhstan', 'Iran'] },
+        { id: 'danube', map: 'world', lvl: 3, ask: 'Name a country the <b>Danube River</b> flows through', all: ['Germany', 'Austria', 'Slovakia', 'Hungary', 'Croatia', 'Serbia', 'Romania', 'Bulgaria', 'Moldova', 'Ukraine'], common: ['Germany', 'Austria', 'Hungary', 'Romania', 'Serbia', 'Bulgaria'] },
+        { id: 'andes', map: 'world', lvl: 2, ask: 'Name a country the <b>Andes Mountains</b> run through', all: ['Venezuela', 'Colombia', 'Ecuador', 'Peru', 'Bolivia', 'Chile', 'Argentina'], common: ['Peru', 'Chile', 'Argentina', 'Bolivia', 'Colombia', 'Ecuador'] },
+        { id: 'alps', map: 'world', lvl: 2, ask: 'Name a country the <b>Alps</b> are in 🏔️', all: ['France', 'Switzerland', 'Italy', 'Monaco', 'Liechtenstein', 'Austria', 'Germany', 'Slovenia'], common: ['France', 'Switzerland', 'Italy', 'Austria', 'Germany'] },
+        { id: 'himalaya', map: 'world', lvl: 2, ask: 'Name a country the <b>Himalayas</b> are in', all: ['Nepal', 'India', 'Bhutan', 'China', 'Pakistan'], common: ['Nepal', 'India', 'China'] },
+        { id: 'sahara', map: 'world', lvl: 2, ask: 'Name a country in the <b>Sahara Desert</b> 🐪', all: ['Morocco', 'Algeria', 'Tunisia', 'Libya', 'Egypt', 'Sudan', 'Chad', 'Niger', 'Mali', 'Mauritania'], common: ['Egypt', 'Libya', 'Algeria', 'Morocco', 'Sudan'] },
+        { id: 'winterOly', map: 'world', lvl: 2, ask: 'Name a country that has hosted the <b>Winter Olympics</b> ⛷️', all: ['France', 'Switzerland', 'United States', 'Germany', 'Norway', 'Italy', 'Austria', 'Japan', 'Canada', 'Bosnia and Herzegovina', 'Russia', 'South Korea', 'China'], common: ['France', 'Switzerland', 'United States', 'Norway', 'Italy', 'Japan', 'Canada', 'Russia', 'China'] },
+        { id: 'southAsia', map: 'world', lvl: 2, ask: 'Name a country in <b>South Asia</b>', all: ['India', 'Pakistan', 'Bangladesh', 'Nepal', 'Bhutan', 'Sri Lanka', 'Maldives', 'Afghanistan'], common: ['India', 'Pakistan', 'Bangladesh', 'Nepal', 'Sri Lanka'] },
+        { id: 'centralAsia', map: 'world', lvl: 3, ask: 'Name a country in <b>Central Asia</b>', all: ['Kazakhstan', 'Uzbekistan', 'Turkmenistan', 'Kyrgyzstan', 'Tajikistan'], common: ['Kazakhstan', 'Uzbekistan'] },
+        { id: 'eastAsia', map: 'world', lvl: 1, ask: 'Name a country in <b>East Asia</b>', all: ['China', 'Japan', 'South Korea', 'North Korea', 'Mongolia', 'Taiwan'], common: ['China', 'Japan', 'South Korea', 'North Korea'] },
+        { id: 'westAfrica', map: 'world', lvl: 3, ask: 'Name a country in <b>West Africa</b>', all: ['Nigeria', 'Ghana', 'Senegal', "Côte d'Ivoire", 'Mali', 'Burkina Faso', 'Niger', 'Guinea', 'Guinea-Bissau', 'Sierra Leone', 'Liberia', 'Togo', 'Benin', 'Gambia', 'Cape Verde', 'Mauritania'], common: ['Nigeria', 'Ghana', 'Senegal', 'Mali', "Côte d'Ivoire"] },
+        { id: 'balticStates', map: 'world', lvl: 2, ask: 'Name one of the three <b>Baltic states</b>', all: ['Estonia', 'Latvia', 'Lithuania'], common: ['Estonia', 'Latvia', 'Lithuania'] },
+        { id: 'britishIsles', map: 'world', lvl: 1, ask: 'Name a country in the <b>British Isles</b>', all: ['United Kingdom', 'Ireland'], common: ['United Kingdom', 'Ireland'] },
+        { id: 'benelux', map: 'world', lvl: 2, ask: 'Name a <b>Benelux</b> country', all: ['Belgium', 'Netherlands', 'Luxembourg'], common: ['Belgium', 'Netherlands', 'Luxembourg'] },
+        { id: 'iberia', map: 'world', lvl: 2, ask: 'Name a country on the <b>Iberian Peninsula</b>', all: ['Spain', 'Portugal', 'Andorra', 'United Kingdom'], common: ['Spain', 'Portugal'] },
+        { id: 'arabia', map: 'world', lvl: 2, ask: 'Name a country on the <b>Arabian Peninsula</b>', all: ['Saudi Arabia', 'Yemen', 'Oman', 'United Arab Emirates', 'Qatar', 'Bahrain', 'Kuwait'], common: ['Saudi Arabia', 'Yemen', 'Oman', 'United Arab Emirates', 'Qatar'] },
+        // ---- world: names ----
+        { id: 'republic', map: 'world', lvl: 2, ask: 'Name a country with <b>Republic</b> in its name', all: ['Central African Republic', 'Dominican Republic', 'Republic of the Congo', 'Democratic Republic of the Congo', 'Czechia'], common: ['Dominican Republic', 'Central African Republic', 'Czechia'] },
+        { id: 'south', map: 'world', lvl: 1, ask: 'Name a country with <b>South</b> in its name', all: ['South Africa', 'South Korea', 'South Sudan'], common: ['South Africa', 'South Korea'] },
+        { id: 'north', map: 'world', lvl: 1, ask: 'Name a country with <b>North</b> in its name', all: ['North Korea', 'North Macedonia'], common: ['North Korea', 'North Macedonia'] },
+        { id: 'saint', map: 'world', lvl: 3, ask: 'Name a country with <b>Saint</b> in its name', all: ['Saint Lucia', 'Saint Kitts and Nevis', 'Saint Vincent and the Grenadines', 'São Tomé and Príncipe'], common: ['Saint Lucia', 'Saint Kitts and Nevis', 'Saint Vincent and the Grenadines'] },
+        { id: 'islandsName', map: 'world', lvl: 3, ask: 'Name a country with <b>Islands</b> in its name', all: ['Solomon Islands', 'Marshall Islands'], common: ['Solomon Islands', 'Marshall Islands'] },
+        { id: 'newName', map: 'world', lvl: 1, ask: 'Name a country with <b>New</b> in its name', all: ['New Zealand', 'Papua New Guinea'], common: ['New Zealand', 'Papua New Guinea'] },
+        // ---- USA: more borders ----
+        { id: 'paBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Pennsylvania</b>', all: ['New York', 'New Jersey', 'Delaware', 'Maryland', 'West Virginia', 'Ohio'], common: ['New York', 'New Jersey', 'Ohio', 'Maryland'] },
+        { id: 'idBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Idaho</b>', all: ['Washington', 'Oregon', 'Nevada', 'Utah', 'Wyoming', 'Montana'], common: ['Washington', 'Oregon', 'Montana', 'Utah'] },
+        { id: 'utBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Utah</b>', all: ['Idaho', 'Wyoming', 'Colorado', 'New Mexico', 'Arizona', 'Nevada'], common: ['Idaho', 'Wyoming', 'Colorado', 'Arizona', 'Nevada'] },
+        { id: 'wyBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Wyoming</b>', all: ['Montana', 'South Dakota', 'Nebraska', 'Colorado', 'Utah', 'Idaho'], common: ['Montana', 'Colorado', 'Utah', 'Idaho'] },
+        { id: 'sdBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>South Dakota</b>', all: ['North Dakota', 'Minnesota', 'Iowa', 'Nebraska', 'Wyoming', 'Montana'], common: ['North Dakota', 'Minnesota', 'Nebraska', 'Iowa'] },
+        { id: 'ilBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Illinois</b>', all: ['Wisconsin', 'Iowa', 'Missouri', 'Kentucky', 'Indiana'], common: ['Wisconsin', 'Indiana', 'Missouri', 'Iowa'] },
+        { id: 'iaBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Iowa</b>', all: ['Minnesota', 'Wisconsin', 'Illinois', 'Missouri', 'Nebraska', 'South Dakota'], common: ['Minnesota', 'Illinois', 'Missouri', 'Nebraska', 'Wisconsin'] },
+        { id: 'arBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Arkansas</b>', all: ['Missouri', 'Tennessee', 'Mississippi', 'Louisiana', 'Texas', 'Oklahoma'], common: ['Texas', 'Louisiana', 'Missouri', 'Oklahoma', 'Tennessee'] },
+        { id: 'laBorder', map: 'us', lvl: 1, ask: 'Name a state that borders <b>Louisiana</b>', all: ['Texas', 'Arkansas', 'Mississippi'], common: ['Texas', 'Arkansas', 'Mississippi'] },
+        { id: 'alBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Alabama</b>', all: ['Tennessee', 'Georgia', 'Florida', 'Mississippi'], common: ['Tennessee', 'Georgia', 'Florida', 'Mississippi'] },
+        { id: 'msBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Mississippi</b>', all: ['Tennessee', 'Alabama', 'Louisiana', 'Arkansas'], common: ['Tennessee', 'Alabama', 'Louisiana', 'Arkansas'] },
+        { id: 'vaBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Virginia</b>', all: ['Maryland', 'West Virginia', 'Kentucky', 'Tennessee', 'North Carolina'], common: ['North Carolina', 'West Virginia', 'Maryland', 'Kentucky'] },
+        { id: 'maBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Massachusetts</b>', all: ['New Hampshire', 'Vermont', 'New York', 'Connecticut', 'Rhode Island'], common: ['New Hampshire', 'Vermont', 'New York', 'Connecticut', 'Rhode Island'] },
+        { id: 'miBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Michigan</b>', all: ['Ohio', 'Indiana', 'Wisconsin'], common: ['Ohio', 'Indiana', 'Wisconsin'] },
+        { id: 'mnBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Minnesota</b>', all: ['North Dakota', 'South Dakota', 'Iowa', 'Wisconsin'], common: ['North Dakota', 'South Dakota', 'Iowa', 'Wisconsin'] },
+        { id: 'ksBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Kansas</b>', all: ['Nebraska', 'Missouri', 'Oklahoma', 'Colorado'], common: ['Nebraska', 'Missouri', 'Oklahoma', 'Colorado'] },
+        { id: 'neBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Nebraska</b>', all: ['South Dakota', 'Iowa', 'Missouri', 'Kansas', 'Colorado', 'Wyoming'], common: ['South Dakota', 'Iowa', 'Kansas', 'Colorado'] },
+        { id: 'azBorder', map: 'us', lvl: 1, ask: 'Name a state that borders <b>Arizona</b>', all: ['California', 'Nevada', 'Utah', 'New Mexico', 'Colorado'], common: ['California', 'Nevada', 'Utah', 'New Mexico'] },
+        { id: 'nmBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>New Mexico</b>', all: ['Arizona', 'Utah', 'Colorado', 'Oklahoma', 'Texas'], common: ['Arizona', 'Colorado', 'Texas', 'Oklahoma'] },
+        { id: 'waBorder', map: 'us', lvl: 1, ask: 'Name a state that borders <b>Washington</b> state', all: ['Oregon', 'Idaho'], common: ['Oregon', 'Idaho'] },
+        { id: 'orBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Oregon</b>', all: ['Washington', 'Idaho', 'Nevada', 'California'], common: ['Washington', 'Idaho', 'Nevada', 'California'] },
+        { id: 'mtBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Montana</b>', all: ['Idaho', 'Wyoming', 'South Dakota', 'North Dakota'], common: ['Idaho', 'Wyoming', 'North Dakota', 'South Dakota'] },
+        { id: 'ncBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>North Carolina</b>', all: ['Virginia', 'Tennessee', 'Georgia', 'South Carolina'], common: ['Virginia', 'Tennessee', 'Georgia', 'South Carolina'] },
+        { id: 'mdBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Maryland</b>', all: ['Pennsylvania', 'Delaware', 'Virginia', 'West Virginia'], common: ['Pennsylvania', 'Delaware', 'Virginia', 'West Virginia'] },
+        { id: 'njBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>New Jersey</b>', all: ['New York', 'Pennsylvania', 'Delaware'], common: ['New York', 'Pennsylvania', 'Delaware'] },
+        // ---- USA: rivers and fun groups ----
+        { id: 'ohioRiver', map: 'us', lvl: 3, ask: 'Name a state on the <b>Ohio River</b>', all: ['Pennsylvania', 'Ohio', 'West Virginia', 'Kentucky', 'Indiana', 'Illinois'], common: ['Ohio', 'Kentucky', 'Pennsylvania', 'Indiana'] },
+        { id: 'missouriRiver', map: 'us', lvl: 3, ask: 'Name a state on the <b>Missouri River</b>', all: ['Montana', 'North Dakota', 'South Dakota', 'Nebraska', 'Iowa', 'Kansas', 'Missouri'], common: ['Missouri', 'Nebraska', 'Iowa', 'Kansas', 'Montana'] },
+        { id: 'lastTwo', map: 'us', lvl: 1, ask: 'Name one of the <b>last two states</b> to join the U.S.', all: ['Alaska', 'Hawaii'], common: ['Alaska', 'Hawaii'] },
+        { id: 'northSouth', map: 'us', lvl: 1, ask: 'Name a state with <b>North</b> or <b>South</b> in its name', all: ['North Carolina', 'North Dakota', 'South Carolina', 'South Dakota'], common: ['North Carolina', 'North Dakota', 'South Carolina', 'South Dakota'] },
+        { id: 'newState', map: 'us', lvl: 1, ask: 'Name a state with <b>New</b> in its name', all: ['New York', 'New Jersey', 'New Mexico', 'New Hampshire'], common: ['New York', 'New Jersey', 'New Mexico', 'New Hampshire'] },
+        { id: 'namedPerson', map: 'us', lvl: 3, ask: 'Name a state <b>named after a person</b>', all: ['Washington', 'Virginia', 'West Virginia', 'Georgia', 'Maryland', 'Pennsylvania', 'Louisiana', 'North Carolina', 'South Carolina', 'Delaware', 'New York'], common: ['Washington', 'Virginia', 'Georgia', 'Pennsylvania'] },
+        { id: 'doubleS', map: 'us', lvl: 2, ask: 'Name a state with a double <b>SS</b> in its name', all: ['Mississippi', 'Massachusetts', 'Missouri', 'Tennessee'], common: ['Mississippi', 'Massachusetts', 'Missouri', 'Tennessee'] }
     ];
     // "Name a state/country that starts with ..." (common = the well-known ones)
-    const US_LETTERS = ['A', 'C', 'I', 'K', 'M', 'N', 'O', 'S', 'T', 'V', 'W'];
+    // which answers to "starts with / ends with" questions count as RARE (double distance)
+    const RARE_STATES = ['Delaware', 'Rhode Island', 'New Hampshire', 'Vermont', 'Connecticut', 'West Virginia', 'Wyoming', 'North Dakota', 'South Dakota', 'Nebraska',
+        'Iowa', 'Kansas', 'Arkansas', 'Mississippi', 'Maryland', 'Indiana', 'Missouri', 'Alabama', 'Kentucky', 'Idaho', 'Montana', 'Oklahoma', 'Wisconsin'];
+    const isRarePlace = (n, isUS) => isUS ? RARE_STATES.includes(n) : !(EASY_COUNTRIES.includes(n) || MEDIUM_COUNTRIES.includes(n));
+    const US_LETTERS = ['A', 'C', 'D', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W'];
     const WORLD_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVZ'.split('');
     // "Name a state/country that ends in ..."
-    const US_ENDS = ['a', 'o', 's'];
-    const WORLD_ENDS = ['ia', 'land', 'an', 'ay'];
+    const US_ENDS = ['a', 'o', 's', 'e', 'n', 'i', 't', 'y'];
+    const WORLD_ENDS = ['ia', 'land', 'an', 'ay', 'ea', 'ar', 'o', 'y'];
 
     // A capital that is basically the same word as its country makes no question (Kuwait City, Singapore...)
     function capIsGiveaway(country, cap) {
@@ -333,7 +432,10 @@
     // The deck: easy first, harder later. Enough questions for misses.
     function buildDeck(seedStr, set = 'mixed', avoid = null) {
         const r = rng(hashStr(seedStr));
-        const allStates = A.STATES.filter(s => GEO.stateBy[s]);
+        // the 50 states (D.C. and Puerto Rico aren't states, so they don't count as answers)
+        const allStates = A.STATES.filter(s => GEO.stateBy[s] && A.US_CAPITALS[s]);
+        // every country counts as an answer, even tiny ones with no outline on the map (Monaco, Vatican City)
+        const everyCountry = A.COUNTRIES.slice();
         const hardStates = allStates.filter(s => !EASY_STATES.includes(s));
         const allCountries = A.COUNTRIES.filter(c => GEO.worldBy[c]);
         const stateCapStates = Object.keys(A.US_CAPITALS);
@@ -358,18 +460,16 @@
         mk.wMulti = m => mkMulti('wMulti', m);
         const letterQ = (type, L) => {
             const isUS = type === 'usLetter';
-            const all = (isUS ? allStates : allCountries).filter(n => A.norm(n).startsWith(L.toLowerCase()));
-            const easy = isUS ? EASY_STATES : EASY_COUNTRIES;
-            const common = all.length <= 2 ? all : all.filter(n => easy.includes(n));
+            const all = (isUS ? allStates : everyCountry).filter(n => A.norm(n).startsWith(L.toLowerCase()));
+            const common = all.length <= 2 ? all : all.filter(n => !isRarePlace(n, isUS));
             return mkMulti(type, { id: type + L, map: isUS ? 'us' : 'world', ask: `Name a ${isUS ? 'state' : 'country'} that starts with <b>${L}</b>`, all, common });
         };
         mk.usLetter = L => letterQ('usLetter', L);
         mk.wLetter = L => letterQ('wLetter', L);
         const endQ = (type, end) => {
             const isUS = type === 'usEnd';
-            const all = (isUS ? allStates : allCountries).filter(n => A.norm(n).replace(/ /g, '').endsWith(end));
-            const easy = isUS ? EASY_STATES : EASY_COUNTRIES;
-            const common = all.length <= 2 ? all : all.filter(n => easy.includes(n));
+            const all = (isUS ? allStates : everyCountry).filter(n => A.norm(n).replace(/ /g, '').endsWith(end));
+            const common = all.length <= 2 ? all : all.filter(n => !isRarePlace(n, isUS));
             return mkMulti(type, { id: type + end, map: isUS ? 'us' : 'world', ask: `Name a ${isUS ? 'state' : 'country'} that ends in <b>-${end}</b>`, all, common });
         };
         mk.usEnd = e => endQ('usEnd', e);
@@ -381,7 +481,7 @@
         // skip clues that give the answer away ("the Kentucky Derby" -> Kentucky)
         const clues = (lvl, types) => types.map(t => [t, clueList(t, lvl).filter(([c, ans]) => (CLUE_INFO[t].map === 'us' ? A.STATES : A.COUNTRIES).includes(ans) && !A.norm(c).includes(A.norm(ans)))]);
         const multis = (map, lvl) => MULTI.filter(m => m.map === map && m.lvl <= lvl);
-        const US_CLUES = ['usNick', 'usCity', 'usLandmark', 'usFood', 'usTeam'], W_CLUES = ['wLandmark', 'wCity', 'wFood', 'wClub', 'wAnimal'];
+        const US_CLUES = ['usNick', 'usCity', 'usLandmark', 'usFood', 'usTeam', 'usCompany', 'usPeople'], W_CLUES = ['wLandmark', 'wCity', 'wFood', 'wClub', 'wAnimal', 'wCompany', 'wPeople'];
         const knownCountries = EASY_COUNTRIES.concat(MEDIUM_COUNTRIES);
         // weights: map questions x2, many-answer questions x2, everything else x1
         const tiers = [
