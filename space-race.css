@@ -288,3 +288,30 @@ body {
     .sr-set-row { flex-direction: column; align-items: stretch; }
     .sr-seg button { flex: 1; }
 }
+
+/* ---------- compact lobby (smaller card, nothing to scroll) ---------- */
+#sr-lobby .sr-lobby-card { max-width: 440px; padding: 20px 20px 14px; }
+#sr-lobby .sr-home-link { top: 12px; left: 14px; font-size: .9rem; }
+#sr-lobby .sr-logo { font-size: 1.7rem; margin-top: 4px; }
+#sr-lobby .sr-date { margin: 4px 0 8px; font-size: .7rem; }
+#sr-lobby .sr-intro { font-size: .98rem; margin-bottom: 8px; }
+#sr-lobby .sr-rules { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; max-width: none; margin: 0 0 12px; font-size: .8rem; text-align: center; }
+#sr-lobby .sr-rules li { padding: 3px 8px; border-radius: 999px; background: rgba(2,6,23,.55); border: 1px solid rgba(148,163,184,.2); color: #cbd5e1; white-space: nowrap; }
+#sr-lobby .sr-lineup-title { font-size: .62rem; margin-bottom: 6px; }
+#sr-lobby .sr-lineup { gap: 4px; margin-bottom: 12px; }
+#sr-lobby .sr-lane-chip { padding: 5px 10px; gap: 8px; font-size: .92rem; }
+#sr-lobby .sr-lane-chip .dot { width: 10px; height: 10px; }
+#sr-lobby .sr-lane-chip .tag { font-size: .55rem; padding: 2px 6px; }
+#sr-lobby .sr-btn-main { padding: 13px 16px; font-size: .98rem; }
+#sr-lobby .sr-lobby-row { margin-top: 8px; }
+#sr-lobby .sr-btn-ghost { padding: 8px 10px; font-size: .7rem; }
+#sr-lobby .sr-mp { margin-top: 12px; padding-top: 10px; }
+.sr-mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.sr-mp-grid .sr-join-row { grid-column: 1 / -1; margin-top: 0; gap: 6px; }
+#sr-lobby #sr-join-code { padding: 7px 10px; font-size: .95rem; }
+#sr-lobby .sr-join-row .sr-btn-ghost { padding: 8px 18px; }
+#sr-lobby .sr-callsign { margin-top: 8px; font-size: .85rem; }
+.tag-racer { background: rgba(148,163,184,.14); color: #cbd5e1; }
+@media (max-width: 560px) {
+    #sr-lobby .sr-logo { font-size: 1.45rem; margin-top: 20px; }
+}

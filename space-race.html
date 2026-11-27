@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Space Race | GEO-SPACERACE</title>
-    <meta name="description" content="Race rockets to the Moon by typing the names of states, countries and capitals. A new race every day, with bots and ghost rockets from real players.">
+    <meta name="description" content="Race rockets to the Moon by typing answers about states, countries, capitals, cities, landmarks and more. A new race every day, with ghost rockets from real players.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
-    <link rel="stylesheet" href="space-race.css?v=4">
+    <link rel="stylesheet" href="space-race.css?v=5">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -20,16 +20,13 @@
             <a class="sr-home-link" href="index.html">⬅ Home</a>
             <div class="sr-logo">🚀 SPACE RACE</div>
             <div class="sr-date" id="sr-date">Today's race</div>
-            <p class="sr-intro">
-                The map lights up a place. <b>Type its name</b> as fast as you can.
-                Every right answer fires your engines. First rocket to land on the Moon wins!
-            </p>
+            <p class="sr-intro"><b>Type the answers</b> as fast as you can. First rocket to the Moon wins!</p>
             <ul class="sr-rules">
-                <li>🎯 <b>12 right answers</b> reach the Moon</li>
-                <li>⌨️ Spelling is forgiving, and suggestions pop up as you type</li>
-                <li>🤷 Don't know it? Type <b>idk</b> or <b>skip</b> (or press SKIP)</li>
-                <li>☄️ A wrong answer or skip means an asteroid hit and a 2.5-second stall</li>
-                <li>🔥 3 in a row gives you a boost</li>
+                <li>🎯 12 answers to land</li>
+                <li>⌨️ Spelling is forgiving</li>
+                <li>🤷 Type <b>idk</b> to skip</li>
+                <li>☄️ Misses stall you</li>
+                <li>🔥 3 in a row = boost</li>
             </ul>
 
             <div class="sr-lineup-title">TODAY'S LINEUP</div>
@@ -39,19 +36,19 @@
 
             <button id="sr-start-btn" class="sr-btn sr-btn-main" disabled>LOADING MAPS…</button>
             <div class="sr-lobby-row">
-                <button id="sr-lb-btn" class="sr-btn sr-btn-ghost">🏆 Today's Leaderboard</button>
+                <button id="sr-lb-btn" class="sr-btn sr-btn-ghost">🏆 Leaderboard</button>
                 <button id="sr-sound-btn" class="sr-btn sr-btn-ghost" aria-pressed="true">🔊 Sound: On</button>
             </div>
 
             <div class="sr-mp">
                 <div class="sr-lineup-title">RACE REAL PEOPLE</div>
-                <div class="sr-lobby-row">
+                <div class="sr-mp-grid">
                     <button id="sr-quick-btn" class="sr-btn sr-btn-ghost">⚡ Quick Match</button>
                     <button id="sr-create-btn" class="sr-btn sr-btn-ghost">🔒 Create Room</button>
-                </div>
-                <div class="sr-join-row">
-                    <input id="sr-join-code" maxlength="4" placeholder="ROOM CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code">
-                    <button id="sr-join-btn" class="sr-btn sr-btn-ghost">JOIN</button>
+                    <div class="sr-join-row">
+                        <input id="sr-join-code" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code">
+                        <button id="sr-join-btn" class="sr-btn sr-btn-ghost">JOIN</button>
+                    </div>
                 </div>
             </div>
             <div class="sr-callsign" id="sr-callsign"></div>
@@ -76,8 +73,8 @@
                     <div class="sr-seg"><button data-set="mixed">🌎 Mixed</button><button data-set="usa">🇺🇸 USA</button><button data-set="world">🌍 World</button></div></div>
                 <div class="sr-set-row"><span>Race length</span>
                     <div class="sr-seg"><button data-target="12">12 answers</button><button data-target="20">20 answers</button></div></div>
-                <div class="sr-set-row"><span>Bots</span>
-                    <div class="sr-seg"><button data-bots="on">🤖 On</button><button data-bots="off">Off</button></div></div>
+                <div class="sr-set-row"><span>Fill empty lanes</span>
+                    <div class="sr-seg"><button data-bots="on">On</button><button data-bots="off">Off</button></div></div>
             </div>
             <button id="sr-room-start" class="sr-btn sr-btn-main">🚀 START RACE</button>
             <div class="sr-lobby-row"><button id="sr-room-leave" class="sr-btn sr-btn-ghost">⬅ Leave room</button></div>
@@ -158,6 +155,6 @@
 </div>
 
 <script src="space-race-answers.js?v=1"></script>
-<script src="space-race.js?v=4"></script>
+<script src="space-race.js?v=5"></script>
 </body>
 </html>

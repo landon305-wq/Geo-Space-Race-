@@ -123,6 +123,85 @@
     const EASY_COUNTRY_CAPS = ['France', 'United Kingdom', 'Japan', 'Italy', 'Spain', 'Germany', 'Russia', 'China', 'Egypt', 'Greece', 'Mexico',
         'Ireland', 'Portugal', 'Norway', 'South Korea', 'Thailand', 'Argentina', 'Peru', 'Cuba', 'Austria', 'Kenya', 'Sweden', 'Denmark', 'Canada', 'Australia'];
 
+    // ---------- clue questions (answer is a state or a country, so the forgiving speller still works) ----------
+    // [clue, answer, level]  level 1 = easy, 2 = medium, 3 = hard
+    const CLUES = {
+        usNick: [
+            ['the Sunshine State', 'Florida', 1], ['the Lone Star State', 'Texas', 1], ['the Golden State', 'California', 1], ['the Empire State', 'New York', 1],
+            ['the Aloha State', 'Hawaii', 1], ['the Last Frontier', 'Alaska', 1], ['the Grand Canyon State', 'Arizona', 1], ['the Peach State', 'Georgia', 1],
+            ['the Garden State', 'New Jersey', 2], ['the Show-Me State', 'Missouri', 2], ['the Bluegrass State', 'Kentucky', 2], ['the Evergreen State', 'Washington', 2],
+            ['the Volunteer State', 'Tennessee', 2], ['the Keystone State', 'Pennsylvania', 2], ['the Hoosier State', 'Indiana', 2], ['the Buckeye State', 'Ohio', 2],
+            ['the Land of Lincoln', 'Illinois', 2], ['the Great Lakes State', 'Michigan', 2], ['the Bay State', 'Massachusetts', 2], ['the Silver State', 'Nevada', 2],
+            ['the Beehive State', 'Utah', 2], ['the Centennial State', 'Colorado', 2], ['the Sooner State', 'Oklahoma', 2], ['the Pelican State', 'Louisiana', 2],
+            ['the Land of 10,000 Lakes', 'Minnesota', 2], ['the Mount Rushmore State', 'South Dakota', 2], ['the Land of Enchantment', 'New Mexico', 2],
+            ['the Magnolia State', 'Mississippi', 3], ['the Pine Tree State', 'Maine', 3], ['the Green Mountain State', 'Vermont', 3], ['the Granite State', 'New Hampshire', 3],
+            ['the Ocean State', 'Rhode Island', 3], ['the Constitution State', 'Connecticut', 3], ['the First State', 'Delaware', 3], ['the Old Line State', 'Maryland', 3],
+            ['the Mountain State', 'West Virginia', 3], ['the Tar Heel State', 'North Carolina', 3], ['the Palmetto State', 'South Carolina', 3], ['the Natural State', 'Arkansas', 3],
+            ['the Treasure State', 'Montana', 3], ['the Equality State', 'Wyoming', 3], ['the Cornhusker State', 'Nebraska', 3], ['the Sunflower State', 'Kansas', 3],
+            ['the Hawkeye State', 'Iowa', 3], ['the Badger State', 'Wisconsin', 3], ['the Peace Garden State', 'North Dakota', 3], ['the Beaver State', 'Oregon', 3],
+            ['the Gem State', 'Idaho', 3], ['the Yellowhammer State', 'Alabama', 3], ['the Old Dominion', 'Virginia', 3]
+        ],
+        usCity: [
+            ['Chicago', 'Illinois', 1], ['Miami', 'Florida', 1], ['Las Vegas', 'Nevada', 1], ['Los Angeles', 'California', 1], ['Seattle', 'Washington', 1],
+            ['Dallas', 'Texas', 1], ['Detroit', 'Michigan', 1], ['New Orleans', 'Louisiana', 1], ['Philadelphia', 'Pennsylvania', 1], ['San Francisco', 'California', 1],
+            ['Houston', 'Texas', 1], ['Orlando', 'Florida', 1],
+            ['Memphis', 'Tennessee', 2], ['St. Louis', 'Missouri', 2], ['Minneapolis', 'Minnesota', 2], ['Milwaukee', 'Wisconsin', 2], ['Cleveland', 'Ohio', 2],
+            ['Baltimore', 'Maryland', 2], ['Charlotte', 'North Carolina', 2], ['Anchorage', 'Alaska', 2], ['Pittsburgh', 'Pennsylvania', 2], ['Tampa', 'Florida', 2],
+            ['San Diego', 'California', 2], ['Tucson', 'Arizona', 2], ['Buffalo', 'New York', 2], ['Louisville', 'Kentucky', 2], ['Savannah', 'Georgia', 2],
+            ['Albuquerque', 'New Mexico', 3], ['Tulsa', 'Oklahoma', 3], ['Omaha', 'Nebraska', 3], ['Birmingham', 'Alabama', 3], ['Reno', 'Nevada', 3],
+            ['Newark', 'New Jersey', 3], ['Spokane', 'Washington', 3], ['Wichita', 'Kansas', 3], ['Fargo', 'North Dakota', 3],
+            ['Sioux Falls', 'South Dakota', 3], ['Billings', 'Montana', 3], ['Gulfport', 'Mississippi', 3]
+        ],
+        usLandmark: [
+            ['Mount Rushmore', 'South Dakota', 1], ['the Grand Canyon', 'Arizona', 1], ['the Golden Gate Bridge', 'California', 1], ['the Statue of Liberty', 'New York', 1],
+            ['the Space Needle', 'Washington', 1], ['the Alamo', 'Texas', 1], ['Pearl Harbor', 'Hawaii', 1], ['the Hollywood Sign', 'California', 1],
+            ['the Gateway Arch', 'Missouri', 2], ['Old Faithful', 'Wyoming', 2], ['Kennedy Space Center', 'Florida', 2], ['the Liberty Bell', 'Pennsylvania', 2],
+            ['Denali', 'Alaska', 2], ['Graceland', 'Tennessee', 2], ['the Everglades', 'Florida', 2], ['Arches National Park', 'Utah', 2],
+            ['Mammoth Cave', 'Kentucky', 3], ['Crater Lake', 'Oregon', 3], ['Glacier National Park', 'Montana', 3], ['Carlsbad Caverns', 'New Mexico', 3],
+            ['Acadia National Park', 'Maine', 3], ['the Mall of America', 'Minnesota', 3], ['Plymouth Rock', 'Massachusetts', 3], ['Fort Sumter', 'South Carolina', 3],
+            ['Kitty Hawk, where the Wright brothers first flew', 'North Carolina', 3], ['Mount Rainier', 'Washington', 3]
+        ],
+        wLandmark: [
+            ['the Eiffel Tower', 'France', 1], ['the Colosseum', 'Italy', 1], ['the Great Wall', 'China', 1], ['the Taj Mahal', 'India', 1],
+            ['Machu Picchu', 'Peru', 1], ['the Pyramids of Giza', 'Egypt', 1], ['Christ the Redeemer', 'Brazil', 1], ['Big Ben', 'United Kingdom', 1],
+            ['the Sydney Opera House', 'Australia', 1], ['Mount Fuji', 'Japan', 1], ['the Leaning Tower of Pisa', 'Italy', 1], ['the Acropolis', 'Greece', 1],
+            ['Petra', 'Jordan', 2], ['Angkor Wat', 'Cambodia', 2], ['Chichén Itzá', 'Mexico', 2], ['Stonehenge', 'United Kingdom', 2], ['the Sagrada Família', 'Spain', 2],
+            ['the Kremlin', 'Russia', 2], ['the Burj Khalifa', 'United Arab Emirates', 2], ['Mount Kilimanjaro', 'Tanzania', 2], ['Table Mountain', 'South Africa', 2],
+            ['the Hagia Sophia', 'Turkey', 2], ['the CN Tower', 'Canada', 2], ['Uluru', 'Australia', 2], ['the Brandenburg Gate', 'Germany', 2], ['the Forbidden City', 'China', 2],
+            ['the Moai statues of Easter Island', 'Chile', 3], ['Ha Long Bay', 'Vietnam', 3], ['the Galápagos Islands', 'Ecuador', 3], ['the Alhambra', 'Spain', 3],
+            ['Neuschwanstein Castle', 'Germany', 3], ['the Atomium', 'Belgium', 3], ['the Little Mermaid statue', 'Denmark', 3], ['Angel Falls', 'Venezuela', 3],
+            ['the Serengeti', 'Tanzania', 3], ['Timbuktu', 'Mali', 3], ['the Blue Lagoon', 'Iceland', 3], ['the Rock-Hewn Churches of Lalibela', 'Ethiopia', 3]
+        ],
+        wCity: [
+            ['Barcelona', 'Spain', 1], ['Rio de Janeiro', 'Brazil', 1], ['Sydney', 'Australia', 1], ['Toronto', 'Canada', 1], ['Venice', 'Italy', 1],
+            ['Dubai', 'United Arab Emirates', 1], ['Mumbai', 'India', 1], ['Shanghai', 'China', 1], ['Istanbul', 'Turkey', 1], ['Munich', 'Germany', 1],
+            ['Milan', 'Italy', 1], ['Vancouver', 'Canada', 1],
+            ['Osaka', 'Japan', 2], ['Marrakesh', 'Morocco', 2], ['Cape Town', 'South Africa', 2], ['Auckland', 'New Zealand', 2], ['Saint Petersburg', 'Russia', 2],
+            ['Kraków', 'Poland', 2], ['Porto', 'Portugal', 2], ['Geneva', 'Switzerland', 2], ['São Paulo', 'Brazil', 2], ['Melbourne', 'Australia', 2],
+            ['Montreal', 'Canada', 2], ['Cancún', 'Mexico', 2], ['Florence', 'Italy', 2], ['Kyoto', 'Japan', 2], ['Manchester', 'United Kingdom', 2],
+            ['Casablanca', 'Morocco', 3], ['Rotterdam', 'Netherlands', 3], ['Antwerp', 'Belgium', 3], ['Lagos', 'Nigeria', 3], ['Alexandria', 'Egypt', 3],
+            ['Ho Chi Minh City', 'Vietnam', 3], ['Busan', 'South Korea', 3], ['Karachi', 'Pakistan', 3], ['Guadalajara', 'Mexico', 3], ['Seville', 'Spain', 3],
+            ['Bangalore', 'India', 3], ['Mecca', 'Saudi Arabia', 3], ['Medellín', 'Colombia', 3], ['Cusco', 'Peru', 3], ['Mombasa', 'Kenya', 3], ['Zanzibar', 'Tanzania', 3],
+            ['Valparaíso', 'Chile', 3], ['Glasgow', 'United Kingdom', 3], ['Zurich', 'Switzerland', 3]
+        ],
+        money: [
+            ['the yen', 'Japan', 2], ['the yuan', 'China', 2], ['the real', 'Brazil', 2], ['the rand', 'South Africa', 2], ['the baht', 'Thailand', 2],
+            ['the zloty', 'Poland', 3], ['the forint', 'Hungary', 3], ['the shekel', 'Israel', 3], ['the rupiah', 'Indonesia', 3], ['the ringgit', 'Malaysia', 3],
+            ['the naira', 'Nigeria', 3], ['the hryvnia', 'Ukraine', 3], ['the dong', 'Vietnam', 3], ['the cedi', 'Ghana', 3], ['the birr', 'Ethiopia', 3],
+            ['the quetzal', 'Guatemala', 3], ['the sol', 'Peru', 3], ['the bolívar', 'Venezuela', 3], ['the tenge', 'Kazakhstan', 3], ['the taka', 'Bangladesh', 3],
+            ['the lev', 'Bulgaria', 3], ['the Turkish lira', 'Turkey', 2], ['the guaraní', 'Paraguay', 3], ['the riel', 'Cambodia', 3]
+        ]
+    };
+    const CLUE_INFO = {
+        usNick: { map: 'us', pool: 'states', tag: 'USA · NICKNAME', ask: c => `Which state is nicknamed <b>${esc(c)}</b>?` },
+        usCity: { map: 'us', pool: 'states', tag: 'USA · CITY', ask: c => `Which state is <b>${esc(c)}</b> in?` },
+        usLandmark: { map: 'us', pool: 'states', tag: 'USA · LANDMARK', ask: c => `Which state is home to <b>${esc(c)}</b>?` },
+        wLandmark: { map: 'world', pool: 'countries', tag: 'WORLD · LANDMARK', ask: c => `Which country is home to <b>${esc(c)}</b>?` },
+        wCity: { map: 'world', pool: 'countries', tag: 'WORLD · CITY', ask: c => `Which country is <b>${esc(c)}</b> in?` },
+        money: { map: 'world', pool: 'countries', tag: 'WORLD · MONEY', ask: c => `Which country pays with <b>${esc(c)}</b>?` }
+    };
+    const clueList = (type, maxLevel) => CLUES[type].filter(c => c[2] <= maxLevel);
+
     // A capital that is basically the same word as its country makes no question (Kuwait City, Singapore...)
     function capIsGiveaway(country, cap) {
         const a = A.norm(country), b = A.norm(cap);
@@ -144,16 +223,28 @@
             country: n => ({ type: 'country', target: n, answer: n, pool: 'countries', map: 'world', prompt: 'Name this <b>country</b>', tag: 'WORLD · COUNTRY' }),
             stateCap: n => ({ type: 'stateCap', target: n, answer: A.US_CAPITALS[n], pool: 'stateCapitals', map: 'us', prompt: `What is the capital of <b>${esc(n)}</b>?`, tag: 'USA · CAPITAL' }),
             countryCap: n => ({ type: 'countryCap', target: n, answer: A.WORLD_CAPITALS[n], pool: 'countryCapitals', map: 'world', prompt: `What is the capital of <b>${esc(n)}</b>?`, tag: 'WORLD · CAPITAL' }),
-            capState: n => ({ type: 'capState', target: null, hint: n, answer: n, pool: 'states', map: 'us', prompt: `<b>${esc(A.US_CAPITALS[n])}</b> is the capital of which state?`, tag: 'USA · CAPITAL' })
+            capState: n => ({ type: 'capState', target: null, clue: true, answer: n, pool: 'states', map: 'us', prompt: `<b>${esc(A.US_CAPITALS[n])}</b> is the capital of which state?`, tag: 'USA · CAPITAL' })
         };
+        Object.keys(CLUE_INFO).forEach(type => {
+            const inf = CLUE_INFO[type];
+            mk[type] = ([clue, ans]) => ({ type, target: null, clue: true, answer: ans, pool: inf.pool, map: inf.map, prompt: inf.ask(clue), tag: inf.tag });
+        });
+        const placeOf = (type, item) => Array.isArray(item) ? item[1] : item;
+        const mapOf = type => (mk[type](type in CLUE_INFO ? ['', ''] : 'x').map);
+        const clues = (lvl, types) => types.map(t => [t, clueList(t, lvl).filter(([, ans]) => (CLUE_INFO[t].map === 'us' ? A.STATES : A.COUNTRIES).includes(ans))]);
+        const ALL_CLUES = ['usNick', 'usCity', 'usLandmark', 'wLandmark', 'wCity'];
+        // map questions ("name this place") count double so the map stays the star
         const tiers = [
-            { count: 5, pick: [['state', EASY_STATES], ['country', EASY_COUNTRIES], ['stateCap', EASY_STATE_CAPS], ['countryCap', EASY_COUNTRY_CAPS]] },
-            { count: 8, pick: [['state', allStates], ['country', MEDIUM_COUNTRIES], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => EASY_COUNTRIES.includes(c) || MEDIUM_COUNTRIES.includes(c))], ['capState', stateCapStates]] },
-            { count: 27, pick: [['state', hardStates], ['country', MEDIUM_COUNTRIES.concat(hardCountries.slice())], ['stateCap', stateCapStates], ['countryCap', capCountries], ['capState', stateCapStates]] }
+            { count: 5, pick: [['state', EASY_STATES], ['state', EASY_STATES], ['country', EASY_COUNTRIES], ['country', EASY_COUNTRIES], ['stateCap', EASY_STATE_CAPS], ['countryCap', EASY_COUNTRY_CAPS]]
+                .concat(clues(1, ALL_CLUES)) },
+            { count: 8, pick: [['state', allStates], ['state', allStates], ['country', MEDIUM_COUNTRIES], ['country', MEDIUM_COUNTRIES], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => EASY_COUNTRIES.includes(c) || MEDIUM_COUNTRIES.includes(c))], ['capState', stateCapStates]]
+                .concat(clues(2, ALL_CLUES.concat('money'))) },
+            { count: 27, pick: [['state', hardStates], ['state', hardStates], ['country', MEDIUM_COUNTRIES.concat(hardCountries)], ['country', MEDIUM_COUNTRIES.concat(hardCountries)], ['stateCap', stateCapStates], ['countryCap', capCountries], ['capState', stateCapStates]]
+                .concat(clues(3, ALL_CLUES.concat('money'))) }
         ];
         // USA-only or World-only rooms keep just those question types
-        const keep = set === 'usa' ? ['state', 'stateCap', 'capState'] : set === 'world' ? ['country', 'countryCap'] : null;
-        if (keep) tiers.forEach(tr => { tr.pick = tr.pick.filter(([type]) => keep.includes(type)); });
+        if (set === 'usa' || set === 'world') tiers.forEach(tr => { tr.pick = tr.pick.filter(([type]) => mapOf(type) === (set === 'usa' ? 'us' : 'world')); });
+        tiers.forEach(tr => { tr.pick = tr.pick.filter(([, list]) => list.length); });
         tiers[2].count += Math.max(0, TARGET - DAILY_TARGET) * 2;
         const used = new Set(), deck = [];
         let lastType = '';
@@ -162,10 +253,11 @@
                 for (let tries = 0; tries < 60; tries++) {
                     const [type, list] = tier.pick[Math.floor(r() * tier.pick.length)];
                     if (type === lastType && tries < 40) continue;
-                    const name = list[Math.floor(r() * list.length)];
-                    const key = type.startsWith('state') || type === 'capState' ? 'US:' + name : 'W:' + name;
-                    if (!name || used.has(key)) continue;
-                    used.add(key); deck.push(mk[type](name)); lastType = type;
+                    const item = list[Math.floor(r() * list.length)];
+                    if (!item) continue;
+                    const key = (mapOf(type) === 'us' ? 'US:' : 'W:') + placeOf(type, item);
+                    if (used.has(key)) continue;
+                    used.add(key); deck.push(mk[type](item)); lastType = type;
                     break;
                 }
             }
@@ -174,7 +266,16 @@
     }
 
     // ---------- racers ----------
-    const BOT_NAMES = ['NOVA-7', 'ORBITRON', 'LUNA-X', 'COMET-3', 'ASTRO-BOT', 'SPUTNIK-9', 'PULSAR', 'QUASAR-2', 'ZENITH', 'VEGA-5', 'APOLLO-B', 'IONIS'];
+    // computer racers get everyday player names (plus a few default "Racer-XXXX" ones, like players who skip the name box)
+    const BOT_NAMES = ['Jake M', 'sophia_r', 'Mateo', 'Liam K', 'emma22', 'NoahP', 'ava.b', 'Ethan', 'maya_k', 'Lucas T', 'chloe', 'Dylan R',
+        'Olivia', 'ben_w', 'Aiden', 'zoe.m', 'Carter', 'Lily G', 'owen_14', 'Grace', 'Jackson', 'mia_s', 'Eli', 'harper.j', 'Leo', 'nora',
+        'Caleb B', 'Ruby', 'sam_t', 'Isaac', 'Ella', 'Max', 'jordan_c', 'Avery', 'Theo', 'priya', 'Diego', 'Hannah', 'kai', 'Marcus'];
+    function botNames(r) {
+        const list = shuffle(BOT_NAMES, r);
+        // sometimes one lane uses a default-style name
+        if (r() < 0.5) list[Math.floor(r() * 4)] = 'Racer-' + Math.floor(r() * 65536).toString(16).toUpperCase().padStart(4, '0');
+        return list;
+    }
     const BOT_SKILLS = [
         { label: 'ACE', mean: 5.2, acc: 0.93 },
         { label: 'PILOT', mean: 7.0, acc: 0.86 },
@@ -284,7 +385,7 @@
         const rest = shuffle(others.slice(1), rng(hashStr(DAY + 'g' + Math.random())));
         while (ghosts.length < 3 && rest.length) ghosts.push(rest.shift());
         const r = rng(hashStr(DAY + 'bots'));
-        const botNames = shuffle(BOT_NAMES, r);
+        const bNames = botNames(r);
         const field = [{ name, kind: 'you', color: COLORS[0] }];
         ghosts.forEach(g => field.push({ name: g.name, kind: 'ghost', color: GHOST_COLOR, splits: g.splits, misses: g.misses || [], finish: g.finish_ms }));
         let bi = 0;
@@ -292,15 +393,15 @@
         const skillOrder = shuffle(BOT_SKILLS, r);
         while (field.length < LANES) {
             const skill = skillOrder[bi % skillOrder.length];
-            const run = botRun(DAY + raceSeed + botNames[bi], skill);
-            field.push({ name: botNames[bi], kind: 'bot', skill: skill.label, color: COLORS[(field.length) % COLORS.length], ...run });
+            const run = botRun(DAY + raceSeed + bNames[bi], skill);
+            field.push({ name: bNames[bi], kind: 'bot', skill: skill.label, color: COLORS[(field.length) % COLORS.length], ...run });
             bi++;
         }
         lineupData = field;
         box.innerHTML = field.map((f, i) => `<div class="sr-lane-chip" style="animation-delay:${i * 70}ms">
             <span class="dot" style="background:${f.color};color:${f.color}"></span>
             <span class="nm">${esc(f.name)}</span>
-            <span class="tag ${f.kind === 'you' ? 'tag-you' : f.kind === 'ghost' ? 'tag-ghost' : 'tag-bot'}">${f.kind === 'you' ? 'YOU' : f.kind === 'ghost' ? '👻 GHOST · ' + fmtTime(f.finish) : '🤖 BOT · ' + f.skill}</span>
+            <span class="tag ${f.kind === 'you' ? 'tag-you' : f.kind === 'ghost' ? 'tag-ghost' : 'tag-racer'}">${f.kind === 'you' ? 'YOU' : f.kind === 'ghost' ? '👻 GHOST · ' + fmtTime(f.finish) : '🚀 RACER'}</span>
         </div>`).join('');
     }
 
@@ -488,7 +589,7 @@
         const order = racers.map(rc => ({ rc, t: rc.kind === 'you' ? me.finish : rc.finish })).sort((a, b) => a.t - b.t);
         $('sr-standings').innerHTML = order.map((o, i) => {
             const nm = o.rc === me ? (raceMode === 'room' ? me.name : storedName() || 'You') : o.rc.name;
-            const icon = o.rc.kind === 'bot' ? '🤖' : o.rc.kind === 'ghost' ? '👻' : o.rc.kind === 'friend' ? '🧑‍🚀' : '';
+            const icon = o.rc.kind === 'ghost' ? '👻' : o.rc.kind === 'friend' ? '🧑‍🚀' : '';
             const tm = isFinite(o.t) ? fmtTime(o.t) : o.rc.left ? 'left' : 'racing…';
             return `<li class="${o.rc === me ? 'me' : ''}"><span class="pl">${isFinite(o.t) ? i + 1 : '–'}</span><span class="nm">${esc(nm)} ${icon}</span><span class="tm">${tm}</span></li>`;
         }).join('');
@@ -554,6 +655,15 @@
     const mapCv = $('sr-map'), mapCtx = mapCv.getContext('2d');
     let view = null;   // {features, target, cam:{from,to,start}, k, cx, cy, reveal}
     function wrapLon(l, c) { return ((l - c + 540) % 360) - 180 + c; }
+    // draw one outline; a jump across the date line (Russia, Fiji) starts a new piece instead of a line across the map
+    function traceRing(path, ring, P) {
+        let px = null;
+        ring.forEach(([lon, lat], i) => {
+            const [x, y] = P(lon, lat);
+            if (!i || Math.abs(x - px) > 90) path.moveTo(x, y); else path.lineTo(x, y);
+            px = x;
+        });
+    }
     function setMapView(question) {
         if (!GEO.states) return;
         const isUS = !question || question.map === 'us';
@@ -591,7 +701,7 @@
                 const [mx, my] = P((ri.x0 + ri.x1) / 2, (ri.y0 + ri.y1) / 2);
                 if (Math.abs(mx - frame.cx) > reach && f !== target) continue;
                 if (Math.abs(my - frame.cy) > reach && f !== target) continue;
-                ri.r.forEach(([lon, lat], i) => { const [x, y] = P(lon, lat); i ? path.lineTo(x, y) : path.moveTo(x, y); });
+                traceRing(path, ri.r, P);
                 path.closePath(); any = true;
             }
             if (!any) continue;
@@ -605,18 +715,18 @@
             camStart: now(), P
         };
         if (!question) view.camFrom = frame;
-        // capital-to-state questions: hide the answer, just show the whole map dimmed
-        if (question && question.type === 'capState') view.dim = true;
+        // clue questions (capital, nickname, city, landmark, money): hide the answer, show the whole map dimmed
+        if (question && question.clue) view.dim = true;
         void prev;
     }
     function revealOnMap() {
         if (!view || !q) return;
-        // after a miss, light up the right place (for capital-to-state questions too)
-        if (q.type === 'capState' && GEO.stateBy[q.answer]) {
-            const f = GEO.stateBy[q.answer];
-            const path = new Path2D();
-            f.rings.forEach(ri => { ri.r.forEach(([lon, lat], i) => { const [x, y] = view.P(lon, lat); i ? path.lineTo(x, y) : path.moveTo(x, y); }); path.closePath(); });
-            view.reveal = path;
+        // after a miss, light up the right place (for clue questions too)
+        const clueFeat = q.clue ? (q.map === 'us' ? GEO.stateBy : GEO.worldBy)[q.answer] : null;
+        if (clueFeat) {
+            // clue questions: fly the map to the answer (so Alaska, Hawaii and small countries are easy to see)
+            setMapView({ map: q.map, target: q.answer });
+            view.reveal = view.targetPath;
         } else view.reveal = view.targetPath;
         view.revealAt = now();
     }
@@ -922,7 +1032,7 @@
             c.textAlign = 'center';
             const label = rc === me ? (raceMode === 'room' ? me.name : storedName() || 'YOU') : rc.name;
             c.fillStyle = rc === me ? '#7dd3fc' : rc.kind === 'ghost' ? '#c4b5fd' : 'rgba(226,232,240,0.75)';
-            c.fillText((rc.kind === 'ghost' ? '👻 ' : rc.kind === 'bot' ? '🤖 ' : rc.kind === 'friend' ? '🧑‍🚀 ' : '') + label + (rc.left && !rc.finished ? ' (left)' : ''), x, y - 15 * scale);
+            c.fillText((rc.kind === 'ghost' ? '👻 ' : rc.kind === 'friend' ? '🧑‍🚀 ' : '') + label + (rc.left && !rc.finished ? ' (left)' : ''), x, y - 15 * scale);
             if (rc.finished && rc.kind !== 'you') { c.fillStyle = '#fbbf24'; c.fillText('🚩', x + 30 * scale, y + 4); }
             c.restore();
         });
@@ -1159,7 +1269,7 @@
             const startBtn = $('sr-room-start');
             startBtn.classList.toggle('hidden', !this.isHost);
             startBtn.disabled = this.racing;
-            startBtn.textContent = this.quick ? '🚀 LAUNCH NOW' : humans.length < 2 && !st.bots ? '🚀 START (add a friend or turn bots on)' : '🚀 START RACE';
+            startBtn.textContent = this.quick ? '🚀 LAUNCH NOW' : humans.length < 2 && !st.bots ? '🚀 START (add a friend or fill empty lanes)' : '🚀 START RACE';
             if (this.isHost && !this.quick && humans.length < 2 && !st.bots) startBtn.disabled = true;
             let status = '';
             if (this.racing && !this.startedRace) status = 'A race is in progress. You\'ll join the next one!';
@@ -1193,9 +1303,9 @@
             clearInterval(this.tickTimer);
             this.startedRace = true;
             const r = rng(hashStr(payload.seed + 'bots'));
-            const botNames = shuffle(BOT_NAMES, r), skills = shuffle(BOT_SKILLS, r);
+            const bNames = botNames(r), skills = shuffle(BOT_SKILLS, r);
             const field = payload.roster.map((p, i) => ({ id: p.id, name: p.id === CLIENT_ID ? this.myName : p.name, kind: p.id === CLIENT_ID ? 'you' : 'friend', color: COLORS[i % COLORS.length] }));
-            for (let i = 0; i < payload.bots; i++) field.push({ name: botNames[i], kind: 'bot', skill: skills[i % skills.length].label, color: COLORS[(field.length) % COLORS.length] });
+            for (let i = 0; i < payload.bots; i++) field.push({ name: bNames[i], kind: 'bot', skill: skills[i % skills.length].label, color: COLORS[(field.length) % COLORS.length] });
             TARGET = payload.target;
             startRace({ seed: payload.seed, set: payload.set, target: payload.target, field });
         },
@@ -1258,7 +1368,7 @@
             clearInterval(this.tickTimer);
             const tick = () => {
                 const left = Math.max(0, Math.ceil((this.quickCreated + QUICK_WAIT_MS - Date.now()) / 1000));
-                $('sr-room-status').innerHTML = `🔎 Searching for racers… <b>${this.players.length}</b> found. Launching in <b>${left}s</b> (bots fill empty lanes)`;
+                $('sr-room-status').innerHTML = `🔎 Searching for racers… <b>${this.players.length}</b> found. Launching in <b>${left}s</b>`;
                 if (left <= 0 && this.isHost && !this.racing) this.hostStart();
             };
             tick(); this.tickTimer = setInterval(tick, 500);
@@ -1357,5 +1467,5 @@
     })();
 
     // test hook (used by automated tests only)
-    window.__spaceRace = { Room, CLIENT_ID, get raceMode() { return raceMode; }, get state() { return state; }, get q() { return q; }, get me() { return me; }, get racers() { return racers; }, submit, skip, DAY };
+    window.__spaceRace = { Room, CLIENT_ID, buildDeck, get raceMode() { return raceMode; }, get state() { return state; }, get q() { return q; }, get me() { return me; }, get racers() { return racers; }, submit, skip, DAY };
 })();
