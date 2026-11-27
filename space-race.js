@@ -161,7 +161,9 @@
             ['San Diego', 'California', 2], ['Tucson', 'Arizona', 2], ['Buffalo', 'New York', 2], ['Louisville', 'Kentucky', 2], ['Savannah', 'Georgia', 2],
             ['Albuquerque', 'New Mexico', 3], ['Tulsa', 'Oklahoma', 3], ['Omaha', 'Nebraska', 3], ['Birmingham', 'Alabama', 3], ['Reno', 'Nevada', 3],
             ['Newark', 'New Jersey', 3], ['Spokane', 'Washington', 3], ['Wichita', 'Kansas', 3], ['Fargo', 'North Dakota', 3],
-            ['Sioux Falls', 'South Dakota', 3], ['Billings', 'Montana', 3], ['Gulfport', 'Mississippi', 3]
+            ['Sioux Falls', 'South Dakota', 3], ['Billings', 'Montana', 3], ['Gulfport', 'Mississippi', 3],
+            // more
+            ['San Antonio', 'Texas', 1], ['El Paso', 'Texas', 2], ['Fort Worth', 'Texas', 2], ['Galveston', 'Texas', 3], ['Corpus Christi', 'Texas', 3], ['Lubbock', 'Texas', 3], ['Amarillo', 'Texas', 3], ['Laredo', 'Texas', 3], ['Jacksonville', 'Florida', 2], ['Fort Lauderdale', 'Florida', 2], ['Key West', 'Florida', 2], ['Daytona Beach', 'Florida', 2], ['Knoxville', 'Tennessee', 2], ['Chattanooga', 'Tennessee', 2], ['Cincinnati', 'Ohio', 2], ['Toledo', 'Ohio', 3], ['Dayton', 'Ohio', 3], ['Akron', 'Ohio', 3], ['Grand Rapids', 'Michigan', 3], ['Ann Arbor', 'Michigan', 3], ['Green Bay', 'Wisconsin', 2], ['Duluth', 'Minnesota', 3], ['Cedar Rapids', 'Iowa', 3], ['Sioux City', 'Iowa', 3], ['Shreveport', 'Louisiana', 3], ['Mobile', 'Alabama', 3], ['Biloxi', 'Mississippi', 3], ['Myrtle Beach', 'South Carolina', 2], ['Hilton Head', 'South Carolina', 3], ['Asheville', 'North Carolina', 3], ['Virginia Beach', 'Virginia', 2], ['Norfolk', 'Virginia', 3], ['Atlantic City', 'New Jersey', 2], ['Jersey City', 'New Jersey', 2], ['Princeton', 'New Jersey', 3], ['Syracuse', 'New York', 3], ['Scranton', 'Pennsylvania', 3], ['Erie', 'Pennsylvania', 3], ['New Haven', 'Connecticut', 3], ['Worcester', 'Massachusetts', 3], ['Bangor', 'Maine', 3], ['Aspen', 'Colorado', 2], ['Boulder', 'Colorado', 3], ['Park City', 'Utah', 3], ['Provo', 'Utah', 3], ['Jackson Hole', 'Wyoming', 3], ['Rapid City', 'South Dakota', 3], ['Missoula', 'Montana', 3], ['Bozeman', 'Montana', 3], ['Fairbanks', 'Alaska', 3], ['Maui', 'Hawaii', 1], ['Scottsdale', 'Arizona', 2], ['Flagstaff', 'Arizona', 3], ['Sedona', 'Arizona', 3], ['Roswell', 'New Mexico', 3], ['Las Cruces', 'New Mexico', 3], ['San Jose', 'California', 2], ['Oakland', 'California', 2], ['Palm Springs', 'California', 2], ['Malibu', 'California', 2], ['Tacoma', 'Washington', 3], ['Eugene', 'Oregon', 3], ['Bend', 'Oregon', 3], ['South Bend', 'Indiana', 3], ['Branson', 'Missouri', 3], ['Hoboken', 'New Jersey', 3]
         ],
         usLandmark: [
             ['Mount Rushmore', 'South Dakota', 1], ['the Grand Canyon', 'Arizona', 1], ['the Golden Gate Bridge', 'California', 1], ['the Statue of Liberty', 'New York', 1],
@@ -170,7 +172,9 @@
             ['Denali', 'Alaska', 2], ['Graceland', 'Tennessee', 2], ['the Everglades', 'Florida', 2], ['Arches National Park', 'Utah', 2],
             ['Mammoth Cave', 'Kentucky', 3], ['Crater Lake', 'Oregon', 3], ['Glacier National Park', 'Montana', 3], ['Carlsbad Caverns', 'New Mexico', 3],
             ['Acadia National Park', 'Maine', 3], ['the Mall of America', 'Minnesota', 3], ['Plymouth Rock', 'Massachusetts', 3], ['Fort Sumter', 'South Carolina', 3],
-            ['Kitty Hawk, where the Wright brothers first flew', 'North Carolina', 3], ['Mount Rainier', 'Washington', 3]
+            ['Kitty Hawk, where the Wright brothers first flew', 'North Carolina', 3], ['Mount Rainier', 'Washington', 3],
+            // more
+            ['Yosemite National Park', 'California', 1], ['Alcatraz', 'California', 1], ['Disneyland', 'California', 1], ['Walt Disney World', 'Florida', 1], ['Times Square', 'New York', 1], ['Central Park', 'New York', 1], ['the Las Vegas Strip', 'Nevada', 1], ['Niagara Falls (the American side)', 'New York', 2], ['Zion National Park', 'Utah', 2], ['Bryce Canyon', 'Utah', 2], ['Grand Teton National Park', 'Wyoming', 2], ['Devils Tower', 'Wyoming', 3], ['Mount St. Helens', 'Washington', 2], ['Olympic National Park', 'Washington', 3], ['Redwood National Park', 'California', 2], ['Independence Hall', 'Pennsylvania', 2], ['Mount Washington', 'New Hampshire', 3], ['Johnson Space Center', 'Texas', 2], ['Churchill Downs', 'Kentucky', 2], ['Fenway Park', 'Massachusetts', 2], ['Wrigley Field', 'Illinois', 2], ['Lambeau Field', 'Wisconsin', 2], ['Daytona International Speedway', 'Florida', 2], ['the Grand Ole Opry', 'Tennessee', 2], ['the Rock and Roll Hall of Fame', 'Ohio', 2], ['the Pro Football Hall of Fame', 'Ohio', 3], ['the Baseball Hall of Fame in Cooperstown', 'New York', 3], ['Mesa Verde', 'Colorado', 3], ['Pikes Peak', 'Colorado', 2], ['the Great Salt Lake', 'Utah', 2], ['the Mackinac Bridge', 'Michigan', 3], ['Willis Tower', 'Illinois', 2], ['Cloud Gate ("The Bean")', 'Illinois', 2], ['Mount Hood', 'Oregon', 2], ['Multnomah Falls', 'Oregon', 3], ['the Biltmore Estate', 'North Carolina', 3], ['the Outer Banks', 'North Carolina', 3], ['Monticello', 'Virginia', 3], ["Mount Vernon (George Washington's home)", 'Virginia', 3], ['Jamestown', 'Virginia', 3], ["Martha's Vineyard", 'Massachusetts', 3], ['Cape Cod', 'Massachusetts', 2], ['the French Quarter', 'Louisiana', 1], ['Bourbon Street', 'Louisiana', 2], ['Pike Place Market', 'Washington', 2], ['Antelope Canyon', 'Arizona', 3], ['Petrified Forest National Park', 'Arizona', 3], ['White Sands', 'New Mexico', 3], ['Craters of the Moon', 'Idaho', 3], ['Glacier Bay', 'Alaska', 3], ['Diamond Head', 'Hawaii', 2], ['Waikiki Beach', 'Hawaii', 1], ['Hawaii Volcanoes National Park', 'Hawaii', 1], ['Dollywood', 'Tennessee', 2], ['Lake of the Ozarks', 'Missouri', 3], ['the Kentucky Derby', 'Kentucky', 1], ['the Indianapolis 500', 'Indiana', 1], ['Mardi Gras in New Orleans', 'Louisiana', 1], ['Silicon Valley', 'California', 2], ['Wall Street', 'New York', 1], ["the Hoover Dam's Las Vegas side", 'Nevada', 3], ['Badlands National Park', 'South Dakota', 2]
         ],
         wLandmark: [
             ['the Eiffel Tower', 'France', 1], ['the Colosseum', 'Italy', 1], ['the Great Wall', 'China', 1], ['the Taj Mahal', 'India', 1],
@@ -181,7 +185,9 @@
             ['the Hagia Sophia', 'Turkey', 2], ['the CN Tower', 'Canada', 2], ['Uluru', 'Australia', 2], ['the Brandenburg Gate', 'Germany', 2], ['the Forbidden City', 'China', 2],
             ['the Moai statues of Easter Island', 'Chile', 3], ['Ha Long Bay', 'Vietnam', 3], ['the Galápagos Islands', 'Ecuador', 3], ['the Alhambra', 'Spain', 3],
             ['Neuschwanstein Castle', 'Germany', 3], ['the Atomium', 'Belgium', 3], ['the Little Mermaid statue', 'Denmark', 3], ['Angel Falls', 'Venezuela', 3],
-            ['the Serengeti', 'Tanzania', 3], ['Timbuktu', 'Mali', 3], ['the Blue Lagoon', 'Iceland', 3], ['the Rock-Hewn Churches of Lalibela', 'Ethiopia', 3]
+            ['the Serengeti', 'Tanzania', 3], ['Timbuktu', 'Mali', 3], ['the Blue Lagoon', 'Iceland', 3], ['the Rock-Hewn Churches of Lalibela', 'Ethiopia', 3],
+            // more
+            ['the Louvre', 'France', 1], ['Notre-Dame Cathedral', 'France', 1], ['Mont Saint-Michel', 'France', 2], ['the Palace of Versailles', 'France', 2], ['the Trevi Fountain', 'Italy', 1], ['Pompeii', 'Italy', 1], ['Mount Vesuvius', 'Italy', 2], ['Santorini', 'Greece', 1], ['Buckingham Palace', 'United Kingdom', 1], ['Tower Bridge', 'United Kingdom', 1], ['the London Eye', 'United Kingdom', 1], ['Loch Ness', 'United Kingdom', 2], ["St. Basil's Cathedral", 'Russia', 2], ['Lake Baikal', 'Russia', 2], ['the Golden Temple', 'India', 2], ['the Terracotta Army', 'China', 1], ['the Potala Palace', 'China', 2], ['Tokyo Tower', 'Japan', 1], ['the Hiroshima Peace Memorial', 'Japan', 2], ['Marina Bay Sands', 'Singapore', 2], ['the Petronas Towers', 'Malaysia', 2], ['Borobudur Temple', 'Indonesia', 2], ['Bondi Beach', 'Australia', 1], ['the Great Barrier Reef', 'Australia', 1], ['Hobbiton', 'New Zealand', 2], ['Milford Sound', 'New Zealand', 2], ['Sugarloaf Mountain', 'Brazil', 2], ['the Perito Moreno Glacier', 'Argentina', 2], ['the Salar de Uyuni salt flats', 'Bolivia', 2], ['the Nazca Lines', 'Peru', 2], ['Tikal', 'Guatemala', 2], ['Teotihuacan', 'Mexico', 2], ['Banff National Park', 'Canada', 1], ["Niagara Falls' Horseshoe Falls (the Canadian side)", 'Canada', 2], ['the Statue of Liberty', 'United States', 1], ['the Grand Canyon', 'United States', 1], ['the Great Sphinx', 'Egypt', 1], ['Abu Simbel', 'Egypt', 2], ['the Valley of the Kings', 'Egypt', 2], ['Robben Island', 'South Africa', 2], ['Kruger National Park', 'South Africa', 2], ['the Okavango Delta', 'Botswana', 2], ['the Maasai Mara', 'Kenya', 2], ['the Great Mosque of Djenné', 'Mali', 2], ['the Hassan II Mosque', 'Morocco', 2], ['the ruins of Carthage', 'Tunisia', 2], ['the Sheikh Zayed Grand Mosque', 'United Arab Emirates', 2], ['Persepolis', 'Iran', 2], ['the Blue Mosque', 'Turkey', 1], ["Cappadocia's hot-air balloons", 'Turkey', 1], ['Plitvice Lakes', 'Croatia', 2], ['the Charles Bridge', 'Czechia', 2], ['the Wieliczka Salt Mine', 'Poland', 2], ['Geirangerfjord', 'Norway', 2], ['the Manneken Pis statue', 'Belgium', 2], ['the windmills of Kinderdijk', 'Netherlands', 2], ['the Cliffs of Moher', 'Ireland', 1], ['the Blarney Stone', 'Ireland', 2], ["the Giant's Causeway", 'United Kingdom', 2], ['Edinburgh Castle', 'United Kingdom', 1], ['Park Güell', 'Spain', 2], ['Belém Tower', 'Portugal', 2], ['Schönbrunn Palace', 'Austria', 2], ["Bran Castle (\"Dracula's Castle\")", 'Romania', 2], ['the Hermitage Museum', 'Russia', 2], ["the Matterhorn's Zermatt ski town", 'Switzerland', 2], ["the Dead Sea's Masada fortress", 'Israel', 2], ['Mount Etna', 'Italy', 2]
         ],
         wCity: [
             ['Barcelona', 'Spain', 1], ['Rio de Janeiro', 'Brazil', 1], ['Sydney', 'Australia', 1], ['Toronto', 'Canada', 1], ['Venice', 'Italy', 1],
@@ -193,7 +199,24 @@
             ['Casablanca', 'Morocco', 3], ['Rotterdam', 'Netherlands', 3], ['Antwerp', 'Belgium', 3], ['Lagos', 'Nigeria', 3], ['Alexandria', 'Egypt', 3],
             ['Ho Chi Minh City', 'Vietnam', 3], ['Busan', 'South Korea', 3], ['Karachi', 'Pakistan', 3], ['Guadalajara', 'Mexico', 3], ['Seville', 'Spain', 3],
             ['Bangalore', 'India', 3], ['Mecca', 'Saudi Arabia', 3], ['Medellín', 'Colombia', 3], ['Cusco', 'Peru', 3], ['Mombasa', 'Kenya', 3], ['Zanzibar', 'Tanzania', 3],
-            ['Valparaíso', 'Chile', 3], ['Glasgow', 'United Kingdom', 3], ['Zurich', 'Switzerland', 3]
+            ['Valparaíso', 'Chile', 3], ['Glasgow', 'United Kingdom', 3], ['Zurich', 'Switzerland', 3],
+            // more
+            ['New York City', 'United States', 1], ['Los Angeles', 'United States', 1], ['Chicago', 'United States', 1], ['Hong Kong', 'China', 1], ['Bali', 'Indonesia', 1], ['Liverpool', 'United Kingdom', 1], ['Naples', 'Italy', 1], ['Marseille', 'France', 1], ['Nice', 'France', 1], ['Frankfurt', 'Germany', 1], ['Hamburg', 'Germany', 1], ['Phuket', 'Thailand', 1], ['Tijuana', 'Mexico', 1], ['Acapulco', 'Mexico', 1], ['Quebec City', 'Canada', 1], ['Calgary', 'Canada', 1], ['Ibiza', 'Spain', 1], ['Oxford', 'United Kingdom', 1], ['Kolkata', 'India', 2], ['Lahore', 'Pakistan', 2], ['Hiroshima', 'Japan', 2], ['Guangzhou', 'China', 2], ['Shenzhen', 'China', 2], ['Brisbane', 'Australia', 2], ['Salzburg', 'Austria', 2], ['Mykonos', 'Greece', 2], ['Dubrovnik', 'Croatia', 2], ['Johannesburg', 'South Africa', 2], ['Tel Aviv', 'Israel', 2], ['Lyon', 'France', 2], ['Turin', 'Italy', 2], ['Cologne', 'Germany', 2], ['Málaga', 'Spain', 2], ['Bordeaux', 'France', 2], ['Chiang Mai', 'Thailand', 2], ['Goa', 'India', 2], ['Chennai', 'India', 2], ['Monterrey', 'Mexico', 2], ['Queenstown', 'New Zealand', 2], ['Gothenburg', 'Sweden', 2], ['Bergen', 'Norway', 2], ['Thessaloniki', 'Greece', 2], ['Jeddah', 'Saudi Arabia', 2], ['Cebu', 'Philippines', 2], ['Odesa', 'Ukraine', 2], ['Edinburgh', 'United Kingdom', 1]
+        ],
+        usFood: [
+            ['Philly cheesesteaks', 'Pennsylvania', 1], ['deep-dish pizza', 'Illinois', 1], ['gumbo and beignets', 'Louisiana', 1], ['lobster rolls', 'Maine', 1], ['key lime pie', 'Florida', 1], ['potatoes', 'Idaho', 1], ['cheese curds', 'Wisconsin', 1], ['maple syrup', 'Vermont', 2], ['clam chowder', 'Massachusetts', 2], ['Nashville hot chicken', 'Tennessee', 2], ['green chile', 'New Mexico', 2], ['crab cakes', 'Maryland', 2], ['poke and Spam musubi', 'Hawaii', 1], ['Cincinnati chili', 'Ohio', 2], ['Detroit-style pizza', 'Michigan', 2], ['toasted ravioli', 'Missouri', 3], ['Buffalo wings', 'New York', 2], ['Tex-Mex and brisket', 'Texas', 1], ['Georgia peaches', 'Georgia', 1], ['Hatch chiles', 'New Mexico', 3], ['sourdough bread in San Francisco', 'California', 2], ['Rocky Mountain trout', 'Colorado', 3], ['Vidalia onions', 'Georgia', 3], ['Walla Walla onions', 'Washington', 3]
+        ],
+        usTeam: [
+            ['Green Bay Packers', 'Wisconsin', 1], ['Chicago Bears', 'Illinois', 1], ['Detroit Lions', 'Michigan', 1], ['Dallas Cowboys', 'Texas', 1], ['Pittsburgh Steelers', 'Pennsylvania', 1], ['Philadelphia Eagles', 'Pennsylvania', 1], ['Denver Broncos', 'Colorado', 1], ['Seattle Seahawks', 'Washington', 1], ['San Francisco 49ers', 'California', 1], ['Miami Dolphins', 'Florida', 1], ['New Orleans Saints', 'Louisiana', 1], ['Atlanta Falcons', 'Georgia', 1], ['Baltimore Ravens', 'Maryland', 1], ['Cleveland Browns', 'Ohio', 1], ['Cincinnati Bengals', 'Ohio', 2], ['Indianapolis Colts', 'Indiana', 1], ['Kansas City Chiefs', 'Missouri', 2], ['Las Vegas Raiders', 'Nevada', 1], ['Buffalo Bills', 'New York', 1], ['New England Patriots', 'Massachusetts', 2], ['Tampa Bay Buccaneers', 'Florida', 2], ['Jacksonville Jaguars', 'Florida', 2], ['Houston Texans', 'Texas', 1], ['Los Angeles Rams', 'California', 1], ['Los Angeles Lakers', 'California', 1], ['Boston Celtics', 'Massachusetts', 1], ['Chicago Bulls', 'Illinois', 1], ['Miami Heat', 'Florida', 1], ['New York Knicks', 'New York', 1], ['Golden State Warriors', 'California', 2], ['San Antonio Spurs', 'Texas', 1], ['Phoenix Suns', 'Arizona', 1], ['Denver Nuggets', 'Colorado', 1], ['Oklahoma City Thunder', 'Oklahoma', 1], ['Utah Jazz', 'Utah', 1], ['Portland Trail Blazers', 'Oregon', 2], ['Milwaukee Bucks', 'Wisconsin', 1], ['Cleveland Cavaliers', 'Ohio', 1], ['Memphis Grizzlies', 'Tennessee', 1], ['Orlando Magic', 'Florida', 1], ['Detroit Pistons', 'Michigan', 1], ['New York Yankees', 'New York', 1], ['Boston Red Sox', 'Massachusetts', 1], ['Chicago Cubs', 'Illinois', 1], ['Los Angeles Dodgers', 'California', 1], ['St. Louis Cardinals', 'Missouri', 1], ['Houston Astros', 'Texas', 1], ['Atlanta Braves', 'Georgia', 1], ['Seattle Mariners', 'Washington', 1], ['Baltimore Orioles', 'Maryland', 1], ['Colorado Rockies', 'Colorado', 1], ['Arizona Diamondbacks', 'Arizona', 1], ['Kansas City Royals', 'Missouri', 2]
+        ],
+        wFood: [
+            ['sushi', 'Japan', 1], ['pizza and pasta', 'Italy', 1], ['tacos', 'Mexico', 1], ['croissants', 'France', 1], ['paella', 'Spain', 1], ['kimchi', 'South Korea', 1], ['pad thai', 'Thailand', 1], ['pho', 'Vietnam', 1], ['poutine', 'Canada', 1], ['fish and chips', 'United Kingdom', 1], ['goulash', 'Hungary', 2], ['pierogi', 'Poland', 2], ['bratwurst and pretzels', 'Germany', 1], ['moussaka', 'Greece', 2], ['butter chicken', 'India', 1], ['dim sum', 'China', 1], ['Peking duck', 'China', 1], ['ceviche', 'Peru', 2], ['feijoada', 'Brazil', 2], ['Wiener schnitzel', 'Austria', 2], ['cheese fondue', 'Switzerland', 1], ['Belgian waffles', 'Belgium', 1], ['döner kebab', 'Turkey', 2], ['tagine', 'Morocco', 2], ['injera', 'Ethiopia', 2], ['gelato', 'Italy', 1], ['ramen', 'Japan', 1], ['bulgogi', 'South Korea', 2], ['haggis', 'United Kingdom', 2], ['smørrebrød', 'Denmark', 3], ['Swedish meatballs', 'Sweden', 1], ['Irish stew', 'Ireland', 1], ['jerk chicken', 'Jamaica', 2], ['chimichurri', 'Argentina', 2], ['pastel de nata (custard tarts)', 'Portugal', 2], ['tiramisu', 'Italy', 1], ['borscht', 'Ukraine', 3], ['Vegemite on toast', 'Australia', 1], ['nasi goreng', 'Indonesia', 3], ['adobo', 'Philippines', 3], ['bobotie', 'South Africa', 3], ['biltong', 'South Africa', 3], ['churros', 'Spain', 1], ['baguettes', 'France', 1], ['tandoori chicken', 'India', 2]
+        ],
+        wClub: [
+            ['Real Madrid', 'Spain', 1], ['FC Barcelona', 'Spain', 1], ['Manchester United', 'United Kingdom', 1], ['Liverpool FC', 'United Kingdom', 1], ['Arsenal', 'United Kingdom', 1], ['Chelsea', 'United Kingdom', 1], ['Bayern Munich', 'Germany', 1], ['Borussia Dortmund', 'Germany', 2], ['Juventus', 'Italy', 1], ['AC Milan', 'Italy', 1], ['Inter Milan', 'Italy', 1], ['Paris Saint-Germain', 'France', 1], ['Ajax', 'Netherlands', 2], ['Benfica', 'Portugal', 2], ['FC Porto', 'Portugal', 2], ['Celtic', 'United Kingdom', 2], ['Boca Juniors', 'Argentina', 2], ['River Plate', 'Argentina', 2], ['Galatasaray', 'Turkey', 2], ['Flamengo', 'Brazil', 2], ["Santos (Pelé's old club)", 'Brazil', 2], ["Al-Nassr (Cristiano Ronaldo's club)", 'Saudi Arabia', 2], ["Inter Miami (Messi's club)", 'United States', 1], ['Atlético Madrid', 'Spain', 1], ['Napoli', 'Italy', 2], ['AS Roma', 'Italy', 1], ['Olympique de Marseille', 'France', 2]
+        ],
+        wAnimal: [
+            ['kangaroos', 'Australia', 1], ['giant pandas', 'China', 1], ['kiwi birds', 'New Zealand', 1], ['lemurs', 'Madagascar', 1], ['Komodo dragons', 'Indonesia', 1], ['koalas', 'Australia', 1], ['platypuses', 'Australia', 2], ['Galápagos giant tortoises', 'Ecuador', 2], ['Tasmanian devils', 'Australia', 2], ['quokkas', 'Australia', 3]
         ]
     };
     const CLUE_INFO = {
@@ -201,7 +224,12 @@
         usCity: { map: 'us', pool: 'states', tag: 'USA · CITY', ask: c => `Which state is <b>${esc(c)}</b> in?` },
         usLandmark: { map: 'us', pool: 'states', tag: 'USA · LANDMARK', ask: c => `Which state is home to <b>${esc(c)}</b>?` },
         wLandmark: { map: 'world', pool: 'countries', tag: 'WORLD · LANDMARK', ask: c => `Which country is home to <b>${esc(c)}</b>?` },
-        wCity: { map: 'world', pool: 'countries', tag: 'WORLD · CITY', ask: c => `Which country is <b>${esc(c)}</b> in?` }
+        wCity: { map: 'world', pool: 'countries', tag: 'WORLD · CITY', ask: c => `Which country is <b>${esc(c)}</b> in?` },
+        usFood: { map: 'us', pool: 'states', tag: 'USA · FOOD', ask: c => `Which state is famous for <b>${esc(c)}</b>?` },
+        usTeam: { map: 'us', pool: 'states', tag: 'USA · SPORTS', ask: c => `Which state do the <b>${esc(c)}</b> play in?` },
+        wFood: { map: 'world', pool: 'countries', tag: 'WORLD · FOOD', ask: c => `Which country is famous for <b>${esc(c)}</b>?` },
+        wClub: { map: 'world', pool: 'countries', tag: 'WORLD · SOCCER', ask: c => `Which country is the soccer club <b>${esc(c)}</b> from?` },
+        wAnimal: { map: 'world', pool: 'countries', tag: 'WORLD · ANIMALS', ask: c => `Which country is home to wild <b>${esc(c)}</b>?` }
     };
     const clueList = (type, maxLevel) => CLUES[type].filter(c => c[2] <= maxLevel);
 
@@ -236,11 +264,65 @@
         { id: 'fourCorners', map: 'us', lvl: 2, ask: 'Name one of the <b>Four Corners</b> states', all: ['Arizona', 'New Mexico', 'Colorado', 'Utah'], common: ['Arizona', 'Colorado', 'Utah', 'New Mexico'] },
         { id: 'canadaBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Canada</b>', all: ['Alaska', 'Washington', 'Idaho', 'Montana', 'North Dakota', 'Minnesota', 'Michigan', 'Ohio', 'Pennsylvania', 'New York', 'Vermont', 'New Hampshire', 'Maine'], common: ['Alaska', 'Washington', 'Montana', 'Michigan', 'New York', 'Maine', 'Minnesota'] },
         { id: 'mississippi', map: 'us', lvl: 2, ask: 'Name a state on the <b>Mississippi River</b>', all: ['Minnesota', 'Wisconsin', 'Iowa', 'Illinois', 'Missouri', 'Kentucky', 'Tennessee', 'Arkansas', 'Mississippi', 'Louisiana'], common: ['Louisiana', 'Mississippi', 'Missouri', 'Minnesota', 'Tennessee'] },
-        { id: 'colonies', map: 'us', lvl: 2, ask: 'Name one of the original <b>13 colonies</b>', all: ['New Hampshire', 'Massachusetts', 'Rhode Island', 'Connecticut', 'New York', 'New Jersey', 'Pennsylvania', 'Delaware', 'Maryland', 'Virginia', 'North Carolina', 'South Carolina', 'Georgia'], common: ['New York', 'Massachusetts', 'Pennsylvania', 'Virginia', 'Georgia'] }
+        { id: 'colonies', map: 'us', lvl: 2, ask: 'Name one of the original <b>13 colonies</b>', all: ['New Hampshire', 'Massachusetts', 'Rhode Island', 'Connecticut', 'New York', 'New Jersey', 'Pennsylvania', 'Delaware', 'Maryland', 'Virginia', 'North Carolina', 'South Carolina', 'Georgia'], common: ['New York', 'Massachusetts', 'Pennsylvania', 'Virginia', 'Georgia'] },
+        // ---- more world ----
+        { id: 'europe', map: 'world', lvl: 1, ask: 'Name a country in <b>Europe</b>', all: ['Albania', 'Andorra', 'Austria', 'Belarus', 'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Cyprus', 'Czechia', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Kosovo', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Monaco', 'Montenegro', 'Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania', 'Russia', 'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom', 'Vatican City', 'Turkey', 'Kazakhstan', 'Georgia', 'Azerbaijan', 'Armenia'], common: ['France', 'Germany', 'Italy', 'Spain', 'United Kingdom', 'Portugal', 'Greece', 'Netherlands', 'Belgium', 'Switzerland', 'Austria', 'Poland', 'Ireland', 'Sweden', 'Norway', 'Russia', 'Ukraine'] },
+        { id: 'asia', map: 'world', lvl: 1, ask: 'Name a country in <b>Asia</b>', all: ['Afghanistan', 'Armenia', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Bhutan', 'Brunei', 'Cambodia', 'China', 'Cyprus', 'Georgia', 'India', 'Indonesia', 'Iran', 'Iraq', 'Israel', 'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea', 'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar', 'Russia', 'Saudi Arabia', 'Singapore', 'South Korea', 'Sri Lanka', 'Syria', 'Taiwan', 'Tajikistan', 'Thailand', 'Timor-Leste', 'Turkey', 'Turkmenistan', 'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen', 'Egypt'], common: ['China', 'India', 'Japan', 'South Korea', 'Thailand', 'Vietnam', 'Indonesia', 'Philippines', 'Pakistan', 'Russia', 'Saudi Arabia', 'Iran', 'Israel', 'Iraq', 'North Korea', 'Mongolia'] },
+        { id: 'mideast', map: 'world', lvl: 2, ask: 'Name a country in the <b>Middle East</b>', all: ['Bahrain', 'Cyprus', 'Egypt', 'Iran', 'Iraq', 'Israel', 'Jordan', 'Kuwait', 'Lebanon', 'Oman', 'Palestine', 'Qatar', 'Saudi Arabia', 'Syria', 'Turkey', 'United Arab Emirates', 'Yemen'], common: ['Saudi Arabia', 'Iran', 'Iraq', 'Israel', 'Egypt', 'Turkey', 'United Arab Emirates', 'Syria', 'Jordan'] },
+        { id: 'caribbean', map: 'world', lvl: 2, ask: 'Name a country in the <b>Caribbean</b> 🌴', all: ['Cuba', 'Jamaica', 'Haiti', 'Dominican Republic', 'Bahamas', 'Barbados', 'Trinidad and Tobago', 'Saint Lucia', 'Grenada', 'Dominica', 'Antigua and Barbuda', 'Saint Kitts and Nevis', 'Saint Vincent and the Grenadines'], common: ['Cuba', 'Jamaica', 'Bahamas', 'Haiti', 'Dominican Republic'] },
+        { id: 'seasia', map: 'world', lvl: 2, ask: 'Name a country in <b>Southeast Asia</b>', all: ['Thailand', 'Vietnam', 'Cambodia', 'Laos', 'Myanmar', 'Malaysia', 'Singapore', 'Indonesia', 'Philippines', 'Brunei', 'Timor-Leste'], common: ['Thailand', 'Vietnam', 'Philippines', 'Indonesia', 'Singapore', 'Malaysia'] },
+        { id: 'oceania', map: 'world', lvl: 2, ask: 'Name a country in <b>Oceania</b> (Australia and the Pacific islands)', all: ['Australia', 'New Zealand', 'Fiji', 'Papua New Guinea', 'Samoa', 'Tonga', 'Vanuatu', 'Solomon Islands', 'Kiribati', 'Tuvalu', 'Nauru', 'Palau', 'Marshall Islands', 'Micronesia'], common: ['Australia', 'New Zealand', 'Fiji'] },
+        { id: 'soviet', map: 'world', lvl: 3, ask: 'Name a country that was part of the <b>Soviet Union</b>', all: ['Russia', 'Ukraine', 'Belarus', 'Estonia', 'Latvia', 'Lithuania', 'Moldova', 'Georgia', 'Armenia', 'Azerbaijan', 'Kazakhstan', 'Uzbekistan', 'Turkmenistan', 'Kyrgyzstan', 'Tajikistan'], common: ['Russia', 'Ukraine', 'Belarus', 'Kazakhstan'] },
+        { id: 'med', map: 'world', lvl: 2, ask: 'Name a country on the <b>Mediterranean Sea</b>', all: ['Spain', 'France', 'Monaco', 'Italy', 'Malta', 'Slovenia', 'Croatia', 'Bosnia and Herzegovina', 'Montenegro', 'Albania', 'Greece', 'Turkey', 'Cyprus', 'Syria', 'Lebanon', 'Israel', 'Palestine', 'Egypt', 'Libya', 'Tunisia', 'Algeria', 'Morocco'], common: ['Spain', 'France', 'Italy', 'Greece', 'Turkey', 'Egypt', 'Croatia'] },
+        { id: 'baltic', map: 'world', lvl: 3, ask: 'Name a country on the <b>Baltic Sea</b>', all: ['Sweden', 'Finland', 'Russia', 'Estonia', 'Latvia', 'Lithuania', 'Poland', 'Germany', 'Denmark'], common: ['Sweden', 'Finland', 'Russia', 'Poland', 'Germany', 'Denmark'] },
+        { id: 'amazon', map: 'world', lvl: 2, ask: 'Name a country the <b>Amazon River</b> flows through', all: ['Brazil', 'Peru', 'Colombia'], common: ['Brazil'] },
+        { id: 'nile', map: 'world', lvl: 2, ask: 'Name a country the <b>Nile River</b> flows through', all: ['Egypt', 'Sudan', 'South Sudan', 'Uganda', 'Ethiopia', 'Rwanda', 'Burundi', 'Tanzania', 'Kenya', 'Democratic Republic of the Congo'], common: ['Egypt', 'Sudan'] },
+        { id: 'g7', map: 'world', lvl: 2, ask: 'Name a country in the <b>G7</b> (the 7 big rich democracies)', all: ['United States', 'Canada', 'United Kingdom', 'France', 'Germany', 'Italy', 'Japan'], common: ['United States', 'Canada', 'United Kingdom', 'France', 'Germany', 'Italy', 'Japan'] },
+        { id: 'pop100', map: 'world', lvl: 2, ask: 'Name a country with more than <b>100 million people</b>', all: ['China', 'India', 'United States', 'Indonesia', 'Pakistan', 'Nigeria', 'Brazil', 'Bangladesh', 'Russia', 'Mexico', 'Ethiopia', 'Japan', 'Philippines', 'Egypt', 'Democratic Republic of the Congo', 'Vietnam'], common: ['China', 'India', 'United States', 'Indonesia', 'Brazil', 'Russia', 'Mexico', 'Japan', 'Pakistan', 'Nigeria'] },
+        { id: 'wcHost', map: 'world', lvl: 1, ask: 'Name a country that has hosted the men\'s <b>soccer World Cup</b> ⚽', all: ['Uruguay', 'Italy', 'France', 'Brazil', 'Switzerland', 'Sweden', 'Chile', 'United Kingdom', 'Mexico', 'Germany', 'Argentina', 'Spain', 'United States', 'South Korea', 'Japan', 'South Africa', 'Russia', 'Qatar', 'Canada'], common: ['Brazil', 'Germany', 'France', 'Italy', 'United States', 'Mexico', 'Qatar', 'Russia', 'Spain', 'Argentina', 'South Africa', 'Canada'] },
+        { id: 'french', map: 'world', lvl: 2, ask: 'Name a country where <b>French</b> is an official language', all: ['France', 'Canada', 'Belgium', 'Switzerland', 'Luxembourg', 'Monaco', 'Haiti', 'Senegal', "Côte d'Ivoire", 'Cameroon', 'Democratic Republic of the Congo', 'Republic of the Congo', 'Madagascar', 'Mali', 'Niger', 'Chad', 'Burkina Faso', 'Benin', 'Togo', 'Guinea', 'Gabon', 'Central African Republic', 'Burundi', 'Rwanda', 'Djibouti', 'Comoros', 'Seychelles', 'Vanuatu', 'Equatorial Guinea'], common: ['France', 'Canada', 'Belgium', 'Switzerland', 'Haiti'] },
+        { id: 'arabic', map: 'world', lvl: 2, ask: 'Name a country where <b>Arabic</b> is an official language', all: ['Egypt', 'Saudi Arabia', 'Iraq', 'Syria', 'Jordan', 'Lebanon', 'United Arab Emirates', 'Qatar', 'Kuwait', 'Bahrain', 'Oman', 'Yemen', 'Libya', 'Tunisia', 'Algeria', 'Morocco', 'Sudan', 'Mauritania', 'Somalia', 'Djibouti', 'Comoros', 'Palestine', 'Chad'], common: ['Egypt', 'Saudi Arabia', 'Iraq', 'United Arab Emirates', 'Morocco', 'Jordan', 'Syria', 'Qatar'] },
+        { id: 'franceBorder', map: 'world', lvl: 1, ask: 'Name a country that borders <b>France</b>', all: ['Belgium', 'Luxembourg', 'Germany', 'Switzerland', 'Italy', 'Monaco', 'Spain', 'Andorra', 'Brazil', 'Suriname'], common: ['Belgium', 'Germany', 'Switzerland', 'Italy', 'Spain'] },
+        { id: 'indiaBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>India</b>', all: ['Pakistan', 'China', 'Nepal', 'Bhutan', 'Bangladesh', 'Myanmar'], common: ['Pakistan', 'China', 'Nepal', 'Bangladesh'] },
+        { id: 'mexicoBorderW', map: 'world', lvl: 1, ask: 'Name a country that borders <b>Mexico</b>', all: ['United States', 'Guatemala', 'Belize'], common: ['United States'] },
+        { id: 'spainBorder', map: 'world', lvl: 1, ask: 'Name a country that borders <b>Spain</b>', all: ['Portugal', 'France', 'Andorra', 'Morocco', 'United Kingdom'], common: ['Portugal', 'France'] },
+        { id: 'argBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Argentina</b>', all: ['Chile', 'Bolivia', 'Paraguay', 'Brazil', 'Uruguay'], common: ['Chile', 'Brazil'] },
+        { id: 'egyptBorder', map: 'world', lvl: 2, ask: 'Name a country that borders <b>Egypt</b>', all: ['Libya', 'Sudan', 'Israel', 'Palestine'], common: ['Libya', 'Sudan', 'Israel'] },
+        { id: 'saudiBorder', map: 'world', lvl: 3, ask: 'Name a country that borders <b>Saudi Arabia</b>', all: ['Jordan', 'Iraq', 'Kuwait', 'Qatar', 'United Arab Emirates', 'Oman', 'Yemen'], common: ['Iraq', 'Jordan', 'Yemen', 'Kuwait'] },
+        { id: 'guinea', map: 'world', lvl: 2, ask: 'Name a country with <b>Guinea</b> in its name', all: ['Guinea', 'Guinea-Bissau', 'Equatorial Guinea', 'Papua New Guinea'], common: ['Guinea', 'Papua New Guinea'] },
+        { id: 'united', map: 'world', lvl: 1, ask: 'Name a country with <b>United</b> in its name', all: ['United States', 'United Kingdom', 'United Arab Emirates'], common: ['United States', 'United Kingdom'] },
+        { id: 'horn', map: 'world', lvl: 3, ask: 'Name a country in the <b>Horn of Africa</b>', all: ['Ethiopia', 'Somalia', 'Eritrea', 'Djibouti'], common: ['Ethiopia', 'Somalia'] },
+        // ---- more USA ----
+        { id: 'flBorder', map: 'us', lvl: 1, ask: 'Name a state that borders <b>Florida</b>', all: ['Georgia', 'Alabama'], common: ['Georgia', 'Alabama'] },
+        { id: 'nyBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>New York</b>', all: ['Vermont', 'Massachusetts', 'Connecticut', 'New Jersey', 'Pennsylvania'], common: ['New Jersey', 'Pennsylvania', 'Vermont', 'Massachusetts'] },
+        { id: 'coBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Colorado</b>', all: ['Wyoming', 'Nebraska', 'Kansas', 'Oklahoma', 'New Mexico', 'Arizona', 'Utah'], common: ['Wyoming', 'Utah', 'New Mexico', 'Kansas', 'Nebraska'] },
+        { id: 'tnBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Tennessee</b>', all: ['Kentucky', 'Virginia', 'North Carolina', 'Georgia', 'Alabama', 'Mississippi', 'Arkansas', 'Missouri'], common: ['Kentucky', 'Georgia', 'Alabama', 'North Carolina', 'Mississippi'] },
+        { id: 'moBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Missouri</b>', all: ['Iowa', 'Illinois', 'Kentucky', 'Tennessee', 'Arkansas', 'Oklahoma', 'Kansas', 'Nebraska'], common: ['Illinois', 'Kansas', 'Iowa', 'Arkansas', 'Oklahoma'] },
+        { id: 'kyBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Kentucky</b>', all: ['Illinois', 'Indiana', 'Ohio', 'West Virginia', 'Virginia', 'Tennessee', 'Missouri'], common: ['Tennessee', 'Ohio', 'Indiana', 'Illinois'] },
+        { id: 'gaBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Georgia</b>', all: ['Florida', 'Alabama', 'Tennessee', 'North Carolina', 'South Carolina'], common: ['Florida', 'Alabama', 'Tennessee', 'South Carolina'] },
+        { id: 'ohBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Ohio</b>', all: ['Michigan', 'Indiana', 'Kentucky', 'West Virginia', 'Pennsylvania'], common: ['Michigan', 'Indiana', 'Kentucky', 'Pennsylvania'] },
+        { id: 'nvBorder', map: 'us', lvl: 2, ask: 'Name a state that borders <b>Nevada</b>', all: ['California', 'Oregon', 'Idaho', 'Utah', 'Arizona'], common: ['California', 'Oregon', 'Utah', 'Arizona'] },
+        { id: 'okBorder', map: 'us', lvl: 3, ask: 'Name a state that borders <b>Oklahoma</b>', all: ['Kansas', 'Missouri', 'Arkansas', 'Texas', 'New Mexico', 'Colorado'], common: ['Texas', 'Kansas', 'Arkansas'] },
+        { id: 'rockies', map: 'us', lvl: 2, ask: 'Name a <b>Rocky Mountain</b> state', all: ['Montana', 'Idaho', 'Wyoming', 'Colorado', 'Utah', 'New Mexico'], common: ['Colorado', 'Montana', 'Wyoming', 'Utah'] },
+        { id: 'midwest', map: 'us', lvl: 2, ask: 'Name a state in the <b>Midwest</b>', all: ['Ohio', 'Indiana', 'Illinois', 'Michigan', 'Wisconsin', 'Minnesota', 'Iowa', 'Missouri', 'North Dakota', 'South Dakota', 'Nebraska', 'Kansas'], common: ['Ohio', 'Illinois', 'Michigan', 'Iowa', 'Indiana', 'Wisconsin', 'Minnesota'] },
+        { id: 'atlantic', map: 'us', lvl: 1, ask: 'Name a state on the <b>Atlantic Ocean</b> 🌊', all: ['Maine', 'New Hampshire', 'Massachusetts', 'Rhode Island', 'Connecticut', 'New York', 'New Jersey', 'Delaware', 'Maryland', 'Virginia', 'North Carolina', 'South Carolina', 'Georgia', 'Florida'], common: ['Florida', 'New York', 'Maine', 'Massachusetts', 'New Jersey', 'North Carolina', 'South Carolina', 'Georgia', 'Virginia'] },
+        { id: 'aEnds', map: 'us', lvl: 1, ask: 'Name a state that starts <b>and</b> ends with the letter <b>A</b>', all: ['Alabama', 'Alaska', 'Arizona'], common: ['Alabama', 'Alaska', 'Arizona'] },
+        { id: 'four', map: 'us', lvl: 1, ask: 'Name a state with only <b>4 letters</b>', all: ['Iowa', 'Ohio', 'Utah'], common: ['Iowa', 'Ohio', 'Utah'] },
+        { id: 'twoWord', map: 'us', lvl: 1, ask: 'Name a state with a <b>two-word</b> name', all: ['New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'South Carolina', 'South Dakota', 'Rhode Island', 'West Virginia'], common: ['New York', 'New Jersey', 'New Mexico', 'North Carolina', 'South Carolina'] },
+        { id: 'lakeMich', map: 'us', lvl: 2, ask: 'Name a state on <b>Lake Michigan</b>', all: ['Wisconsin', 'Illinois', 'Indiana', 'Michigan'], common: ['Michigan', 'Illinois', 'Wisconsin'] },
+        { id: 'lakeErie', map: 'us', lvl: 3, ask: 'Name a state on <b>Lake Erie</b>', all: ['New York', 'Pennsylvania', 'Ohio', 'Michigan'], common: ['Ohio', 'New York', 'Michigan'] },
+        { id: 'plains', map: 'us', lvl: 2, ask: 'Name a <b>Great Plains</b> state', all: ['North Dakota', 'South Dakota', 'Nebraska', 'Kansas', 'Oklahoma'], common: ['Kansas', 'Nebraska', 'North Dakota', 'South Dakota'] },
+        { id: 'pnw', map: 'us', lvl: 1, ask: 'Name a state in the <b>Pacific Northwest</b>', all: ['Washington', 'Oregon', 'Idaho'], common: ['Washington', 'Oregon'] },
+        { id: 'nfl', map: 'us', lvl: 1, ask: 'Name a state with an <b>NFL team</b> 🏈', all: ['Arizona', 'California', 'Colorado', 'Florida', 'Georgia', 'Illinois', 'Indiana', 'Louisiana', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Missouri', 'Nevada', 'New Jersey', 'New York', 'North Carolina', 'Ohio', 'Pennsylvania', 'Tennessee', 'Texas', 'Washington', 'Wisconsin'], common: ['California', 'Texas', 'Florida', 'New York', 'Pennsylvania', 'Ohio', 'Illinois'] },
+        { id: 'route66', map: 'us', lvl: 3, ask: 'Name a state that <b>Route 66</b> passes through', all: ['Illinois', 'Missouri', 'Kansas', 'Oklahoma', 'Texas', 'New Mexico', 'Arizona', 'California'], common: ['Illinois', 'California', 'Arizona', 'Texas', 'New Mexico', 'Oklahoma'] },
+        { id: 'appalachian', map: 'us', lvl: 3, ask: 'Name a state the <b>Appalachian Trail</b> passes through', all: ['Georgia', 'North Carolina', 'Tennessee', 'Virginia', 'West Virginia', 'Maryland', 'Pennsylvania', 'New Jersey', 'New York', 'Connecticut', 'Massachusetts', 'Vermont', 'New Hampshire', 'Maine'], common: ['Georgia', 'North Carolina', 'Tennessee', 'Virginia', 'Pennsylvania', 'Maine'] }
     ];
     // "Name a state/country that starts with ..." (common = the well-known ones)
-    const US_LETTERS = ['A', 'C', 'I', 'K', 'M', 'N', 'O', 'T', 'V', 'W'];
-    const WORLD_LETTERS = ['E', 'I', 'J', 'K', 'O', 'P', 'Q', 'U', 'V', 'Z'];
+    const US_LETTERS = ['A', 'C', 'I', 'K', 'M', 'N', 'O', 'S', 'T', 'V', 'W'];
+    const WORLD_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVZ'.split('');
+    // "Name a state/country that ends in ..."
+    const US_ENDS = ['a', 'o', 's'];
+    const WORLD_ENDS = ['ia', 'land', 'an', 'ay'];
 
     // A capital that is basically the same word as its country makes no question (Kuwait City, Singapore...)
     function capIsGiveaway(country, cap) {
@@ -249,7 +331,7 @@
     }
 
     // The deck: easy first, harder later. Enough questions for misses.
-    function buildDeck(seedStr, set = 'mixed') {
+    function buildDeck(seedStr, set = 'mixed', avoid = null) {
         const r = rng(hashStr(seedStr));
         const allStates = A.STATES.filter(s => GEO.stateBy[s]);
         const hardStates = allStates.filter(s => !EASY_STATES.includes(s));
@@ -283,13 +365,23 @@
         };
         mk.usLetter = L => letterQ('usLetter', L);
         mk.wLetter = L => letterQ('wLetter', L);
-        const TYPE_MAP = { state: 'us', country: 'world', stateCap: 'us', countryCap: 'world', capState: 'us', usMulti: 'us', wMulti: 'world', usLetter: 'us', wLetter: 'world' };
+        const endQ = (type, end) => {
+            const isUS = type === 'usEnd';
+            const all = (isUS ? allStates : allCountries).filter(n => A.norm(n).replace(/ /g, '').endsWith(end));
+            const easy = isUS ? EASY_STATES : EASY_COUNTRIES;
+            const common = all.length <= 2 ? all : all.filter(n => easy.includes(n));
+            return mkMulti(type, { id: type + end, map: isUS ? 'us' : 'world', ask: `Name a ${isUS ? 'state' : 'country'} that ends in <b>-${end}</b>`, all, common });
+        };
+        mk.usEnd = e => endQ('usEnd', e);
+        mk.wEnd = e => endQ('wEnd', e);
+        const TYPE_MAP = { state: 'us', country: 'world', stateCap: 'us', countryCap: 'world', capState: 'us', usMulti: 'us', wMulti: 'world', usLetter: 'us', wLetter: 'world', usEnd: 'us', wEnd: 'world' };
         Object.keys(CLUE_INFO).forEach(t => { TYPE_MAP[t] = CLUE_INFO[t].map; });
         const mapOf = type => TYPE_MAP[type];
-        const keyOf = (type, item) => item && item.id ? 'M:' + item.id : typeof item === 'string' && (type === 'usLetter' || type === 'wLetter') ? 'L:' + type + item : (mapOf(type) === 'us' ? 'US:' : 'W:') + (Array.isArray(item) ? item[1] : item);
-        const clues = (lvl, types) => types.map(t => [t, clueList(t, lvl).filter(([, ans]) => (CLUE_INFO[t].map === 'us' ? A.STATES : A.COUNTRIES).includes(ans))]);
+        const keyOf = (type, item) => item && item.id ? 'M:' + item.id : typeof item === 'string' && /Letter|End/.test(type) ? 'L:' + type + item : (mapOf(type) === 'us' ? 'US:' : 'W:') + (Array.isArray(item) ? item[1] : item);
+        // skip clues that give the answer away ("the Kentucky Derby" -> Kentucky)
+        const clues = (lvl, types) => types.map(t => [t, clueList(t, lvl).filter(([c, ans]) => (CLUE_INFO[t].map === 'us' ? A.STATES : A.COUNTRIES).includes(ans) && !A.norm(c).includes(A.norm(ans)))]);
         const multis = (map, lvl) => MULTI.filter(m => m.map === map && m.lvl <= lvl);
-        const US_CLUES = ['usNick', 'usCity', 'usLandmark'], W_CLUES = ['wLandmark', 'wCity'];
+        const US_CLUES = ['usNick', 'usCity', 'usLandmark', 'usFood', 'usTeam'], W_CLUES = ['wLandmark', 'wCity', 'wFood', 'wClub', 'wAnimal'];
         const knownCountries = EASY_COUNTRIES.concat(MEDIUM_COUNTRIES);
         // weights: map questions x2, many-answer questions x2, everything else x1
         const tiers = [
@@ -297,10 +389,10 @@
                 ['usMulti', multis('us', 1)], ['wMulti', multis('world', 1)], ['wMulti', multis('world', 1)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS]]
                 .concat(clues(1, US_CLUES), clues(1, W_CLUES)) },
             { count: 8, pick: [['state', allStates], ['state', allStates], ['country', knownCountries], ['country', MEDIUM_COUNTRIES], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates],
-                ['usMulti', multis('us', 2)], ['usMulti', multis('us', 2)], ['wMulti', multis('world', 2)], ['wMulti', multis('world', 2)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS]]
+                ['usMulti', multis('us', 2)], ['usMulti', multis('us', 2)], ['wMulti', multis('world', 2)], ['wMulti', multis('world', 2)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS], ['usEnd', US_ENDS], ['wEnd', WORLD_ENDS]]
                 .concat(clues(2, US_CLUES), clues(2, W_CLUES)) },
             { count: 27, pick: [['state', hardStates], ['state', allStates], ['country', MEDIUM_COUNTRIES], ['country', knownCountries], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates],
-                ['usMulti', multis('us', 3)], ['usMulti', multis('us', 3)], ['wMulti', multis('world', 3)], ['wMulti', multis('world', 3)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS]]
+                ['usMulti', multis('us', 3)], ['usMulti', multis('us', 3)], ['wMulti', multis('world', 3)], ['wMulti', multis('world', 3)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS], ['usEnd', US_ENDS], ['wEnd', WORLD_ENDS]]
                 .concat(clues(3, US_CLUES), clues(2, W_CLUES)) }
         ];
         // USA-only or World-only rooms keep just those question types
@@ -318,7 +410,10 @@
                     if (!item) continue;
                     const key = keyOf(type, item);
                     if (used.has(key)) continue;
-                    used.add(key); deck.push(mk[type](item)); lastType = type;
+                    // practice races skip questions you saw recently (while there are fresh ones to pick)
+                    const qid = type + ':' + (item.id || (Array.isArray(item) ? item[0] : item));
+                    if (avoid && avoid.has(qid) && tries < 50) continue;
+                    used.add(key); const qq = mk[type](item); qq.qid = qid; deck.push(qq); lastType = type;
                     break;
                 }
             }
@@ -421,6 +516,39 @@
             inp.addEventListener('keydown', e => { if (e.key === 'Enter') save.onclick(); });
         });
     }
+    // ---------- questions you've seen lately (so practice races feel fresh) ----------
+    const SEEN_KEY = 'sr_seen_q', SEEN_MAX = 260;
+    function loadSeen() { try { return JSON.parse(localStorage.getItem(SEEN_KEY) || '[]'); } catch (e) { return []; } }
+    function rememberSeen() {
+        const shown = deck.slice(0, qIndex).map(x => x.qid).filter(Boolean);
+        if (!shown.length) return;
+        const list = loadSeen().filter(id => !shown.includes(id)).concat(shown).slice(-SEEN_MAX);
+        try { localStorage.setItem(SEEN_KEY, JSON.stringify(list)); } catch (e) {}
+    }
+
+    // ---------- your personal stats (this device) ----------
+    const STATS_KEY = 'sr_stats';
+    function loadStats() { try { return Object.assign({ races: 0, wins: 0, podiums: 0, best: null, bestStreak: 0, rare: 0, answers: 0 }, JSON.parse(localStorage.getItem(STATS_KEY) || '{}')); } catch (e) { return { races: 0, wins: 0, podiums: 0, best: null, bestStreak: 0, rare: 0, answers: 0 }; } }
+    function saveStats(st) { try { localStorage.setItem(STATS_KEY, JSON.stringify(st)); } catch (e) {} }
+    function renderStats() {
+        const st = loadStats(), el = $('sr-mystats');
+        if (!el) return;
+        if (!st.races) { el.innerHTML = '<span class="sr-ms-empty">Finish a race to start your stats</span>'; return; }
+        el.innerHTML = `<div><b>${st.best ? fmtTime(st.best) : '—'}</b><span>Fastest</span></div><div><b>${st.wins}</b><span>Wins</span></div>`
+            + `<div><b>${st.races}</b><span>Races</span></div><div><b>${st.bestStreak}</b><span>Best streak</span></div><div><b>${st.rare}</b><span>💎 Rare</span></div>`;
+    }
+    // returns true when this race is a new fastest time
+    function recordStats(place) {
+        const st = loadStats();
+        st.races++; if (place === 1) st.wins++; if (place <= 3) st.podiums++;
+        st.bestStreak = Math.max(st.bestStreak, bestStreak);
+        st.rare += answerLog.filter(e => e.rare).length; st.answers += rightN;
+        let pb = false;
+        if (TARGET === DAILY_TARGET && isFinite(me.finish) && (!st.best || me.finish < st.best)) { pb = !!st.best; st.best = Math.round(me.finish); }
+        saveStats(st); renderStats();
+        return pb;
+    }
+
     function renderCallsign() {
         const n = storedName();
         $('sr-callsign').innerHTML = n ? `Racing as <b>${esc(n)}</b> · <a id="sr-rename">change</a>` : `<a id="sr-rename">Set your callsign</a> to show up on the leaderboard`;
@@ -485,7 +613,7 @@
             isOfficial = !official;
             raceMode = isOfficial ? 'daily' : 'practice';
             raceSeed = isOfficial ? DAY : DAY + ':practice:' + Date.now();
-            deck = buildDeck(raceSeed);
+            deck = buildDeck(raceSeed, 'mixed', isOfficial ? null : new Set(loadSeen()));
             field = lineupData;
         }
         qIndex = 0; streak = 0; bestStreak = 0; attempts = 0; rightN = 0; landedBeforeMe = 0; answerLog = []; stalledUntil = 0;
@@ -544,10 +672,11 @@
     function renderSuggest() {
         const inp = $('sr-input');
         const typedSkip = SKIP_WORDS.includes(A.norm(inp.value));
-        suggestions = q && state === 'racing' && !typedSkip ? A.suggest(inp.value, q.pool, 5) : [];
+        // suggestions help with spelling but don't list answers: they start after 3 letters and show at most 3
+        suggestions = q && state === 'racing' && !typedSkip && A.norm(inp.value).replace(/ /g, '').length >= 3 ? A.suggest(inp.value, q.pool, 3) : [];
         hiIdx = 0;
         const exact = q ? A.match(inp.value, q.pool) : null;
-        if (exact) { suggestions = [exact].concat(suggestions.filter(s => s !== exact)).slice(0, 5); }
+        if (exact) { suggestions = [exact].concat(suggestions.filter(s => s !== exact)).slice(0, 3); }
         if (typedSkip) { $('sr-suggest').innerHTML = '<span class="sr-skip-hint">⏭ Press Enter to skip</span>'; return; }
         $('sr-suggest').innerHTML = suggestions.map((s, i) => `<button type="button" class="sr-chip${i === hiIdx ? ' hi' : ''}" data-i="${i}" role="option">${esc(s)}</button>`).join('');
     }
@@ -562,7 +691,7 @@
         if (state !== 'racing' || !q || now() < stalledUntil) return;
         const inp = $('sr-input');
         if (!chosen && SKIP_WORDS.includes(A.norm(inp.value))) return skip();
-        let pick = chosen || A.match(inp.value, q.pool) || (suggestions.length && A.norm(inp.value).length >= 2 ? suggestions[hiIdx] : null);
+        let pick = chosen || A.match(inp.value, q.pool) || (suggestions.length && A.norm(inp.value).length >= 3 ? suggestions[hiIdx] : null);
         if (!pick) {
             inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake');
             return;
@@ -656,6 +785,7 @@
             Room.leave(); return;
         }
         if (!confirm('Abort this mission? This race will not count.')) return;
+        rememberSeen();
         state = 'lobby'; showScreen('sr-lobby');
     }
 
@@ -702,6 +832,10 @@
         $('sr-res-streak').textContent = bestStreak;
         renderStandings();
         renderReview();
+        rememberSeen();
+        const pb = recordStats(place);
+        $('sr-res-pb').classList.toggle('hidden', !pb);
+        if (pb) setTimeout(() => { callout('⭐ PERSONAL BEST!', 'small gold'); SFX.rare(); }, 700);
         $('sr-review').classList.add('hidden'); $('sr-review-btn').textContent = `📋 Review your answers (${answerLog.length})`;
         const inRoom = raceMode === 'room';
         $('sr-res-lb-title').classList.toggle('hidden', inRoom); $('sr-res-lb').classList.toggle('hidden', inRoom);
@@ -1576,7 +1710,7 @@
 
     (async function init() {
         $('sr-date').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
-        setSoundBtn(); renderCallsign();
+        setSoundBtn(); renderCallsign(); renderStats();
         try { await loadMaps(); } catch (e) { $('sr-start-btn').textContent = 'MAPS FAILED TO LOAD'; console.error(e); return; }
         await buildLineup();
         updateStartBtn();

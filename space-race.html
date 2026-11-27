@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
-    <link rel="stylesheet" href="space-race.css?v=7">
+    <link rel="stylesheet" href="space-race.css?v=8">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -29,6 +29,8 @@
                 <li>🤷 Type <b>idk</b> to skip</li>
                 <li>☄️ Misses stall you</li>
             </ul>
+            <div class="sr-lineup-title">YOUR STATS</div>
+            <div class="sr-mystats" id="sr-mystats"></div>
 
             <div class="sr-lineup-title">TODAY'S LINEUP</div>
             <div class="sr-lineup" id="sr-lineup">
@@ -118,6 +120,7 @@
         <div class="sr-res-card">
             <div class="sr-res-medal" id="sr-res-medal">🥇</div>
             <div class="sr-res-title" id="sr-res-title">1ST PLACE!</div>
+            <div class="sr-res-pb hidden" id="sr-res-pb">⭐ NEW PERSONAL BEST!</div>
             <div class="sr-res-sub" id="sr-res-sub"></div>
             <div class="sr-res-stats">
                 <div><span id="sr-res-time">0:00.0</span><label>Time</label></div>
@@ -158,6 +161,6 @@
 </div>
 
 <script src="space-race-answers.js?v=1"></script>
-<script src="space-race.js?v=8"></script>
+<script src="space-race.js?v=9"></script>
 </body>
 </html>

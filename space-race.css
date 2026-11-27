@@ -343,3 +343,13 @@ body {
 .sr-rv-ans { display: inline-block; padding: 0 7px; margin: 0 3px 3px 0; border-radius: 999px; background: rgba(148,163,184,.12); line-height: 1.6; }
 .sr-rv-ans.rare { background: rgba(202,138,4,.18); color: #fde68a; }
 .sr-rv-ans.you { outline: 2px solid #38bdf8; color: #fff; font-weight: 700; }
+
+/* ---------- your stats (lobby) + personal best badge ---------- */
+.sr-mystats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 12px; }
+.sr-mystats div { background: rgba(2,6,23,.6); border: 1px solid rgba(56,189,248,.18); border-radius: 10px; padding: 5px 2px; }
+.sr-mystats b { display: block; font-family: 'Orbitron', sans-serif; font-size: .82rem; color: #7dd3fc; }
+.sr-mystats span { font-size: .66rem; color: var(--muted); }
+.sr-ms-empty { grid-column: 1 / -1; color: var(--muted); font-size: .85rem; padding: 4px; }
+.sr-res-pb { display: inline-block; margin-top: 8px; padding: 4px 12px; border-radius: 999px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: .75rem; letter-spacing: 1.5px;
+    color: #1c1917; background: linear-gradient(90deg, #fde047, #f59e0b); box-shadow: 0 0 22px rgba(250,204,21,.6); animation: srAlert .6s ease 3; }
+.sr-res-pb.hidden { display: none; }
