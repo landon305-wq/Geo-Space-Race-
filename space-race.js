@@ -86,7 +86,30 @@
         boost: () => { tone(440, 0.5, 'sawtooth', 0.06, 900); noise(0.6, 0.12, 3000, 200); },
         wrong: () => { tone(160, 0.35, 'sawtooth', 0.13, -90); noise(0.45, 0.25, 600, 60); },
         key: () => tone(1800 + Math.random() * 400, 0.02, 'square', 0.015),
-        land: () => { noise(0.8, 0.15, 900, 80); SFX.victory(0.25); },
+        land: (first) => { noise(0.8, 0.15, 900, 80); if (first) SFX.firstPlace(0.25); else SFX.victory(0.25); },
+        // original "stage clear" fanfare for landing 1st (~7 seconds)
+        firstPlace: (d = 0) => {
+            const st = 0.1;
+            SFX.until = performance.now() + (d + 70 * st) * 1000;
+            song([['C5',1],['E5',1],['G5',1],['C6',2],['G5',1], ['A4',1],['C5',1],['E5',1],['A5',2],['E5',1],
+                  ['F4',1],['A4',1],['C5',1],['F5',2],['A5',1], ['G4',1],['B4',1],['D5',1],['G5',2],['B5',1],
+                  ['C6',2],['B5',1],['C6',1],['E6',2],['D6',1],['C6',1],['A5',2],['G5',2],
+                  ['F5',1],['A5',1],['C6',1],['F6',2],['E6',1],['D6',2],['B5',2],['G5',2],
+                  ['C6',1],['D6',1],['E6',1],['F6',1],['G6',1],[0,1],['G6',1],['G6',1],
+                  ['G5',1],['E5',1],['G5',1],['B5',1],['C6',10]], st, 'square', 0.055, d);
+            song([['E4',6],['C4',6],['A4',6],['B4',6], ['E5',6],['A4',6], ['A4',6],['B4',6],
+                  ['B4',5],[0,1],['B4',2],['D5',4], ['E5',10]], st, 'triangle', 0.06, d);
+            song([['G5',10]], st, 'triangle', 0.05, d + 60 * st);
+            song([['C3',3],['G2',3],['A2',3],['E2',3],['F2',3],['C3',3],['G2',3],['D3',3],
+                  ['C3',2],['G2',2],['C3',2],['F2',2],['C3',2],['F2',2],
+                  ['F2',2],['C3',2],['F2',2],['G2',2],['D3',2],['G2',2],
+                  ['G2',1],['G2',1],['G2',1],['G2',1],['G2',1],[0,1],['G2',1],['G2',1],['G2',4],
+                  ['C3',10]], st, 'triangle', 0.14, d);
+            for (let i = 0; i < 56; i += 2) noise(0.09, i % 4 ? 0.05 : 0.09, i % 4 ? 6000 : 3500, 500, d + i * st);
+            [56, 57, 58, 59].forEach(i => noise(0.1, 0.09, 5000, 500, d + i * st));
+            noise(1.6, 0.08, 8000, 2000, d + 60 * st);
+            [1568, 2093, 2637, 3136, 4186].forEach((f, i) => tone(f, 0.3, 'triangle', 0.035, 0, d + 61 * st + i * 0.08));
+        },
         // original touchdown fanfare (~3 seconds)
         victory: (d = 0) => {
             const st = 0.12;
@@ -992,7 +1015,7 @@
         $('sr-suggest').innerHTML = '';
         $('sr-prompt').innerHTML = '🌕 <b>TOUCHDOWN!</b>';
         document.querySelector('.sr-hud').classList.add('fade');
-        SFX.land();
+        SFX.land(!racers.some(rc => rc !== me && rc.finished));
         callout('TOUCHDOWN!', 'small gold');
         setTimeout(showResults, 3300);
     }
@@ -1053,7 +1076,7 @@
         rememberSeen();
         const pb = recordStats(place);
         $('sr-res-pb').classList.toggle('hidden', !pb);
-        if (pb) setTimeout(() => { callout('⭐ PERSONAL BEST!', 'small gold'); SFX.newBest(); }, 700);
+        if (pb) { setTimeout(() => callout('⭐ PERSONAL BEST!', 'small gold'), 700); setTimeout(() => SFX.newBest(), Math.max(700, (SFX.until || 0) - performance.now() + 200)); }
         $('sr-review').classList.add('hidden'); $('sr-review-btn').textContent = `📋 Review your answers (${answerLog.length})`;
         const inRoom = raceMode === 'room';
         $('sr-res-lb-title').classList.toggle('hidden', inRoom); $('sr-res-lb').classList.toggle('hidden', inRoom);
