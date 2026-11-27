@@ -213,7 +213,7 @@
             ['sushi', 'Japan', 1], ['pizza and pasta', 'Italy', 1], ['tacos', 'Mexico', 1], ['croissants', 'France', 1], ['paella', 'Spain', 1], ['kimchi', 'South Korea', 1], ['pad thai', 'Thailand', 1], ['pho', 'Vietnam', 1], ['poutine', 'Canada', 1], ['fish and chips', 'United Kingdom', 1], ['goulash', 'Hungary', 2], ['pierogi', 'Poland', 2], ['bratwurst and pretzels', 'Germany', 1], ['moussaka', 'Greece', 2], ['butter chicken', 'India', 1], ['dim sum', 'China', 1], ['Peking duck', 'China', 1], ['ceviche', 'Peru', 2], ['feijoada', 'Brazil', 2], ['Wiener schnitzel', 'Austria', 2], ['cheese fondue', 'Switzerland', 1], ['Belgian waffles', 'Belgium', 1], ['döner kebab', 'Turkey', 2], ['tagine', 'Morocco', 2], ['injera', 'Ethiopia', 2], ['gelato', 'Italy', 1], ['ramen', 'Japan', 1], ['bulgogi', 'South Korea', 2], ['haggis', 'United Kingdom', 2], ['smørrebrød', 'Denmark', 3], ['Swedish meatballs', 'Sweden', 1], ['Irish stew', 'Ireland', 1], ['jerk chicken', 'Jamaica', 2], ['chimichurri', 'Argentina', 2], ['pastel de nata (custard tarts)', 'Portugal', 2], ['tiramisu', 'Italy', 1], ['borscht', 'Ukraine', 3], ['Vegemite on toast', 'Australia', 1], ['nasi goreng', 'Indonesia', 3], ['adobo', 'Philippines', 3], ['bobotie', 'South Africa', 3], ['biltong', 'South Africa', 3], ['churros', 'Spain', 1], ['baguettes', 'France', 1], ['tandoori chicken', 'India', 2]
         ],
         wClub: [
-            ['Real Madrid', 'Spain', 1], ['FC Barcelona', 'Spain', 1], ['Manchester United', 'United Kingdom', 1], ['Liverpool FC', 'United Kingdom', 1], ['Arsenal', 'United Kingdom', 1], ['Chelsea', 'United Kingdom', 1], ['Bayern Munich', 'Germany', 1], ['Borussia Dortmund', 'Germany', 2], ['Juventus', 'Italy', 1], ['AC Milan', 'Italy', 1], ['Inter Milan', 'Italy', 1], ['Paris Saint-Germain', 'France', 1], ['Ajax', 'Netherlands', 2], ['Benfica', 'Portugal', 2], ['FC Porto', 'Portugal', 2], ['Celtic', 'United Kingdom', 2], ['Boca Juniors', 'Argentina', 2], ['River Plate', 'Argentina', 2], ['Galatasaray', 'Turkey', 2], ['Flamengo', 'Brazil', 2], ["Santos (Pelé's old club)", 'Brazil', 2], ["Al-Nassr (Cristiano Ronaldo's club)", 'Saudi Arabia', 2], ["Inter Miami (Messi's club)", 'United States', 1], ['Atlético Madrid', 'Spain', 1], ['Napoli', 'Italy', 2], ['AS Roma', 'Italy', 1], ['Olympique de Marseille', 'France', 2]
+            ['Real Madrid', 'Spain', 1], ['FC Barcelona', 'Spain', 1], ['Manchester United', 'United Kingdom', 1], ['Liverpool FC', 'United Kingdom', 1], ['Arsenal', 'United Kingdom', 1], ['Chelsea', 'United Kingdom', 1], ['Bayern Munich', 'Germany', 1], ['Borussia Dortmund', 'Germany', 2], ['Juventus', 'Italy', 1], ['AC Milan', 'Italy', 1], ['Inter Milan', 'Italy', 1], ['Paris Saint-Germain', 'France', 1], ['Ajax', 'Netherlands', 2], ['Benfica', 'Portugal', 2], ['FC Porto', 'Portugal', 2], ['Celtic', 'United Kingdom', 2], ['Galatasaray', 'Turkey', 2], ["Inter Miami (Messi's club)", 'United States', 1], ['Atlético Madrid', 'Spain', 1], ['Napoli', 'Italy', 2], ['AS Roma', 'Italy', 1], ['Olympique de Marseille', 'France', 2]
         ],
         wAnimal: [
             ['kangaroos', 'Australia', 1], ['giant pandas', 'China', 1], ['kiwi birds', 'New Zealand', 1], ['lemurs', 'Madagascar', 1], ['Komodo dragons', 'Indonesia', 1], ['koalas', 'Australia', 1], ['platypuses', 'Australia', 2], ['Galápagos giant tortoises', 'Ecuador', 2], ['Tasmanian devils', 'Australia', 2], ['quokkas', 'Australia', 3]
@@ -229,6 +229,36 @@
         ],
         usPeople: [
             ['Abraham Lincoln', 'Kentucky', 2], ['George Washington', 'Virginia', 1], ['Elvis Presley', 'Mississippi', 2], ['Martin Luther King Jr.', 'Georgia', 1], ['Barack Obama', 'Hawaii', 1], ['Dolly Parton', 'Tennessee', 1], ['Taylor Swift', 'Pennsylvania', 2], ['Beyoncé', 'Texas', 1], ['Oprah Winfrey', 'Mississippi', 3], ['Mark Twain', 'Missouri', 2], ['Amelia Earhart', 'Kansas', 3], ['Neil Armstrong', 'Ohio', 2], ['LeBron James', 'Ohio', 1], ['Babe Ruth', 'Maryland', 3], ['Muhammad Ali', 'Kentucky', 2], ['Walt Disney', 'Illinois', 3], ['Steve Jobs', 'California', 1], ['Prince', 'Minnesota', 2], ['Bob Dylan', 'Minnesota', 3], ['Jimi Hendrix', 'Washington', 3], ['Kurt Cobain', 'Washington', 3], ['Louis Armstrong', 'Louisiana', 2], ['Johnny Cash', 'Arkansas', 3], ['Thomas Jefferson', 'Virginia', 2], ['John F. Kennedy', 'Massachusetts', 1], ['Helen Keller', 'Alabama', 3], ['Rosa Parks', 'Alabama', 2], ['Harriet Tubman', 'Maryland', 3], ['Frederick Douglass', 'Maryland', 3], ['Sitting Bull', 'South Dakota', 3], ['Davy Crockett', 'Tennessee', 3], ['Ernest Hemingway', 'Illinois', 3], ['Willie Nelson', 'Texas', 2], ['Jimmy Carter', 'Georgia', 2], ['Ronald Reagan', 'Illinois', 3], ['Bill Clinton', 'Arkansas', 2]
+        ],
+        wWW2: [
+            ['Which country did <b>Adolf Hitler</b> lead?', 'Germany', 1], ['Which country <b>attacked Pearl Harbor</b> in 1941?', 'Japan', 1],
+            ['The <b>D-Day</b> landings in 1944 were on the beaches of which country?', 'France', 1], ['<b>Winston Churchill</b> was prime minister of which country?', 'United Kingdom', 1],
+            ['<b>Benito Mussolini</b> led which country?', 'Italy', 1], ['Germany\'s invasion of which country in September 1939 <b>started WWII in Europe</b>?', 'Poland', 1],
+            ['Anne Frank wrote her famous diary while hiding in which country?', 'Netherlands', 2], ['The <b>Battle of the Bulge</b> was fought mostly in which country?', 'Belgium', 3],
+            ['<b>Iwo Jima</b> and <b>Okinawa</b> belong to which country?', 'Japan', 2], ['Which neutral country, famous for banks and the Alps, <b>stayed out of WWII</b>?', 'Switzerland', 2],
+            ['Which modern country was the biggest part of the <b>Soviet Union</b>, led by Joseph Stalin?', 'Russia', 2], ['<b>Charles de Gaulle</b> led the Free forces of which country?', 'France', 2],
+            ['<b>Emperor Hirohito</b> ruled which country during WWII?', 'Japan', 2], ['The <b>Dunkirk evacuation</b> (1940) rescued troops from beaches in which country?', 'France', 2],
+            ['The <b>Battle of Britain</b> was fought in the skies over which country?', 'United Kingdom', 1], ['The <b>Auschwitz</b> camp memorial is in which present-day country?', 'Poland', 2],
+            ['Which European country was <b>split into East and West</b> after WWII?', 'Germany', 1], ['Which country built the first atomic bombs in the <b>Manhattan Project</b>?', 'United States', 1],
+            ['General MacArthur promised <b>"I shall return"</b> to which country?', 'Philippines', 3], ['Allied code-breakers cracked which country\'s <b>Enigma</b> code?', 'Germany', 2],
+            ['WWII code-breakers worked in secret at <b>Bletchley Park</b> in which country?', 'United Kingdom', 3], ['Germany, Italy and which country were the main <b>Axis</b> powers?', 'Japan', 1]
+        ],
+        usWW2: [
+            ['The <b>attack on Pearl Harbor</b> happened in which state?', 'Hawaii', 1], ['The first atomic bomb test (<b>Trinity</b>) was in which state?', 'New Mexico', 2],
+            ['<b>Oak Ridge</b>, a secret WWII atomic city, is in which state?', 'Tennessee', 3], ['The <b>Hanford</b> site that made plutonium in WWII is in which state?', 'Washington', 3],
+            ['The <b>National WWII Museum</b> is in which state?', 'Louisiana', 2], ['<b>Dwight D. Eisenhower</b>, D-Day\'s commander, grew up in which state?', 'Kansas', 3],
+            ['Japanese <b>balloon bombs</b> killed six people in 1945 in which state?', 'Oregon', 3], ['The <b>Pentagon</b>, built during WWII, is in which state?', 'Virginia', 2],
+            ['General <b>George S. Patton</b> was born in which state?', 'California', 3], ['President <b>Franklin D. Roosevelt</b> was born in which state?', 'New York', 2],
+            ['President <b>Harry Truman</b>, who ended WWII, was from which state?', 'Missouri', 2], ['The huge <b>Willow Run</b> bomber plant ("Rosie the Riveter") was in which state?', 'Michigan', 3],
+            ['The <b>Manzanar</b> camp, where Japanese Americans were held, is in which state?', 'California', 3]
+        ],
+        wOly: [
+            ['Which country has won the <b>most Summer Olympic medals</b> of all time?', 'United States', 1], ['The ancient <b>Olympic Games</b> began in which country?', 'Greece', 1],
+            ['Which country tops the all-time <b>Winter Olympics</b> medal table?', 'Norway', 2], ['Which country won the <b>most gold medals</b> at the Tokyo 2020 Olympics?', 'United States', 2],
+            ['Which country did swimmer <b>Michael Phelps</b> compete for?', 'United States', 1], ['Which country is gymnast <b>Nadia Comăneci</b>, the first to score a perfect 10, from?', 'Romania', 3],
+            ['Which country hosted the <b>first Winter Olympics</b> in 1924?', 'France', 3], ['Sprinter <b>Usain Bolt</b> won his 8 Olympic golds for which country?', 'Jamaica', 1],
+            ['Which country did gymnast <b>Simone Biles</b> compete for?', 'United States', 1], ['Distance runner <b>Mo Farah</b> won Olympic golds for which country?', 'United Kingdom', 2],
+            ['Which country invented <b>judo</b>, now an Olympic sport?', 'Japan', 2], ['<b>Taekwondo</b> comes from which country?', 'South Korea', 2], ['<b>Curling</b> was invented in which present-day country?', 'United Kingdom', 3]
         ]
     };
     const CLUE_INFO = {
@@ -245,7 +275,10 @@
         wCompany: { map: 'world', pool: 'countries', tag: 'WORLD · BRANDS', ask: c => `Which country does <b>${esc(c)}</b> come from?` },
         wPeople: { map: 'world', pool: 'countries', tag: 'WORLD · FAMOUS PEOPLE', ask: c => `Which country is <b>${esc(c)}</b> from?` },
         usCompany: { map: 'us', pool: 'states', tag: 'USA · BRANDS', ask: c => `Which state is <b>${esc(c)}</b> based in?` },
-        usPeople: { map: 'us', pool: 'states', tag: 'USA · FAMOUS PEOPLE', ask: c => `In which state was <b>${esc(c)}</b> born?` }
+        usPeople: { map: 'us', pool: 'states', tag: 'USA · FAMOUS PEOPLE', ask: c => `In which state was <b>${esc(c)}</b> born?` },
+        wWW2: { map: 'world', pool: 'countries', tag: 'WORLD · WWII', ask: c => c },
+        usWW2: { map: 'us', pool: 'states', tag: 'USA · WWII', ask: c => c },
+        wOly: { map: 'world', pool: 'countries', tag: 'WORLD · OLYMPICS', ask: c => c }
     };
     const clueList = (type, maxLevel) => CLUES[type].filter(c => c[2] <= maxLevel);
 
@@ -410,7 +443,12 @@
         { id: 'northSouth', map: 'us', lvl: 1, ask: 'Name a state with <b>North</b> or <b>South</b> in its name', all: ['North Carolina', 'North Dakota', 'South Carolina', 'South Dakota'], common: ['North Carolina', 'North Dakota', 'South Carolina', 'South Dakota'] },
         { id: 'newState', map: 'us', lvl: 1, ask: 'Name a state with <b>New</b> in its name', all: ['New York', 'New Jersey', 'New Mexico', 'New Hampshire'], common: ['New York', 'New Jersey', 'New Mexico', 'New Hampshire'] },
         { id: 'namedPerson', map: 'us', lvl: 3, ask: 'Name a state <b>named after a person</b>', all: ['Washington', 'Virginia', 'West Virginia', 'Georgia', 'Maryland', 'Pennsylvania', 'Louisiana', 'North Carolina', 'South Carolina', 'Delaware', 'New York'], common: ['Washington', 'Virginia', 'Georgia', 'Pennsylvania'] },
-        { id: 'doubleS', map: 'us', lvl: 2, ask: 'Name a state with a double <b>SS</b> in its name', all: ['Mississippi', 'Massachusetts', 'Missouri', 'Tennessee'], common: ['Mississippi', 'Massachusetts', 'Missouri', 'Tennessee'] }
+        { id: 'doubleS', map: 'us', lvl: 2, ask: 'Name a state with a double <b>SS</b> in its name', all: ['Mississippi', 'Massachusetts', 'Missouri', 'Tennessee'], common: ['Mississippi', 'Massachusetts', 'Missouri', 'Tennessee'] },
+        { id: 'axis', map: 'world', lvl: 1, ask: 'Name one of the three main <b>Axis powers</b> of WWII', all: ['Germany', 'Italy', 'Japan'], common: ['Germany', 'Italy', 'Japan'] },
+        { id: 'big3', map: 'world', lvl: 1, ask: 'Name one of the WWII Allied <b>"Big Three"</b> (count the Soviet Union as Russia)', all: ['United States', 'United Kingdom', 'Russia'], common: ['United States', 'United Kingdom', 'Russia'] },
+        { id: 'ww2neutral', map: 'world', lvl: 2, ask: 'Name a European country that stayed <b>neutral in WWII</b>', all: ['Switzerland', 'Sweden', 'Ireland', 'Spain', 'Portugal'], common: ['Switzerland', 'Sweden'] },
+        { id: 'koreaSplit', map: 'world', lvl: 1, ask: 'Name one of the two countries <b>Korea was split into</b> after WWII', all: ['North Korea', 'South Korea'], common: ['North Korea', 'South Korea'] },
+        { id: 'olyHostAsia', map: 'world', lvl: 2, ask: 'Name an <b>Asian</b> country that has hosted the Olympics', all: ['Japan', 'South Korea', 'China', 'Russia'], common: ['Japan', 'South Korea', 'China'] }
     ];
     // "Name a state/country that starts with ..." (common = the well-known ones)
     // which answers to "starts with / ends with" questions count as RARE (double distance)
@@ -474,26 +512,63 @@
         };
         mk.usEnd = e => endQ('usEnd', e);
         mk.wEnd = e => endQ('wEnd', e);
-        const TYPE_MAP = { state: 'us', country: 'world', stateCap: 'us', countryCap: 'world', capState: 'us', usMulti: 'us', wMulti: 'world', usLetter: 'us', wLetter: 'world', usEnd: 'us', wEnd: 'world' };
+        // ---- extra banks (space-race-extra.js): Elimination-mode questions + city questions ----
+        const X = window.SR_EXTRA || { elim: [], usBig: {}, usBigEasy: [], wBig: {}, wBigEasy: [], cityTop: [], cityClue: [] };
+        const SIDE = m => m === 'us' ? 'USA' : 'WORLD';
+        // Elimination questions: every place on the original answer list counts
+        const elimItems = X.elim.map(([map, prompt, answers, lvl, cat]) => ({ id: 'E:' + prompt, map, prompt, answers, lvl, cat }));
+        const mkElim = (type, e) => {
+            const isUS = e.map === 'us';
+            const common = e.answers.filter(n => !isRarePlace(n, isUS));
+            const qq = mkMulti(type, { id: e.id, map: e.map, ask: esc(e.prompt), all: e.answers, common: common.length ? common : e.answers });
+            qq.tag = SIDE(e.map) + ' · ' + String(e.cat || 'Trivia').toUpperCase();
+            return qq;
+        };
+        mk.elimUS = e => mkElim('elimUS', e);
+        mk.elimW = e => mkElim('elimW', e);
+        // city questions: the answer is a city; the map lights up the state or country it's in
+        const placeOk = (map, place) => !!(map === 'us' ? GEO.stateBy : GEO.worldBy)[place];
+        const mkCity = (type, map, region, prompt, answers, tag) => {
+            const multi = answers.length > 1;
+            return { type, city: true, multi, answers: multi ? answers : undefined, rare: multi ? [] : undefined, examples: answers.slice(0, 2),
+                answer: answers[0], target: placeOk(map, region) ? region : null, clue: !placeOk(map, region), region,
+                pool: 'cities', map, prompt, tag: SIDE(map) + ' · ' + (tag || 'CITIES') };
+        };
+        mk.cityBigUS = st => mkCity('cityBigUS', 'us', st, `What is the <b>biggest city</b> in <b>${esc(st)}</b>?`, [X.usBig[st]]);
+        mk.cityBigW = c => mkCity('cityBigW', 'world', c, `What is the <b>biggest city</b> in <b>${esc(c)}</b>?`, [X.wBig[c]]);
+        const cityTops = X.cityTop.map(([map, region, prompt, answers, lvl]) => ({ id: 'T:' + prompt, map, region, prompt, answers, lvl }));
+        const cityClues = X.cityClue.map(([map, region, prompt, answers, lvl, tag]) => ({ id: 'C:' + prompt, map, region, prompt, answers, lvl, tag }));
+        mk.cityTopUS = t => mkCity('cityTopUS', t.map, t.region, t.prompt, t.answers);
+        mk.cityTopW = t => mkCity('cityTopW', t.map, t.region, t.prompt, t.answers);
+        mk.cityClueUS = c => mkCity('cityClueUS', c.map, c.region, c.prompt, c.answers, c.tag === 'LANDMARK' || c.tag === 'NICKNAME' ? 'CITIES' : c.tag);
+        mk.cityClueW = c => mkCity('cityClueW', c.map, c.region, c.prompt, c.answers, c.tag === 'LANDMARK' || c.tag === 'NICKNAME' ? 'CITIES' : c.tag);
+        const byLvl = (list, map, lvl) => list.filter(x => x.map === map && x.lvl <= lvl);
+        const usBigStates = lvl => Object.keys(X.usBig).filter(st => lvl > 1 || X.usBigEasy.includes(st));
+        const wBigCountries = lvl => Object.keys(X.wBig).filter(c => lvl > 1 || X.wBigEasy.includes(c));
+        const extras = lvl => [['elimUS', byLvl(elimItems, 'us', lvl)], ['elimUS', byLvl(elimItems, 'us', lvl)], ['elimW', byLvl(elimItems, 'world', lvl)], ['elimW', byLvl(elimItems, 'world', lvl)],
+            ['cityBigUS', usBigStates(lvl)], ['cityBigW', wBigCountries(lvl)], ['cityTopUS', byLvl(cityTops, 'us', lvl)], ['cityTopW', byLvl(cityTops, 'world', lvl)],
+            ['cityClueUS', byLvl(cityClues, 'us', lvl)], ['cityClueW', byLvl(cityClues, 'world', lvl)], ['cityClueW', byLvl(cityClues, 'world', lvl)]];
+        const TYPE_MAP = { state: 'us', country: 'world', stateCap: 'us', countryCap: 'world', capState: 'us', usMulti: 'us', wMulti: 'world', usLetter: 'us', wLetter: 'world', usEnd: 'us', wEnd: 'world',
+            elimUS: 'us', elimW: 'world', cityBigUS: 'us', cityBigW: 'world', cityTopUS: 'us', cityTopW: 'world', cityClueUS: 'us', cityClueW: 'world' };
         Object.keys(CLUE_INFO).forEach(t => { TYPE_MAP[t] = CLUE_INFO[t].map; });
         const mapOf = type => TYPE_MAP[type];
-        const keyOf = (type, item) => item && item.id ? 'M:' + item.id : typeof item === 'string' && /Letter|End/.test(type) ? 'L:' + type + item : (mapOf(type) === 'us' ? 'US:' : 'W:') + (Array.isArray(item) ? item[1] : item);
+        const keyOf = (type, item) => /^city/.test(type) ? 'CITY:' + (typeof item === 'string' ? (type === 'cityBigUS' ? X.usBig[item] : X.wBig[item]) : item.answers[0]) : item && item.id ? 'M:' + item.id : typeof item === 'string' && /Letter|End/.test(type) ? 'L:' + type + item : (mapOf(type) === 'us' ? 'US:' : 'W:') + (Array.isArray(item) ? item[1] : item);
         // skip clues that give the answer away ("the Kentucky Derby" -> Kentucky)
         const clues = (lvl, types) => types.map(t => [t, clueList(t, lvl).filter(([c, ans]) => (CLUE_INFO[t].map === 'us' ? A.STATES : A.COUNTRIES).includes(ans) && !A.norm(c).includes(A.norm(ans)))]);
         const multis = (map, lvl) => MULTI.filter(m => m.map === map && m.lvl <= lvl);
-        const US_CLUES = ['usNick', 'usCity', 'usLandmark', 'usFood', 'usTeam', 'usCompany', 'usPeople'], W_CLUES = ['wLandmark', 'wCity', 'wFood', 'wClub', 'wAnimal', 'wCompany', 'wPeople'];
+        const US_CLUES = ['usNick', 'usCity', 'usLandmark', 'usFood', 'usTeam', 'usCompany', 'usPeople', 'usWW2'], W_CLUES = ['wLandmark', 'wCity', 'wFood', 'wClub', 'wAnimal', 'wCompany', 'wPeople', 'wWW2', 'wOly'];
         const knownCountries = EASY_COUNTRIES.concat(MEDIUM_COUNTRIES);
         // weights: map questions x2, many-answer questions x2, everything else x1
         const tiers = [
             { count: 5, pick: [['state', EASY_STATES], ['state', EASY_STATES], ['country', EASY_COUNTRIES], ['country', EASY_COUNTRIES], ['stateCap', EASY_STATE_CAPS], ['countryCap', EASY_COUNTRY_CAPS],
                 ['usMulti', multis('us', 1)], ['wMulti', multis('world', 1)], ['wMulti', multis('world', 1)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS]]
-                .concat(clues(1, US_CLUES), clues(1, W_CLUES)) },
+                .concat(clues(1, US_CLUES), clues(1, W_CLUES), extras(1)) },
             { count: 8, pick: [['state', allStates], ['state', allStates], ['country', knownCountries], ['country', MEDIUM_COUNTRIES], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates],
                 ['usMulti', multis('us', 2)], ['usMulti', multis('us', 2)], ['wMulti', multis('world', 2)], ['wMulti', multis('world', 2)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS], ['usEnd', US_ENDS], ['wEnd', WORLD_ENDS]]
-                .concat(clues(2, US_CLUES), clues(2, W_CLUES)) },
+                .concat(clues(2, US_CLUES), clues(2, W_CLUES), extras(2)) },
             { count: 27, pick: [['state', hardStates], ['state', allStates], ['country', MEDIUM_COUNTRIES], ['country', knownCountries], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates],
                 ['usMulti', multis('us', 3)], ['usMulti', multis('us', 3)], ['wMulti', multis('world', 3)], ['wMulti', multis('world', 3)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS], ['usEnd', US_ENDS], ['wEnd', WORLD_ENDS]]
-                .concat(clues(3, US_CLUES), clues(2, W_CLUES)) }
+                .concat(clues(3, US_CLUES), clues(2, W_CLUES), extras(3)) }
         ];
         // USA-only or World-only rooms keep just those question types
         if (set === 'usa' || set === 'world') tiers.forEach(tr => { tr.pick = tr.pick.filter(([type]) => mapOf(type) === (set === 'usa' ? 'us' : 'world')); });
@@ -1052,6 +1127,12 @@
     function revealOnMap() {
         if (!view || !q) return;
         // after a miss, light up the right place (for clue questions too)
+        if (q.city) {
+            // city questions: the state or country stays lit (fly to it if it wasn't shown)
+            if (q.region && !q.target && (q.map === 'us' ? GEO.stateBy : GEO.worldBy)[q.region]) setMapView({ map: q.map, target: q.region });
+            view.reveal = view.targetPath; view.revealAt = now();
+            return;
+        }
         if (q.multi) {
             // many-answer questions: light up every right answer on the whole map
             const by = q.map === 'us' ? GEO.stateBy : GEO.worldBy;
