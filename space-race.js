@@ -1100,10 +1100,10 @@
         el.innerHTML = `<div class="sr-cash-earn">💰 +${SRGarage.money(res.base)}<span>${me.dnf ? 'last place' : ordinal(place) + ' place'}</span></div>`
             + (res.bonus ? `<div class="sr-cash-earn bonus">🎁 +${SRGarage.money(res.bonus)}<span>first race today</span></div>` : '')
             + `<div class="sr-cash-total">Wallet: <b>${SRGarage.money(res.cash)}</b></div>`
-            + (un.length ? `<div class="sr-cash-unlock">🏅 UNLOCKED: ${un.map(i => `<b>${esc(i.name)}</b>`).join(', ')}! <a href="#" id="sr-res-hangar">Equip in the Hangar</a></div>` : '');
+            + (un.length ? `<div class="sr-cash-unlock">${un.some(i => i.legend) ? '★ LEGENDARY' : '🏅'} UNLOCKED: ${un.map(i => `<b>${esc(i.name)}</b>`).join(', ')}! <a href="#" id="sr-res-hangar">Equip in the Hangar</a></div>` : '');
         el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
         const hl = $('sr-res-hangar'); if (hl) hl.onclick = ev => { ev.preventDefault(); SRGarage.open('hangar'); };
-        if (un.length) setTimeout(() => { callout('🏅 UNLOCKED!', 'small gold'); SFX.rare(); }, 1500);
+        if (un.length) setTimeout(() => { callout(un.some(i => i.legend) ? '★ LEGENDARY!' : '🏅 UNLOCKED!', 'small gold'); if (un.some(i => i.legend)) SFX.newBest(); else SFX.rare(); }, 1500);
         renderWallet();
     }
     const ordinal = n => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
@@ -1394,6 +1394,175 @@
 
     // skins and trails come from space-race-garage.js (SRGarage.SKINS / TRAILS)
     const DEFAULT_SKIN = { shape: 'classic', body: ['#ffffff', '#cbd5e1', '#64748b'], accent: null, win: '#0ea5e9' };
+    function bodyPath(c, shape, tail) {
+        c.beginPath();
+        if (shape === 'sleek') { c.moveTo(-15, -4.5); c.lineTo(6, -5.5); c.quadraticCurveTo(24, -3.5, 31, 0); c.quadraticCurveTo(24, 3.5, 6, 5.5); c.lineTo(-15, 4.5); }
+        else if (shape === 'heavy') { c.moveTo(tail, -7.5); c.lineTo(6, -8.5); c.quadraticCurveTo(22, -8, 24, 0); c.quadraticCurveTo(22, 8, 6, 8.5); c.lineTo(tail, 7.5); }
+        else if (shape === 'shuttle') { c.moveTo(-16, -5.5); c.lineTo(12, -5.5); c.quadraticCurveTo(23, -4.5, 25, 0); c.quadraticCurveTo(23, 4.5, 12, 5.5); c.lineTo(-16, 5.5); }
+        else { c.moveTo(-15, -6); c.lineTo(8, -6.5); c.quadraticCurveTo(22, -5, 26, 0); c.quadraticCurveTo(22, 5, 8, 6.5); c.lineTo(-15, 6); }
+        c.closePath();
+    }
+    // ★ LEGENDARY effects, drawn behind the rocket (back) or on top of it (front)
+    function legendFx(c, fx, layer, t, sk, shape, tail) {
+        const T = t / 1000;
+        if (fx === 'phoenix' && layer === 'back') {
+            // two flapping wings of fire
+            const flap = Math.sin(T * 7) * 0.35;
+            [-1, 1].forEach(side => {
+                c.save(); c.scale(1, side); c.rotate(-flap * 0.6);
+                const g = c.createLinearGradient(0, -2, -18, -30);
+                g.addColorStop(0, 'rgba(254,240,138,0.95)'); g.addColorStop(0.35, 'rgba(249,115,22,0.85)'); g.addColorStop(1, 'rgba(220,38,38,0)');
+                c.fillStyle = g; c.shadowColor = '#f97316'; c.shadowBlur = 14;
+                c.beginPath(); c.moveTo(8, -4);
+                c.bezierCurveTo(4, -18 - flap * 10, -10, -30 - flap * 14, -26, -28 - flap * 16);
+                c.bezierCurveTo(-18, -22, -20, -16, -30, -14 - flap * 6);
+                c.bezierCurveTo(-20, -10, -16, -8, -12, -5); c.closePath(); c.fill();
+                // feather lines
+                c.strokeStyle = 'rgba(254,249,195,0.6)'; c.lineWidth = 0.6; c.shadowBlur = 0;
+                for (let k = 0; k < 4; k++) { c.beginPath(); c.moveTo(2 - k * 4, -5); c.quadraticCurveTo(-6 - k * 5, -16 - k * 2 - flap * 8, -14 - k * 4, -22 - flap * 12 + k * 2); c.stroke(); }
+                c.restore();
+            });
+            // ember aura
+            const a = c.createRadialGradient(4, 0, 2, 4, 0, 34);
+            a.addColorStop(0, 'rgba(251,146,60,0.35)'); a.addColorStop(1, 'rgba(251,146,60,0)');
+            c.fillStyle = a; c.beginPath(); c.arc(4, 0, 34, 0, Math.PI * 2); c.fill();
+        }
+        if (fx === 'nova' && layer === 'back') {
+            // rotating star corona
+            c.save(); c.translate(4, 0); c.rotate(T * 0.8);
+            const pulse = 1 + 0.12 * Math.sin(T * 5);
+            for (let k = 0; k < 14; k++) {
+                c.rotate(Math.PI * 2 / 14);
+                const len = (k % 2 ? 22 : 34) * pulse;
+                const g = c.createLinearGradient(0, 0, len, 0);
+                g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(0.4, 'rgba(253,224,71,0.6)'); g.addColorStop(1, 'rgba(249,115,22,0)');
+                c.fillStyle = g; c.beginPath(); c.moveTo(4, -2.2); c.lineTo(len, 0); c.lineTo(4, 2.2); c.closePath(); c.fill();
+            }
+            c.restore();
+            const core = c.createRadialGradient(4, 0, 2, 4, 0, 26 * (1 + 0.1 * Math.sin(T * 5)));
+            core.addColorStop(0, 'rgba(255,255,255,0.9)'); core.addColorStop(0.35, 'rgba(253,224,71,0.45)'); core.addColorStop(1, 'rgba(253,224,71,0)');
+            c.fillStyle = core; c.beginPath(); c.arc(4, 0, 30, 0, Math.PI * 2); c.fill();
+        }
+        if (fx === 'blackhole') {
+            // accretion disk orbiting the rocket: back half behind, front half in front
+            c.save(); c.translate(3, 0);
+            const rot = T * 2.2;
+            const drawRing = (from, to) => {
+                for (let k = 0; k < 3; k++) {
+                    const rx = 30 - k * 4, ry = 9 - k * 1.5;
+                    c.strokeStyle = k === 0 ? 'rgba(251,146,60,0.85)' : k === 1 ? 'rgba(236,72,153,0.8)' : 'rgba(167,139,250,0.9)';
+                    c.lineWidth = 2.2 - k * 0.5; c.shadowColor = c.strokeStyle; c.shadowBlur = 10;
+                    c.beginPath(); c.ellipse(0, 0, rx, ry, -0.25, from + rot * (k % 2 ? -1 : 1) * 0, to); c.stroke();
+                }
+                // orbiting debris
+                c.shadowBlur = 0;
+                for (let k = 0; k < 10; k++) {
+                    const ang = rot + k * 0.63;
+                    const norm = ((ang % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+                    const front = norm < Math.PI;
+                    if ((layer === 'front') !== front) continue;
+                    const ex = Math.cos(ang) * 27, ey = Math.sin(ang) * 8;
+                    c.fillStyle = k % 3 ? '#fde68a' : '#f0abfc';
+                    c.beginPath(); c.arc(ex * Math.cos(-0.25) - ey * Math.sin(-0.25), ex * Math.sin(-0.25) + ey * Math.cos(-0.25), 1.1, 0, Math.PI * 2); c.fill();
+                }
+            };
+            if (layer === 'back') {
+                const lens = c.createRadialGradient(0, 0, 6, 0, 0, 40);
+                lens.addColorStop(0, 'rgba(76,29,149,0.55)'); lens.addColorStop(1, 'rgba(76,29,149,0)');
+                c.fillStyle = lens; c.beginPath(); c.arc(0, 0, 40, 0, Math.PI * 2); c.fill();
+                drawRing(Math.PI, Math.PI * 2);
+            } else drawRing(0, Math.PI);
+            c.restore();
+        }
+        if (fx === 'shield' && layer === 'front') {
+            // hexagon energy shield
+            const p = 0.55 + 0.45 * Math.sin(T * 3);
+            c.save(); c.translate(4, 0);
+            c.strokeStyle = `rgba(103,232,249,${0.35 + 0.35 * p})`; c.lineWidth = 0.8; c.shadowColor = '#22d3ee'; c.shadowBlur = 12;
+            c.beginPath(); c.ellipse(0, 0, 32, 20, 0, 0, Math.PI * 2); c.stroke();
+            c.clip();
+            c.lineWidth = 0.5; c.strokeStyle = `rgba(165,243,252,${0.12 + 0.2 * p})`; c.shadowBlur = 0;
+            const h = 5, sweep = ((T * 30) % 80) - 40;
+            for (let gx = -36; gx < 36; gx += h * 1.5) for (let gy = -24; gy < 24; gy += h * 1.73) {
+                const cx = gx, cy = gy + ((Math.round(gx / (h * 1.5)) % 2) ? h * 0.86 : 0);
+                c.globalAlpha = Math.abs(cx - sweep) < 8 ? 1 : 0.5;
+                c.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 3 * i; c[i ? 'lineTo' : 'moveTo'](cx + h * Math.cos(a), cy + h * Math.sin(a)); } c.closePath(); c.stroke();
+            }
+            c.restore();
+            // orbiting runes
+            c.save(); c.translate(4, 0);
+            for (let k = 0; k < 6; k++) { const a = T * 1.5 + k * Math.PI / 3; c.fillStyle = k % 2 ? '#fde68a' : '#a5f3fc'; c.shadowColor = c.fillStyle; c.shadowBlur = 8; c.beginPath(); c.arc(Math.cos(a) * 32, Math.sin(a) * 20, 1.3, 0, Math.PI * 2); c.fill(); }
+            c.restore();
+        }
+        if (fx === 'lightning' && layer === 'back') {
+            const p = 0.6 + 0.4 * Math.abs(Math.sin(T * 9));
+            const g = c.createRadialGradient(6, 0, 3, 6, 0, 34);
+            g.addColorStop(0, `rgba(250,204,21,${0.35 * p})`); g.addColorStop(0.5, `rgba(56,189,248,${0.18 * p})`); g.addColorStop(1, 'rgba(56,189,248,0)');
+            c.fillStyle = g; c.beginPath(); c.arc(6, 0, 34, 0, Math.PI * 2); c.fill();
+        }
+        if (fx === 'lightning' && layer === 'front') {
+            // crackling electric arcs that hug the hull, with little branches
+            c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+            const seed = Math.floor(t / 60);
+            const rnd = i => { const x = Math.sin(seed * 12.9898 + i * 78.233) * 43758.5453; return x - Math.floor(x); };
+            for (let a = 0; a < 4; a++) {
+                const side = a % 2 ? 1 : -1;
+                const pts = [];
+                let px = -14 + rnd(a) * 4;
+                while (px < 28) { pts.push([px, side * (5 + rnd(a * 31 + px) * 7)]); px += 3 + rnd(a * 7 + px) * 4; }
+                [[3.2, a < 2 ? 'rgba(56,189,248,0.35)' : 'rgba(250,204,21,0.3)'], [1.1, a < 2 ? '#e0f2fe' : '#fef9c3']].forEach(([w, col]) => {
+                    c.strokeStyle = col; c.lineWidth = w; c.shadowColor = a < 2 ? '#38bdf8' : '#facc15'; c.shadowBlur = w > 2 ? 0 : 12;
+                    c.beginPath(); pts.forEach(([qx, qy], i) => c[i ? 'lineTo' : 'moveTo'](qx, qy)); c.stroke();
+                });
+                const b = pts[Math.floor(rnd(a + 40) * pts.length)];   // one branch
+                if (b) { c.lineWidth = 0.7; c.beginPath(); c.moveTo(b[0], b[1]); c.lineTo(b[0] + 3 + rnd(a + 5) * 5, b[1] + side * (4 + rnd(a + 6) * 6)); c.stroke(); }
+            }
+            c.restore();
+        }
+        if (fx === 'aurora' && layer === 'back') {
+            // flowing aurora ribbons behind the rocket
+            c.save();
+            for (let r = 0; r < 3; r++) {
+                const hue = (T * 40 + r * 60) % 360;
+                const g = c.createLinearGradient(-60, 0, 0, 0);
+                g.addColorStop(0, `hsla(${hue},90%,60%,0)`); g.addColorStop(1, `hsla(${hue},90%,65%,0.55)`);
+                c.fillStyle = g; c.beginPath();
+                const off = (r - 1) * 6;
+                c.moveTo(-6, off - 2);
+                for (let x = -6; x >= -64; x -= 4) c.lineTo(x, off - 2 + Math.sin(x / 7 + T * 4 + r) * (3 + -x / 12));
+                for (let x = -64; x <= -6; x += 4) c.lineTo(x, off + 2 + Math.sin(x / 7 + T * 4 + r) * (3 + -x / 12) + 3);
+                c.closePath(); c.fill();
+            }
+            c.restore();
+        }
+        if (fx === 'galaxy' && layer === 'back') {
+            const aura = c.createRadialGradient(4, 0, 4, 4, 0, 40);
+            aura.addColorStop(0, 'rgba(192,38,211,0.4)'); aura.addColorStop(0.6, 'rgba(79,70,229,0.18)'); aura.addColorStop(1, 'rgba(79,70,229,0)');
+            c.fillStyle = aura; c.beginPath(); c.arc(4, 0, 40, 0, Math.PI * 2); c.fill();
+            // spiral galaxy turning behind the ship
+            c.save(); c.translate(4, 0); c.scale(1, 0.55); c.rotate(T * 0.9);
+            for (let arm = 0; arm < 2; arm++) for (let k = 0; k < 26; k++) {
+                const r = 6 + k * 1.3, a = arm * Math.PI + k * 0.28;
+                c.fillStyle = k % 3 === 0 ? 'rgba(255,255,255,0.9)' : arm ? 'rgba(244,114,182,0.75)' : 'rgba(96,165,250,0.75)';
+                c.beginPath(); c.arc(Math.cos(a) * r, Math.sin(a) * r, k % 3 === 0 ? 0.9 : 1.4 - k * 0.03, 0, Math.PI * 2); c.fill();
+            }
+            c.restore();
+            // two little moons in orbit
+            [[24, 9, 1.6, '#e2e8f0'], [30, 12, 1.1, '#fca5a5']].forEach(([rx, ry, rr, col], i) => {
+                const a = T * (1.4 + i * 0.6) + i * 2;
+                if (Math.sin(a) > 0) return;   // behind
+                c.fillStyle = col; c.beginPath(); c.arc(4 + Math.cos(a) * rx, Math.sin(a) * ry, rr, 0, Math.PI * 2); c.fill();
+            });
+        }
+        if (fx === 'galaxy' && layer === 'front') {
+            [[24, 9, 1.6, '#e2e8f0'], [30, 12, 1.1, '#fca5a5']].forEach(([rx, ry, rr, col], i) => {
+                const a = T * (1.4 + i * 0.6) + i * 2;
+                if (Math.sin(a) <= 0) return;
+                c.fillStyle = col; c.shadowColor = col; c.shadowBlur = 6; c.beginPath(); c.arc(4 + Math.cos(a) * rx, Math.sin(a) * ry, rr, 0, Math.PI * 2); c.fill();
+            });
+            c.shadowBlur = 0;
+        }
+    }
     function drawRocket(c, x, y, scale, color, opts = {}) {
         const { ghost = false, flame = 1, boost = false, t = 0 } = opts;
         const sk = opts.skin || DEFAULT_SKIN, tr = opts.trail || null;
@@ -1403,6 +1572,8 @@
         c.save();
         c.translate(x, y); c.scale(scale, scale);
         if (ghost) { c.globalAlpha = 0.78 + 0.14 * Math.sin(t / 90); c.shadowColor = 'rgba(167,139,250,0.9)'; c.shadowBlur = 12; }
+        const legend = !ghost && sk.legend ? sk.fx : null;
+        if (legend) { c.save(); legendFx(c, legend, 'back', t, sk, shape, shape === 'heavy' ? -17 : -15); c.restore(); }
         // flame
         const fl = (boost ? 1.8 : 1) * flame * (0.85 + 0.25 * Math.sin(t / 30) + Math.random() * 0.12);
         const tail = shape === 'heavy' ? -17 : -15, fw = shape === 'heavy' ? 7 : 5;
@@ -1440,13 +1611,30 @@
         if (ghost) { bg.addColorStop(0, 'rgba(237,233,254,0.9)'); bg.addColorStop(1, 'rgba(139,92,246,0.6)'); }
         else if (sk.fx === 'chrome') { const k = 0.5 + 0.5 * Math.sin(t / 500); bg.addColorStop(0, sk.body[0]); bg.addColorStop(0.3 + 0.3 * k, sk.body[2]); bg.addColorStop(0.75, sk.body[1]); bg.addColorStop(1, '#475569'); }
         else { bg.addColorStop(0, sk.body[0]); bg.addColorStop(0.55, sk.body[1]); bg.addColorStop(1, sk.body[2]); }
+        if (legend === 'aurora') { const h = (t / 25) % 360; bg.addColorStop(0, `hsl(${h},85%,80%)`); bg.addColorStop(0.5, `hsl(${(h + 60) % 360},85%,55%)`); bg.addColorStop(1, `hsl(${(h + 120) % 360},80%,35%)`); }
         c.fillStyle = bg;
-        c.beginPath();
-        if (shape === 'sleek') { c.moveTo(-15, -4.5); c.lineTo(6, -5.5); c.quadraticCurveTo(24, -3.5, 31, 0); c.quadraticCurveTo(24, 3.5, 6, 5.5); c.lineTo(-15, 4.5); }
-        else if (shape === 'heavy') { c.moveTo(tail, -7.5); c.lineTo(6, -8.5); c.quadraticCurveTo(22, -8, 24, 0); c.quadraticCurveTo(22, 8, 6, 8.5); c.lineTo(tail, 7.5); }
-        else if (shape === 'shuttle') { c.moveTo(-16, -5.5); c.lineTo(12, -5.5); c.quadraticCurveTo(23, -4.5, 25, 0); c.quadraticCurveTo(23, 4.5, 12, 5.5); c.lineTo(-16, 5.5); }
-        else { c.moveTo(-15, -6); c.lineTo(8, -6.5); c.quadraticCurveTo(22, -5, 26, 0); c.quadraticCurveTo(22, 5, 8, 6.5); c.lineTo(-15, 6); }
-        c.closePath(); c.fill();
+        if (legend === 'blackhole' || legend === 'nova' || legend === 'shield') { c.shadowColor = sk.accent; c.shadowBlur = 12; }
+        bodyPath(c, shape, tail); c.fill(); c.shadowBlur = 0;
+        if (legend === 'galaxy') {   // the hull is a window into deep space
+            c.save(); bodyPath(c, shape, tail); c.clip();
+            const ng = c.createLinearGradient(-16, 0, 26, 0); ng.addColorStop(0, '#1e1b4b'); ng.addColorStop(0.5, '#581c87'); ng.addColorStop(1, '#0f172a');
+            c.fillStyle = ng; c.fillRect(-20, -10, 50, 20);
+            const off = (t / 40) % 40;
+            [[-8, -2, 7, 'rgba(236,72,153,0.45)'], [10, 2, 6, 'rgba(56,189,248,0.4)']].forEach(([nx, ny, nr, col]) => { const g = c.createRadialGradient(nx, ny, 0, nx, ny, nr); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(nx - nr, ny - nr, nr * 2, nr * 2); });
+            c.fillStyle = '#fff';
+            for (let k = 0; k < 16; k++) { const sx = ((k * 17.3 - off) % 46 + 46) % 46 - 18, sy = ((k * 7.7) % 11) - 5.5; c.globalAlpha = 0.5 + 0.5 * Math.abs(Math.sin(t / 250 + k)); c.fillRect(sx, sy, 0.9, 0.9); }
+            c.globalAlpha = 1; c.restore();
+        }
+        if (legend === 'diamond') {   // cut-crystal facets with a rainbow glint
+            c.save(); bodyPath(c, shape, tail); c.clip();
+            c.strokeStyle = 'rgba(255,255,255,0.7)'; c.lineWidth = 0.5;
+            for (let fx2 = -18; fx2 < 26; fx2 += 6) { c.beginPath(); c.moveTo(fx2, -9); c.lineTo(fx2 + 3, 0); c.lineTo(fx2, 9); c.moveTo(fx2 + 3, 0); c.lineTo(fx2 + 6, -9); c.moveTo(fx2 + 3, 0); c.lineTo(fx2 + 6, 9); c.stroke(); }
+            const gx = -20 + ((t / 8) % 70);
+            const rb = c.createLinearGradient(gx - 8, -8, gx + 8, 8);
+            rb.addColorStop(0, 'rgba(255,0,128,0)'); rb.addColorStop(0.3, 'rgba(255,0,200,0.45)'); rb.addColorStop(0.5, 'rgba(0,255,255,0.6)'); rb.addColorStop(0.7, 'rgba(255,255,0,0.45)'); rb.addColorStop(1, 'rgba(0,255,0,0)');
+            c.fillStyle = rb; c.fillRect(-20, -10, 50, 20);
+            c.restore();
+        }
         if (!ghost && sk.fx === 'gold') {   // moving shine
             const sx = -15 + ((t / 12) % 60);
             const sh = c.createLinearGradient(sx - 6, 0, sx + 6, 0);
@@ -1478,6 +1666,16 @@
         c.shadowBlur = 0;
         c.fillStyle = 'rgba(255,255,255,0.8)';
         if (shape !== 'shuttle') { c.beginPath(); c.arc(shape === 'sleek' ? 5.2 : 2, -1, 1, 0, Math.PI * 2); c.fill(); }
+        if (legend) { c.save(); legendFx(c, legend, 'front', t, sk, shape, tail); c.restore(); }
+        if (legend === 'diamond') {   // twinkling glints
+            [[20, -3, 0], [-6, 5, 1.3], [8, -6, 2.6]].forEach(([gx, gy, ph]) => {
+                const k = Math.max(0, Math.sin(t / 260 + ph)); if (k < 0.2) return;
+                c.fillStyle = `rgba(255,255,255,${k})`; c.shadowColor = '#a5f3fc'; c.shadowBlur = 8;
+                const r = 4 * k; c.beginPath(); c.moveTo(gx, gy - r); c.lineTo(gx + r * 0.25, gy); c.lineTo(gx, gy + r); c.lineTo(gx - r * 0.25, gy); c.closePath(); c.fill();
+                c.beginPath(); c.moveTo(gx - r, gy); c.lineTo(gx, gy + r * 0.25); c.lineTo(gx + r, gy); c.lineTo(gx, gy - r * 0.25); c.closePath(); c.fill();
+            });
+            c.shadowBlur = 0;
+        }
         // hologram scanlines on ghosts
         if (ghost) { c.globalAlpha *= 0.5; c.fillStyle = '#c4b5fd'; for (let yy = -6; yy < 7; yy += 2.5) c.fillRect(-15, yy, 41, 0.6); }
         c.restore();

@@ -37,6 +37,15 @@
         { id: 'rainbow',   name: 'Rainbow Rider', shape: 'classic', body: ['#ffffff', '#e0e7ff', '#a5b4fc'], accent: '#f472b6', win: '#38bdf8', fx: 'rainbow', challenge: 'humanwins3' },
         { id: 'veteran',   name: 'Moon Veteran',  shape: 'heavy',   body: ['#f8fafc', '#94a3b8', '#334155'], accent: '#fbbf24', win: '#fde68a', fx: 'chrome', challenge: 'races100' },
         { id: 'daily',     name: 'Daily Devotee', shape: 'shuttle', body: ['#e0f2fe', '#38bdf8', '#075985'], accent: '#facc15', win: '#0c4a6e', challenge: 'daily7' },
+        // ★ LEGENDARY: the hardest challenges in the game
+        { id: 'diamond',   name: 'Diamond Dynasty',    legend: true, fx: 'diamond',   shape: 'heavy',   body: ['#ffffff', '#a5f3fc', '#0891b2'], accent: '#67e8f9', win: '#ecfeff', challenge: 'rare1000' },
+        { id: 'phoenix',   name: 'Phoenix',            legend: true, fx: 'phoenix',   shape: 'sleek',   body: ['#fef08a', '#f97316', '#991b1b'], accent: '#fbbf24', win: '#fef9c3', challenge: 'wins250' },
+        { id: 'thunder',   name: 'Thunderbolt',        legend: true, fx: 'lightning', shape: 'sleek',   body: ['#475569', '#1e293b', '#020617'], accent: '#facc15', win: '#fde047', challenge: 'streak40' },
+        { id: 'supernova', name: 'Supernova',          legend: true, fx: 'nova',      shape: 'classic', body: ['#ffffff', '#fde68a', '#f59e0b'], accent: '#fb923c', win: '#fff7ed', challenge: 'fast35' },
+        { id: 'blackhole', name: 'Black Hole',         legend: true, fx: 'blackhole', shape: 'heavy',   body: ['#3b0764', '#0c0a1f', '#000000'], accent: '#a855f7', win: '#f0abfc', challenge: 'races1000' },
+        { id: 'galaxy',    name: 'Galaxy Emperor',     legend: true, fx: 'galaxy',    shape: 'shuttle', body: ['#312e81', '#1e1b4b', '#0f172a'], accent: '#e879f9', win: '#f5d0fe', challenge: 'humanwins100' },
+        { id: 'aurora',    name: 'Aurora',             legend: true, fx: 'aurora',    shape: 'sleek',   body: ['#ffffff', '#5eead4', '#7c3aed'], accent: '#5eead4', win: '#ecfeff', challenge: 'earn250k' },
+        { id: 'celestial', name: 'Celestial Guardian', legend: true, fx: 'shield',    shape: 'heavy',   body: ['#f8fafc', '#cbd5e1', '#64748b'], accent: '#22d3ee', win: '#67e8f9', challenge: 'daily100' },
     ];
 
     // ---------- exhaust trails ----------
@@ -63,6 +72,15 @@
         daily7:     { label: 'Race the daily race on 7 different days', goal: 7,   get: s => s.dailyDays },
         earn10k:    { label: 'Earn $10,000 in total',                 goal: 10000, get: s => s.earned, money: true },
         perfect:    { label: 'Win a race without a single miss',      goal: 1,     get: s => s.perfectWins },
+        // legendary
+        rare1000:     { label: 'Find 1,000 💎 rare answers',                goal: 1000,   get: s => s.rare },
+        wins250:      { label: 'Win 250 races',                            goal: 250,    get: s => s.wins },
+        streak40:     { label: 'Get a 40-answer streak',                   goal: 40,     get: s => s.bestStreak },
+        fast35:       { label: 'Finish a 15-point race in under 0:35',     goal: 1,      get: s => (s.best && s.best < 35000 ? 1 : 0) },
+        races1000:    { label: 'Finish 1,000 races',                       goal: 1000,   get: s => s.races },
+        humanwins100: { label: 'Win 100 races against real people',        goal: 100,    get: s => s.humanWins },
+        earn250k:     { label: 'Earn $250,000 in total',                   goal: 250000, get: s => s.earned, money: true },
+        daily100:     { label: 'Race the daily race on 100 different days', goal: 100,   get: s => s.dailyDays },
     };
 
     // ---------- saved state ----------
@@ -189,9 +207,9 @@
             const c = CHALLENGES[item.challenge], v = Math.min(c.get(S()) || 0, c.goal);
             foot = `<div class="sr-gar-lock">🔒 ${esc(c.label)}</div><div class="sr-gar-bar"><i style="width:${(v / c.goal * 100).toFixed(1)}%"></i></div><div class="sr-gar-prog">${c.money ? money(v) : v} / ${c.money ? money(c.goal) : c.goal}</div>`;
         } else foot = `<button class="sr-btn ${G.cash >= item.price ? 'sr-btn-main' : 'sr-btn-ghost'} sr-gar-btn" data-act="buy" data-id="${item.id}">${money(item.price)}</button>`;
-        return `<div class="sr-gar-item${equipped ? ' eq' : ''}${own ? '' : ' locked'}">
+        return `<div class="sr-gar-item${equipped ? ' eq' : ''}${own ? '' : ' locked'}${item.legend ? ' legend' : ''}">
             <canvas class="sr-gar-prev" data-${isSkin ? 'skin' : 'trail'}="${item.id}" width="220" height="110"></canvas>
-            <div class="sr-gar-name">${esc(item.name)}${item.challenge ? ' <span class="sr-gar-tag">CHALLENGE</span>' : ''}</div>
+            <div class="sr-gar-name">${esc(item.name)}${item.legend ? ' <span class="sr-gar-tag lg">★ LEGENDARY</span>' : item.challenge ? ' <span class="sr-gar-tag">CHALLENGE</span>' : ''}</div>
             ${foot}</div>`;
     }
     function boostsHtml() {
@@ -207,8 +225,8 @@
     function challengesHtml() {
         const rows = allItems().filter(i => i.challenge).map(i => {
             const c = CHALLENGES[i.challenge], v = Math.min(c.get(S()) || 0, c.goal), done = v >= c.goal, isSkin = SKINS.includes(i);
-            return `<div class="sr-gar-ch${done ? ' done' : ''}"><canvas class="sr-gar-prev sm" data-${isSkin ? 'skin' : 'trail'}="${i.id}" width="132" height="66"></canvas>
-                <div class="sr-gar-ch-txt"><b>${esc(c.label)}</b><span>Reward: ${esc(i.name)} ${isSkin ? 'rocket' : 'trail'}</span>
+            return `<div class="sr-gar-ch${done ? ' done' : ''}${i.legend ? ' legend' : ''}"><canvas class="sr-gar-prev sm" data-${isSkin ? 'skin' : 'trail'}="${i.id}" width="132" height="66"></canvas>
+                <div class="sr-gar-ch-txt"><b>${i.legend ? '<span class="sr-gar-tag lg">★ LEGENDARY</span> ' : ''}${esc(c.label)}</b><span>Reward: ${esc(i.name)} ${isSkin ? 'rocket' : 'trail'}</span>
                 <div class="sr-gar-bar"><i style="width:${(v / c.goal * 100).toFixed(1)}%"></i></div></div>
                 <div class="sr-gar-ch-n">${done ? '✅' : (c.money ? money(v) : v) + ' / ' + (c.money ? money(c.goal) : c.goal)}</div></div>`;
         });
@@ -224,7 +242,7 @@
             // a few drifting stars
             c.fillStyle = 'rgba(226,232,240,0.5)';
             for (let i = 0; i < 9; i++) { const x = (i * 53 + t / 25) % W, y = (i * 37) % H; c.fillRect(W - x, y, 1.4, 1.4); }
-            drawFn(c, W * 0.6, H * 0.5 + Math.sin(t / 400 + W) * 3, H / 36, '#38bdf8', { skin: sk, trail: tr, flame: 0.75, t });
+            drawFn(c, W * (sk.legend ? 0.56 : 0.6), H * 0.5 + Math.sin(t / 400 + W) * 3, H / (sk.legend ? 50 : 36), '#38bdf8', { skin: sk, trail: tr, flame: 0.75, t });
         });
     }
     function loop() { paintPreviews(); anim = requestAnimationFrame(loop); }

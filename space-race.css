@@ -411,7 +411,7 @@ body {
 .sr-gar-prev { width: 100%; height: auto; aspect-ratio: 2 / 1; border-radius: 10px; background: radial-gradient(ellipse at 30% 50%, #1e1b4b, #020617); }
 .sr-gar-prev.sm { width: 110px; flex: none; }
 .sr-gar-name { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: .78rem; letter-spacing: 1px; color: var(--text); }
-.sr-gar-tag { font-size: .55rem; color: var(--gold); border: 1px solid rgba(251,191,36,.5); border-radius: 6px; padding: 1px 4px; margin-left: 4px; vertical-align: middle; }
+.sr-gar-tag { white-space: nowrap; font-size: .55rem; color: var(--gold); border: 1px solid rgba(251,191,36,.5); border-radius: 6px; padding: 1px 4px; margin-left: 4px; vertical-align: middle; }
 .sr-gar-btn { width: 100%; padding: 8px; font-size: .78rem; }
 .sr-gar-eq { font-family: 'Orbitron', sans-serif; font-size: .72rem; color: var(--gold); padding: 8px 0; letter-spacing: 1px; }
 .sr-gar-lock { font-size: .82rem; color: var(--muted); line-height: 1.2; }
@@ -438,3 +438,13 @@ body {
 .sr-gar-toast.good { background: #052e16; border-color: var(--good); color: #bbf7d0; }
 .sr-gar-toast.show { opacity: 1; transform: translate(-50%, 0); }
 @media (max-width: 520px) { .sr-gar-grid { grid-template-columns: repeat(2, 1fr); } .sr-gar-prev.sm { width: 80px; } }
+
+/* ★ legendary cards */
+.sr-gar-tag.lg { color: #1c1003; border: none; background: linear-gradient(90deg, #fde68a, #f59e0b, #f472b6, #a78bfa, #fde68a); background-size: 200% 100%; animation: srLgShine 3s linear infinite; font-weight: 900; }
+.sr-gar-item.legend, .sr-gar-ch.legend { position: relative; border-color: transparent;
+    background: linear-gradient(rgba(10,12,30,.95), rgba(10,12,30,.95)) padding-box, linear-gradient(120deg, #fde68a, #f472b6, #818cf8, #22d3ee, #fde68a) border-box;
+    background-size: 100% 100%, 300% 300%; animation: srLgBorder 6s linear infinite; border: 1.5px solid transparent; box-shadow: 0 0 18px rgba(244,114,182,.18); }
+.sr-gar-item.legend .sr-gar-prev { background: radial-gradient(ellipse at 50% 50%, #2e1065, #020617 75%); }
+.sr-gar-item.legend.locked .sr-gar-prev { filter: saturate(.75) brightness(.85); }
+@keyframes srLgShine { to { background-position: 200% 0; } }
+@keyframes srLgBorder { to { background-position: 0 0, 300% 0; } }
