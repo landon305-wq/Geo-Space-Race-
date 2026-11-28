@@ -36,7 +36,7 @@
   {"id":2080,"category":"Sports","prompt":"Click the states, districts, or territories whose capital has an MLB team (MLB, 2026).","answers":["Georgia","Massachusetts","Colorado","Arizona","California"]},
   {"id":92,"category":"Presidents","prompt":"Click the home states of presidents when first elected, from 1960 on (National Archives, 2024).","answers":["Massachusetts","Texas","California","Georgia","Arkansas","Illinois","New York","Delaware"],"hard":true},
   {"id":1090,"category":"Water","prompt":"Click the states, districts, or territories the Colorado River flows through (Google Maps).","answers":["Colorado","Arizona","Utah","California","Nevada"]},
-  {"id":2002,"category":"Roads & Travel","prompt":"Click the states, districts, or territories that I-15 passes through (FHWA).","answers":["Montana","Utah","California","Arizona","Nevada"]},
+  {"id":2002,"category":"Roads & Travel","prompt":"Click the states, districts, or territories that I-15 passes through (FHWA).","answers":["Montana","Utah","California","Arizona","Nevada","Idaho"]},
   {"id":2119,"category":"Politics","prompt":"Click the states decided by less than 1 point in 2000, Bush vs. Gore (National Archives).","answers":["Florida","New Mexico","Wisconsin","Iowa","Oregon"]},
   {"id":2014,"category":"Time Zones","prompt":"Click the states, districts, or territories that use Pacific Time, in whole or in part (timeanddate.com, 2026).","answers":["California","Washington","Oregon","Nevada","Idaho"]},
   {"id":2109,"category":"Energy","prompt":"Click the top 10 states for crude oil production (EIA, 2023).","answers":["Texas","New Mexico","North Dakota","Colorado","Oklahoma","Alaska","California","Wyoming","Utah","Louisiana"]},
