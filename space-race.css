@@ -481,3 +481,8 @@ body {
 .sr-gar-item.flash { animation: srDealFlash 1.2s ease 2; }
 @keyframes srDealFlash { 50% { box-shadow: 0 0 0 3px #fb923c, 0 0 30px rgba(251,146,60,.6); } }
 .sr-sale-tag { display: inline-block; margin-left: 4px; padding: 1px 5px; border-radius: 6px; font-size: .6rem; color: #1c0a00; background: #fb923c; letter-spacing: .5px; }
+
+.sr-boost-buy { flex-direction: column; gap: 2px; padding: 12px 14px; line-height: 1.15; white-space: nowrap; }
+.sr-boost-buy .bb-n { font-size: .82rem; letter-spacing: 1.5px; }
+.sr-boost-buy .bb-p { font-size: 1.15rem; }
+.sr-boost-buy small { font-size: .7rem; opacity: .75; letter-spacing: .5px; }

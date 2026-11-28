@@ -274,8 +274,8 @@
             <div class="sr-gar-boost-txt"><b>BOOST</b><br>Skip any question with <b>no penalty</b>, and it counts as <b>1 correct answer</b>. Up to ${BOOSTS_PER_RACE} per race. Press <b>Enter with an empty box</b> (or the ⚡ button) during a race. (Not allowed in the official daily race, so the leaderboard stays fair.)</div>
             <div class="sr-gar-have">You have <b>${G.boosts}</b></div>
             <div class="sr-gar-boost-btns">
-                <button class="sr-btn ${G.cash >= b1 ? 'sr-btn-main' : 'sr-btn-ghost'}" data-act="boost1">1 boost · ${was(BOOST_PRICE, b1)}</button>
-                <button class="sr-btn ${G.cash >= bp ? 'sr-btn-main' : 'sr-btn-ghost'}" data-act="boostpack">${BOOST_PACK.n} boosts · ${was(BOOST_PACK.price, bp)} <small>(save ${money(b1 * BOOST_PACK.n - bp)})</small></button>
+                <button class="sr-btn ${G.cash >= b1 ? 'sr-btn-main' : 'sr-btn-ghost'} sr-boost-buy" data-act="boost1"><span class="bb-n">1 boost</span><span class="bb-p">${was(BOOST_PRICE, b1)}</span></button>
+                <button class="sr-btn ${G.cash >= bp ? 'sr-btn-main' : 'sr-btn-ghost'} sr-boost-buy" data-act="boostpack"><span class="bb-n">${BOOST_PACK.n} boosts</span><span class="bb-p">${was(BOOST_PACK.price, bp)}</span><small>save ${money(b1 * BOOST_PACK.n - bp)}</small></button>
             </div></div>`;
     }
     function challengesHtml() {

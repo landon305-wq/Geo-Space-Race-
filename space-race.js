@@ -81,6 +81,26 @@
     }
     const SFX = {
         beep: () => tone(660, 0.18, 'square', 0.09),
+        // engines spooling up: a low, growing rumble (dur in seconds)
+        rumble: dur => {
+            if (!soundOn) return; const c = ac(); if (!c) return;
+            const t = c.currentTime, end = t + dur;
+            const f = c.createBiquadFilter(), g = c.createGain();
+            f.type = 'lowpass'; f.frequency.setValueAtTime(140, t); f.frequency.exponentialRampToValueAtTime(900, end);
+            g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05, t + 0.5); g.gain.linearRampToValueAtTime(0.13, end - 0.05); g.gain.linearRampToValueAtTime(0.0001, end + 0.25);
+            f.connect(g).connect(c.destination);
+            [38, 40.5, 57].forEach(fr => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(fr, t); o.frequency.exponentialRampToValueAtTime(fr * 2.1, end); o.connect(f); o.start(t); o.stop(end + 0.3); });
+            const len = Math.floor(c.sampleRate * (dur + 0.3)), buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+            let last = 0; for (let i = 0; i < len; i++) { last = last * 0.97 + (Math.random() * 2 - 1) * 0.03; d[i] = last * 6; }   // rumbly brown noise
+            const src = c.createBufferSource(); src.buffer = buf; src.connect(f); src.start(t);
+        },
+        // original "match starting" jingle (~2 seconds)
+        matchStart: () => {
+            song([['C5', 1], ['E5', 1], ['G5', 1], ['C6', 2], [0, 1], ['A5', 1], ['C6', 1], ['E6', 3], [0, 1], ['G5', 1], ['B5', 1], ['D6', 1], ['G6', 4]], 0.1, 'square', 0.05);
+            song([['C3', 4], ['F3', 4], ['A3', 3], ['G3', 7]], 0.1, 'triangle', 0.13);
+            [0, 4, 8, 11].forEach(i => noise(0.1, 0.08, 4000, 600, i * 0.1));
+            noise(0.9, 0.06, 7000, 2000, 1.2);
+        },
         go: () => { tone(990, 0.35, 'square', 0.1); noise(1.6, 0.28, 1400, 90); },
         correct: (streak) => { const b = 660 + Math.min(streak, 8) * 40; tone(b, 0.12, 'triangle', 0.14); tone(b * 1.5, 0.18, 'triangle', 0.12, 0, 0.07); noise(0.35, 0.06, 2500, 300); },
         boost: () => { tone(440, 0.5, 'sawtooth', 0.06, 900); noise(0.6, 0.12, 3000, 200); },
@@ -920,13 +940,20 @@
     function countdown() {
         state = 'countdown';
         const steps = ['3', '2', '1'];
-        steps.forEach((s, i) => setTimeout(() => { callout(s); SFX.beep(); FX.shake = 4 + i * 2; }, 400 + i * 900));
+        // online races: the engines start up first (a rumble that keeps building), then 3-2-1
+        const pre = raceMode === 'room' ? 1600 : 0;
+        if (pre) {
+            SFX.rumble((pre + 400 + steps.length * 900) / 1000);
+            callout('ENGINES ON', 'small');
+            const shaker = setInterval(() => { if (state !== 'countdown') return clearInterval(shaker); FX.shake = Math.max(FX.shake, 2.5); }, 120);
+        }
+        steps.forEach((s, i) => setTimeout(() => { callout(s); SFX.beep(); FX.shake = 4 + i * 2; }, pre + 400 + i * 900));
         setTimeout(() => {
             callout('LIFTOFF!', 'small gold'); SFX.go(); FX.shake = 14; FX.liftoff = now();
             state = 'racing'; raceStart = now();
             racers.forEach(rc => burst(rc, 'smoke', 26));
             nextQuestion(true);
-        }, 400 + steps.length * 900);
+        }, pre + 400 + steps.length * 900);
     }
 
     function raceTime() { return state === 'countdown' || state === 'lobby' ? 0 : now() - raceStart; }
@@ -2379,11 +2406,9 @@
             $('sr-room-status').innerHTML = `⚡ <b>MATCH FOUND!</b> ${humans} ${humans === 1 ? 'racer' : 'racers'}${payload.bots ? ` + ${payload.bots} computer` : ''}`;
             const big = $('sr-room-code'), label = document.querySelector('.sr-room-code-label');
             const flash = (text, small) => { big.textContent = text; big.classList.toggle('mf-small', !!small); big.classList.remove('mf-pop'); void big.offsetWidth; big.classList.add('mf-pop'); };
-            this.intro = true; label.textContent = 'GET READY'; flash('MATCH FOUND!', true); SFX.rare();
+            this.intro = true; label.textContent = 'GET READY'; flash('STARTING MATCH', true); SFX.matchStart();
             Pad.sync(field.map((f, i) => ({ id: f.id || 'bot' + i, name: f.name, skin: f.skin, trail: f.trail, color: f.color, me: f.kind === 'you', bot: f.kind === 'bot' })));
-            setTimeout(() => { if (this.code === code) Pad.launching = now(); }, 1500);
-            ['3', '2', '1'].forEach((n, i) => setTimeout(() => { if (this.code === code) { flash(n); SFX.beep(); } }, 1500 + i * 900));
-            setTimeout(() => { this.intro = false; if (this.code === code && this.startedRace) go(); }, 1500 + 3 * 900);
+            setTimeout(() => { this.intro = false; if (this.code === code && this.startedRace) go(); }, 3000);
         },
         send(event, payload) {
             if (raceMode !== 'room' || !this.ch) return;
