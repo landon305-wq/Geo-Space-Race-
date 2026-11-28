@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
-    <link rel="stylesheet" href="space-race.css?v=10">
+    <link rel="stylesheet" href="space-race.css?v=11">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -29,6 +29,10 @@
                 <li>🤷 Type <b>idk</b> to skip</li>
                 <li>☄️ Misses stall you</li>
             </ul>
+            <div class="sr-garage-bar">
+                <div class="sr-wallet" id="sr-wallet"></div>
+                <div class="sr-garage-btns"><button id="sr-shop-btn" class="sr-btn sr-btn-ghost">🛒 Shop</button><button id="sr-hangar-btn" class="sr-btn sr-btn-ghost">🛠️ Hangar</button></div>
+            </div>
             <div class="sr-lineup-title">YOUR STATS</div>
             <div class="sr-mystats" id="sr-mystats"></div>
 
@@ -109,6 +113,7 @@
                     <input id="sr-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off"
                            spellcheck="false" enterkeyhint="go" placeholder="Type your answer… (or idk to skip)" aria-label="Your answer" disabled>
                     <button id="sr-go-btn" class="sr-go" disabled>GO</button>
+                    <button id="sr-boost-btn" class="sr-boost" disabled title="Boost: skip with no penalty and get 1 correct (Shift+Enter)">⚡<span id="sr-boost-n">0</span></button>
                     <button id="sr-skip-btn" class="sr-skip" disabled title="Skip (counts as a miss)">SKIP</button>
                 </div>
             </div>
@@ -122,6 +127,7 @@
             <div class="sr-res-title" id="sr-res-title">1ST PLACE!</div>
             <div class="sr-res-pb hidden" id="sr-res-pb">⭐ NEW PERSONAL BEST!</div>
             <div class="sr-res-sub" id="sr-res-sub"></div>
+            <div class="sr-res-cash" id="sr-res-cash"></div>
             <div class="sr-res-stats">
                 <div><span id="sr-res-time">0:00.0</span><label>Time</label></div>
                 <div><span id="sr-res-acc">0%</span><label>Accuracy</label></div>
@@ -162,6 +168,7 @@
 
 <script src="space-race-answers.js?v=2"></script>
 <script src="space-race-extra.js?v=2"></script>
-<script src="space-race.js?v=21"></script>
+<script src="space-race-garage.js?v=1"></script>
+    <script src="space-race.js?v=22"></script>
 </body>
 </html>

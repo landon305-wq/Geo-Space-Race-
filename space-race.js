@@ -820,7 +820,7 @@
         while (ghosts.length < 3 && rest.length) ghosts.push(rest.shift());
         const r = rng(hashStr(DAY + 'bots'));
         const bNames = botNames(r);
-        const field = [{ name, kind: 'you', color: COLORS[0] }];
+        const field = [{ name, kind: 'you', color: COLORS[0], ...SRGarage.equipped() }];
         ghosts.forEach(g => field.push({ name: g.name, kind: 'ghost', color: GHOST_COLOR, splits: g.splits, misses: g.misses || [], finish: g.finish_ms }));
         let bi = 0;
         // bots fill the empty lanes; skills spread from ACE to ROOKIE
@@ -828,7 +828,7 @@
         while (field.length < LANES) {
             const skill = skillOrder[bi % skillOrder.length];
             const run = botRun(DAY + raceSeed + bNames[bi], skill);
-            field.push({ name: bNames[bi], kind: 'bot', skill: skill.label, color: COLORS[(field.length) % COLORS.length], ...run });
+            field.push({ name: bNames[bi], kind: 'bot', skill: skill.label, color: COLORS[(field.length) % COLORS.length], ...SRGarage.botLook(r), ...run });
             bi++;
         }
         lineupData = field;
@@ -865,6 +865,13 @@
             misses: f.kind === 'you' || f.kind === 'friend' ? [] : (f.kind === 'bot' && !isOfficial ? botRun(raceSeed + f.name, BOT_SKILLS.find(s => s.label === f.skill)).misses : f.misses),
             missIdx: 0, landedAt: null, wobble: Math.random() * 6, left: false
         }));
+        // rocket looks: yours is whatever you have equipped right now
+        racers.forEach(rc => {
+            if (rc.kind === 'you') Object.assign(rc, SRGarage.equipped());
+            if (rc.kind === 'ghost') return;
+            rc.skinObj = SRGarage.skin(rc.skin || 'classic'); rc.trailObj = SRGarage.trail(rc.trail || 'fire'); rc.trailId = rc.trailObj.id;
+        });
+        SRGarage.raceStarting(); renderBoostBtn();
         racers.forEach(rc => { if (rc.kind === 'bot' || rc.kind === 'ghost') rc.finish = rc.splits[TARGET - 1]; else if (rc.kind === 'friend') rc.finish = Infinity; });
         me = racers.find(rc => rc.kind === 'you');
         // your rocket races in the middle lane
@@ -904,7 +911,7 @@
         setMapView(q);
         const inp = $('sr-input');
         inp.value = ''; inp.disabled = false; inp.className = '';
-        $('sr-go-btn').disabled = false; $('sr-skip-btn').disabled = false;
+        $('sr-go-btn').disabled = false; $('sr-skip-btn').disabled = false; $('sr-boost-btn').disabled = false;
         inp.focus({ preventScroll: true });
         renderSuggest();
     }
@@ -932,6 +939,7 @@
         if (state !== 'racing' || !q || now() < stalledUntil) return;
         const inp = $('sr-input');
         if (!chosen && SKIP_WORDS.includes(A.norm(inp.value))) return skip();
+        if (!chosen && A.norm(inp.value) === 'boost') return useBoost();
         let pick = chosen || A.match(inp.value, q.pool) || (suggestions.length && A.norm(inp.value).length >= 3 ? suggestions[hiIdx] : null);
         if (!pick) {
             inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake');
@@ -944,6 +952,38 @@
         if (state !== 'racing' || !q || now() < stalledUntil) return;
         attempts++;
         onWrong(null);
+    }
+
+    // ⚡ BOOST (bought in the shop): skip this question with no penalty and count it as 1 right answer
+    const boostAllowed = () => raceMode !== 'daily';      // not in the official daily race (leaderboard stays fair)
+    function renderBoostBtn() {
+        const b = $('sr-boost-btn'); if (!b) return;
+        const left = Math.min(SRGarage.boosts, SRGarage.BOOSTS_PER_RACE - SRGarage.usedThisRace);
+        $('sr-boost-n').textContent = boostAllowed() ? left : '–';
+        b.classList.toggle('hidden', !boostAllowed() && SRGarage.boosts === 0);
+        b.classList.toggle('none', !boostAllowed() || left <= 0);
+        b.title = !boostAllowed() ? 'Boosts are off in the official daily race' : SRGarage.boosts === 0 ? 'No boosts. Buy them in the 🛒 Shop' : left <= 0 ? `Max ${SRGarage.BOOSTS_PER_RACE} boosts per race` : 'Boost: skip with no penalty and get 1 correct (Shift+Enter)';
+    }
+    function useBoost() {
+        if (state !== 'racing' || !q || now() < stalledUntil) return;
+        if (!boostAllowed()) { feedback('⚡ Boosts are off in the official daily race', 'bad'); return; }
+        if (!SRGarage.canBoost()) { feedback(SRGarage.boosts ? `⚡ Max ${SRGarage.BOOSTS_PER_RACE} boosts per race` : '⚡ No boosts left. Get more in the 🛒 Shop', 'bad'); return; }
+        SRGarage.useBoost(); renderBoostBtn();
+        const t = raceTime();
+        attempts++; rightN++;
+        me.count = Math.min(TARGET, me.count + 1); me.p = me.count / TARGET;
+        while (me.splits.length < Math.floor(me.count + 1e-9)) me.splits.push(Math.round(t));
+        Room.send('prog', { n: me.count });
+        answerLog.push({ q, pick: null, ok: true, boost: true, gain: 1 });
+        $('sr-input').className = 'good';
+        const ans = q.multi ? q.examples[0] : q.answer;
+        feedback(`⚡ BOOST! +1  (${ans})`, 'good');
+        callout('⚡ BOOST!', 'small gold'); SFX.boost();
+        me.boostUntil = now() + 1800; burst(me, 'thrust', 60); FX.flashGood = 1;
+        $('sr-count').textContent = `${fmtDist(me.count)} / ${TARGET}`;
+        if (me.count >= TARGET) return finishRace();
+        setTimeout(() => { if (state === 'racing') nextQuestion(); }, 380);
+        lockInput(380);
     }
 
     function onCorrect(pick) {
@@ -986,9 +1026,9 @@
         setTimeout(() => { if (state === 'racing') nextQuestion(); }, STALL_MS);
     }
     function lockInput(ms) {
-        $('sr-input').disabled = true; $('sr-go-btn').disabled = true; $('sr-skip-btn').disabled = true;
+        $('sr-input').disabled = true; $('sr-go-btn').disabled = true; $('sr-skip-btn').disabled = true; $('sr-boost-btn').disabled = true;
         $('sr-suggest').innerHTML = '';
-        setTimeout(() => { if (state === 'racing') { $('sr-input').disabled = false; $('sr-go-btn').disabled = false; $('sr-skip-btn').disabled = false; $('sr-input').focus({ preventScroll: true }); } }, ms);
+        setTimeout(() => { if (state === 'racing') { $('sr-input').disabled = false; $('sr-go-btn').disabled = false; $('sr-skip-btn').disabled = false; $('sr-boost-btn').disabled = false; $('sr-input').focus({ preventScroll: true }); } }, ms);
     }
     let fbTimer = 0;
     function feedback(text, kind) {
@@ -1011,7 +1051,7 @@
         Room.send('fin', { t: Math.round(t) });
         state = 'finale';
         FX.finaleStart = now(); FX.landedDust = false; FX.flagAt = 0;
-        $('sr-input').disabled = true; $('sr-go-btn').disabled = true; $('sr-skip-btn').disabled = true;
+        $('sr-input').disabled = true; $('sr-go-btn').disabled = true; $('sr-skip-btn').disabled = true; $('sr-boost-btn').disabled = true;
         $('sr-suggest').innerHTML = '';
         $('sr-prompt').innerHTML = '🌕 <b>TOUCHDOWN!</b>';
         document.querySelector('.sr-hud').classList.add('fade');
@@ -1036,19 +1076,38 @@
         if (!answerLog.length) { box.innerHTML = '<li class="sr-muted">No answers this race.</li>'; return; }
         box.innerHTML = answerLog.map((e, i) => {
             const q = e.q;
-            const icon = e.ok ? (e.rare ? '💎' : '✅') : e.pick ? '❌' : '⏭️';
-            const you = e.pick ? `You: <b>${esc(e.pick)}</b>` : 'You skipped';
+            const icon = e.boost ? '⚡' : e.ok ? (e.rare ? '💎' : '✅') : e.pick ? '❌' : '⏭️';
+            const you = e.boost ? 'You used a <b>boost</b>' : e.pick ? `You: <b>${esc(e.pick)}</b>` : 'You skipped';
             const pts = e.ok ? `<span class="sr-rv-pts${e.rare ? ' rare' : ''}">+${fmtDist(e.gain)}${e.rare ? ' · RARE' : ''}${e.boosted ? ' · 🔥' : ''}</span>` : '<span class="sr-rv-pts miss">+0</span>';
             let more = '';
             if (q.multi) {
                 const common = q.answers.filter(a => !q.rare.includes(a)), rare = q.rare;
                 const chip = (a, r) => `<span class="sr-rv-ans${r ? ' rare' : ''}${a === e.pick ? ' you' : ''}">${r ? '💎 ' : ''}${esc(a)}</span>`;
                 more = `<div class="sr-rv-all"><span class="sr-rv-lbl">All ${q.answers.length} right answers:</span> ${common.map(a => chip(a, false)).join('')}${rare.map(a => chip(a, true)).join('')}</div>`;
-            } else if (!e.ok) more = `<div class="sr-rv-all"><span class="sr-rv-lbl">Answer:</span> <span class="sr-rv-ans">${esc(q.answer)}</span></div>`;
+            } else if (!e.ok || e.boost) more = `<div class="sr-rv-all"><span class="sr-rv-lbl">Answer:</span> <span class="sr-rv-ans">${esc(q.answer)}</span></div>`;
             return `<li class="${e.ok ? 'ok' : 'bad'}"><div class="sr-rv-top"><span class="sr-rv-n">${i + 1}</span><span class="sr-rv-icon">${icon}</span>
                 <div class="sr-rv-q"><div class="sr-rv-tag">${esc(q.tag)}</div><div class="sr-rv-prompt">${q.prompt}</div><div class="sr-rv-you">${you}</div></div>${pts}</div>${more}</li>`;
         }).join('');
     }
+
+    // 💰 cash for every finished race (shop money), plus any challenge rockets/trails just unlocked
+    function payout(place) {
+        const humans = raceMode === 'room' ? racers.filter(rc => rc.kind === 'you' || rc.kind === 'friend').length : 1;
+        const misses = answerLog.filter(e => !e.ok).length;
+        const res = SRGarage.raceEnded({ place, dnf: !!me.dnf, humans, misses, official: isOfficial, day: DAY });
+        const un = SRGarage.newUnlocksSinceStart();
+        const el = $('sr-res-cash');
+        el.innerHTML = `<div class="sr-cash-earn">💰 +${SRGarage.money(res.base)}<span>${me.dnf ? 'last place' : ordinal(place) + ' place'}</span></div>`
+            + (res.bonus ? `<div class="sr-cash-earn bonus">🎁 +${SRGarage.money(res.bonus)}<span>first race today</span></div>` : '')
+            + `<div class="sr-cash-total">Wallet: <b>${SRGarage.money(res.cash)}</b></div>`
+            + (un.length ? `<div class="sr-cash-unlock">🏅 UNLOCKED: ${un.map(i => `<b>${esc(i.name)}</b>`).join(', ')}! <a href="#" id="sr-res-hangar">Equip in the Hangar</a></div>` : '');
+        el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+        const hl = $('sr-res-hangar'); if (hl) hl.onclick = ev => { ev.preventDefault(); SRGarage.open('hangar'); };
+        if (un.length) setTimeout(() => { callout('🏅 UNLOCKED!', 'small gold'); SFX.rare(); }, 1500);
+        renderWallet();
+    }
+    const ordinal = n => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
+    function renderWallet() { const w = $('sr-wallet'); if (w) w.innerHTML = SRGarage.walletHtml(); }
 
     function renderStandings() {
         const order = racers.map(rc => ({ rc, t: rc.kind === 'you' ? me.finish : rc.finish })).sort((a, b) => a.t - b.t);
@@ -1075,6 +1134,7 @@
         renderReview();
         rememberSeen();
         const pb = recordStats(place);
+        payout(place);
         $('sr-res-pb').classList.toggle('hidden', !pb);
         if (pb) { setTimeout(() => callout('⭐ PERSONAL BEST!', 'small gold'), 700); setTimeout(() => SFX.newBest(), Math.max(700, (SFX.until || 0) - performance.now() + 200)); }
         $('sr-review').classList.add('hidden'); $('sr-review-btn').textContent = `📋 Review your answers (${answerLog.length})`;
@@ -1322,7 +1382,7 @@
         const G = geometry(); const [x, y] = rocketPos(rc, G);
         for (let i = 0; i < n; i++) {
             if (kind === 'smoke') FX.particles.push({ x: x - 10, y: y + (Math.random() - 0.5) * 8, vx: -40 - Math.random() * 90, vy: (Math.random() - 0.5) * 60, life: 0, max: 0.9 + Math.random() * 0.8, size: 6 + Math.random() * 10, kind: 'smoke' });
-            if (kind === 'thrust') FX.particles.push({ x: x - 14, y, vx: -160 - Math.random() * 220, vy: (Math.random() - 0.5) * 70, life: 0, max: 0.35 + Math.random() * 0.35, size: 3 + Math.random() * 5, kind: 'fire', hue: rc.kind === 'ghost' ? 'ghost' : 'fire' });
+            if (kind === 'thrust') FX.particles.push({ x: x - 14, y, vx: -160 - Math.random() * 220, vy: (Math.random() - 0.5) * 70, life: 0, max: 0.35 + Math.random() * 0.35, size: 3 + Math.random() * 5, kind: 'fire', hue: rc.kind === 'ghost' ? 'ghost' : (rc.trailId || 'fire') });
             if (kind === 'spark') FX.particles.push({ x, y, vx: (Math.random() - 0.5) * 380, vy: (Math.random() - 0.5) * 380, life: 0, max: 0.4 + Math.random() * 0.5, size: 1.5 + Math.random() * 2.5, kind: 'spark' });
             if (kind === 'dust') FX.particles.push({ x: x + (Math.random() - 0.5) * 20, y: y + 8, vx: (Math.random() - 0.5) * 140, vy: -Math.random() * 90, life: 0, max: 0.8 + Math.random() * 0.8, size: 3 + Math.random() * 6, kind: 'dust' });
         }
@@ -1332,41 +1392,92 @@
         FX.asteroids.push({ rc, sx: x + 140 + Math.random() * 60, sy: -30, tx: x + 6, ty: y, t0: now(), dur: 420, rot: Math.random() * 6, size: rc === me ? 13 : 8, hit: false });
     }
 
+    // skins and trails come from space-race-garage.js (SRGarage.SKINS / TRAILS)
+    const DEFAULT_SKIN = { shape: 'classic', body: ['#ffffff', '#cbd5e1', '#64748b'], accent: null, win: '#0ea5e9' };
     function drawRocket(c, x, y, scale, color, opts = {}) {
         const { ghost = false, flame = 1, boost = false, t = 0 } = opts;
+        const sk = opts.skin || DEFAULT_SKIN, tr = opts.trail || null;
+        const shape = ghost ? 'classic' : sk.shape;
+        let accent = sk.accent || color;
+        if (sk.fx === 'rainbow') accent = `hsl(${(t / 8) % 360},90%,62%)`;
         c.save();
         c.translate(x, y); c.scale(scale, scale);
         if (ghost) { c.globalAlpha = 0.78 + 0.14 * Math.sin(t / 90); c.shadowColor = 'rgba(167,139,250,0.9)'; c.shadowBlur = 12; }
         // flame
         const fl = (boost ? 1.8 : 1) * flame * (0.85 + 0.25 * Math.sin(t / 30) + Math.random() * 0.12);
-        const fg = c.createLinearGradient(-16, 0, -16 - 30 * fl, 0);
+        const tail = shape === 'heavy' ? -17 : -15, fw = shape === 'heavy' ? 7 : 5;
+        const fg = c.createLinearGradient(tail - 1, 0, tail - 1 - 30 * fl, 0);
         if (ghost) { fg.addColorStop(0, 'rgba(196,181,253,0.95)'); fg.addColorStop(1, 'rgba(129,140,248,0)'); }
-        else { fg.addColorStop(0, '#fff7ed'); fg.addColorStop(0.25, '#fde047'); fg.addColorStop(0.6, '#f97316'); fg.addColorStop(1, 'rgba(239,68,68,0)'); }
+        else if (tr && tr.rainbow) { const h = (t / 4) % 360; fg.addColorStop(0, '#ffffff'); fg.addColorStop(0.3, `hsl(${h},95%,65%)`); fg.addColorStop(0.65, `hsl(${(h + 90) % 360},95%,60%)`); fg.addColorStop(1, `hsla(${(h + 180) % 360},95%,55%,0)`); }
+        else { const st = (tr && tr.flame) || ['#fff7ed', '#fde047', '#f97316', 'rgba(239,68,68,0)']; [0, 0.25, 0.6, 1].forEach((o, i) => fg.addColorStop(o, st[i])); }
         c.fillStyle = fg;
-        c.beginPath(); c.moveTo(-15, -5); c.quadraticCurveTo(-16 - 34 * fl, 0, -15, 5); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(tail, -fw); c.quadraticCurveTo(tail - 1 - 34 * fl, 0, tail, fw); c.closePath(); c.fill();
         if (boost && !ghost) {
             c.fillStyle = 'rgba(125,211,252,0.85)';
-            c.beginPath(); c.moveTo(-15, -2.5); c.quadraticCurveTo(-16 - 50 * fl, 0, -15, 2.5); c.closePath(); c.fill();
+            c.beginPath(); c.moveTo(tail, -2.5); c.quadraticCurveTo(tail - 1 - 50 * fl, 0, tail, 2.5); c.closePath(); c.fill();
         }
-        // fins
-        c.fillStyle = ghost ? 'rgba(167,139,250,0.7)' : color;
-        c.beginPath(); c.moveTo(-12, -6); c.lineTo(-19, -13); c.lineTo(-6, -6); c.closePath(); c.fill();
-        c.beginPath(); c.moveTo(-12, 6); c.lineTo(-19, 13); c.lineTo(-6, 6); c.closePath(); c.fill();
+        if (!ghost && sk.fx === 'glow') { c.shadowColor = accent; c.shadowBlur = 10; }
+        // fins / wings
+        c.fillStyle = ghost ? 'rgba(167,139,250,0.7)' : accent;
+        if (shape === 'sleek') {
+            c.beginPath(); c.moveTo(-6, -5); c.lineTo(-20, -12); c.lineTo(-15, -5); c.closePath(); c.fill();
+            c.beginPath(); c.moveTo(-6, 5); c.lineTo(-20, 12); c.lineTo(-15, 5); c.closePath(); c.fill();
+        } else if (shape === 'heavy') {
+            c.beginPath(); c.moveTo(-10, -8); c.lineTo(-20, -16); c.lineTo(-20, -8); c.lineTo(-4, -8); c.closePath(); c.fill();
+            c.beginPath(); c.moveTo(-10, 8); c.lineTo(-20, 16); c.lineTo(-20, 8); c.lineTo(-4, 8); c.closePath(); c.fill();
+        } else if (shape === 'shuttle') {
+            c.beginPath(); c.moveTo(6, -5); c.lineTo(-14, -15); c.lineTo(-16, -5); c.closePath(); c.fill();
+            c.beginPath(); c.moveTo(6, 5); c.lineTo(-14, 15); c.lineTo(-16, 5); c.closePath(); c.fill();
+            c.beginPath(); c.moveTo(-8, -3); c.lineTo(-17, -10); c.lineTo(-15, -3); c.closePath(); c.fill();
+        } else {
+            c.beginPath(); c.moveTo(-12, -6); c.lineTo(-19, -13); c.lineTo(-6, -6); c.closePath(); c.fill();
+            c.beginPath(); c.moveTo(-12, 6); c.lineTo(-19, 13); c.lineTo(-6, 6); c.closePath(); c.fill();
+        }
+        c.shadowBlur = ghost ? 12 : 0;
         // body
-        const bg = c.createLinearGradient(0, -7, 0, 7);
+        const hh = shape === 'heavy' ? 8.5 : shape === 'sleek' ? 5.5 : 6.5;
+        const bg = c.createLinearGradient(0, -hh, 0, hh);
         if (ghost) { bg.addColorStop(0, 'rgba(237,233,254,0.9)'); bg.addColorStop(1, 'rgba(139,92,246,0.6)'); }
-        else { bg.addColorStop(0, '#ffffff'); bg.addColorStop(0.55, '#cbd5e1'); bg.addColorStop(1, '#64748b'); }
+        else if (sk.fx === 'chrome') { const k = 0.5 + 0.5 * Math.sin(t / 500); bg.addColorStop(0, sk.body[0]); bg.addColorStop(0.3 + 0.3 * k, sk.body[2]); bg.addColorStop(0.75, sk.body[1]); bg.addColorStop(1, '#475569'); }
+        else { bg.addColorStop(0, sk.body[0]); bg.addColorStop(0.55, sk.body[1]); bg.addColorStop(1, sk.body[2]); }
         c.fillStyle = bg;
         c.beginPath();
-        c.moveTo(-15, -6); c.lineTo(8, -6.5); c.quadraticCurveTo(22, -5, 26, 0); c.quadraticCurveTo(22, 5, 8, 6.5); c.lineTo(-15, 6); c.closePath(); c.fill();
-        // nose + stripe in racer color
-        c.fillStyle = ghost ? 'rgba(196,181,253,0.9)' : color;
-        c.beginPath(); c.moveTo(14, -5.6); c.quadraticCurveTo(22, -5, 26, 0); c.quadraticCurveTo(22, 5, 14, 5.6); c.closePath(); c.fill();
-        c.fillRect(-9, -6.2, 3, 12.4);
-        // window
-        c.fillStyle = ghost ? 'rgba(221,214,254,0.9)' : '#0ea5e9';
-        c.beginPath(); c.arc(3, 0, 3.2, 0, Math.PI * 2); c.fill();
-        c.fillStyle = 'rgba(255,255,255,0.8)'; c.beginPath(); c.arc(2, -1, 1.1, 0, Math.PI * 2); c.fill();
+        if (shape === 'sleek') { c.moveTo(-15, -4.5); c.lineTo(6, -5.5); c.quadraticCurveTo(24, -3.5, 31, 0); c.quadraticCurveTo(24, 3.5, 6, 5.5); c.lineTo(-15, 4.5); }
+        else if (shape === 'heavy') { c.moveTo(tail, -7.5); c.lineTo(6, -8.5); c.quadraticCurveTo(22, -8, 24, 0); c.quadraticCurveTo(22, 8, 6, 8.5); c.lineTo(tail, 7.5); }
+        else if (shape === 'shuttle') { c.moveTo(-16, -5.5); c.lineTo(12, -5.5); c.quadraticCurveTo(23, -4.5, 25, 0); c.quadraticCurveTo(23, 4.5, 12, 5.5); c.lineTo(-16, 5.5); }
+        else { c.moveTo(-15, -6); c.lineTo(8, -6.5); c.quadraticCurveTo(22, -5, 26, 0); c.quadraticCurveTo(22, 5, 8, 6.5); c.lineTo(-15, 6); }
+        c.closePath(); c.fill();
+        if (!ghost && sk.fx === 'gold') {   // moving shine
+            const sx = -15 + ((t / 12) % 60);
+            const sh = c.createLinearGradient(sx - 6, 0, sx + 6, 0);
+            sh.addColorStop(0, 'rgba(255,255,255,0)'); sh.addColorStop(0.5, 'rgba(255,255,255,0.75)'); sh.addColorStop(1, 'rgba(255,255,255,0)');
+            c.save(); c.clip(); c.fillStyle = sh; c.fillRect(-20, -10, 50, 20); c.restore();
+        }
+        if (!ghost && sk.fx === 'stars') {
+            c.fillStyle = '#fff';
+            [[-10, -3], [-4, 4], [9, -4], [14, 3], [-13, 2], [4, 6]].forEach(([sx, sy], i) => { c.globalAlpha = 0.4 + 0.6 * Math.abs(Math.sin(t / 300 + i * 1.7)); c.fillRect(sx, sy, 1.1, 1.1); });
+            c.globalAlpha = 1;
+        }
+        // nose + stripe
+        c.fillStyle = ghost ? 'rgba(196,181,253,0.9)' : accent;
+        c.beginPath();
+        if (shape === 'sleek') { c.moveTo(18, -4.3); c.quadraticCurveTo(26, -3, 31, 0); c.quadraticCurveTo(26, 3, 18, 4.3); }
+        else if (shape === 'heavy') { c.moveTo(15, -8.2); c.quadraticCurveTo(22, -8, 24, 0); c.quadraticCurveTo(22, 8, 15, 8.2); }
+        else if (shape === 'shuttle') { c.moveTo(18, -5); c.quadraticCurveTo(23, -4.5, 25, 0); c.quadraticCurveTo(23, 4.5, 18, 5); }
+        else { c.moveTo(14, -5.6); c.quadraticCurveTo(22, -5, 26, 0); c.quadraticCurveTo(22, 5, 14, 5.6); }
+        c.closePath(); c.fill();
+        if (shape === 'heavy') { c.fillRect(-11, -8.2, 3, 16.4); c.fillRect(-5, -8.4, 1.6, 16.8); }
+        else if (shape === 'sleek') { c.fillRect(-11, -4.8, 2, 9.6); }
+        else if (shape === 'classic') c.fillRect(-9, -6.2, 3, 12.4);
+        // window(s)
+        c.fillStyle = ghost ? 'rgba(221,214,254,0.9)' : (sk.win || '#0ea5e9');
+        if (!ghost && sk.fx === 'glow') { c.shadowColor = sk.win; c.shadowBlur = 8; }
+        if (shape === 'shuttle') { c.beginPath(); c.ellipse(14, -1.5, 3.2, 1.6, 0, 0, Math.PI * 2); c.fill(); }
+        else if (shape === 'heavy') { [[1, 0], [8, 0]].forEach(([wx, wy]) => { c.beginPath(); c.arc(wx, wy, 3, 0, Math.PI * 2); c.fill(); }); }
+        else { c.beginPath(); c.arc(shape === 'sleek' ? 6 : 3, 0, shape === 'sleek' ? 2.6 : 3.2, 0, Math.PI * 2); c.fill(); }
+        c.shadowBlur = 0;
+        c.fillStyle = 'rgba(255,255,255,0.8)';
+        if (shape !== 'shuttle') { c.beginPath(); c.arc(shape === 'sleek' ? 5.2 : 2, -1, 1, 0, Math.PI * 2); c.fill(); }
         // hologram scanlines on ghosts
         if (ghost) { c.globalAlpha *= 0.5; c.fillStyle = '#c4b5fd'; for (let yy = -6; yy < 7; yy += 2.5) c.fillRect(-15, yy, 41, 0.6); }
         c.restore();
@@ -1464,7 +1575,7 @@
             Room.send('dnf', {});
             state = 'finale';
             FX.finaleStart = now(); FX.landedDust = false; FX.flagAt = 0;
-            $('sr-input').disabled = true; $('sr-go-btn').disabled = true; $('sr-skip-btn').disabled = true;
+            $('sr-input').disabled = true; $('sr-go-btn').disabled = true; $('sr-skip-btn').disabled = true; $('sr-boost-btn').disabled = true;
             $('sr-suggest').innerHTML = '';
             $('sr-prompt').innerHTML = '🏁 <b>RACE OVER</b> · everyone else has landed';
             document.querySelector('.sr-hud').classList.add('fade');
@@ -1535,14 +1646,15 @@
             c.save(); if (fin) c.globalAlpha = 1 - ft; if (rc.left && !rc.finished) c.globalAlpha *= 0.3;
             const moving = Math.abs(rc.p - rc.dp) > 0.002;
             if (state === 'racing' && Math.random() < (moving ? 0.9 : 0.25)) {
-                FX.particles.push({ x: x - 16 * scale, y: y + (Math.random() - 0.5) * 3, vx: -60 - Math.random() * 80 - (moving ? 200 : 0), vy: (Math.random() - 0.5) * 20, life: 0, max: 0.3 + Math.random() * 0.3, size: 2 + Math.random() * 3, kind: 'fire', hue: rc.kind === 'ghost' ? 'ghost' : 'fire' });
+                FX.particles.push({ x: x - 16 * scale, y: y + (Math.random() - 0.5) * 3, vx: -60 - Math.random() * 80 - (moving ? 200 : 0), vy: (Math.random() - 0.5) * 20, life: 0, max: 0.3 + Math.random() * 0.3, size: 2 + Math.random() * 3, kind: 'fire', hue: rc.kind === 'ghost' ? 'ghost' : (rc.trailId || 'fire') });
+                if (rc.trailObj && (rc.trailObj.sparkle || rc.trailObj.rainbow) && Math.random() < 0.35) FX.particles.push({ x: x - 16 * scale, y: y + (Math.random() - 0.5) * 10, vx: -40 - Math.random() * 90, vy: (Math.random() - 0.5) * 40, life: 0, max: 0.5 + Math.random() * 0.4, size: 1.6 + Math.random() * 1.4, kind: 'twinkle', hue: rc.trailId });
             }
             if (rc === me) {
                 const halo = c.createRadialGradient(x, y, 2, x, y, 34 * scale);
                 halo.addColorStop(0, 'rgba(56,189,248,0.25)'); halo.addColorStop(1, 'rgba(56,189,248,0)');
                 c.fillStyle = halo; c.beginPath(); c.arc(x, y, 34 * scale, 0, Math.PI * 2); c.fill();
             }
-            drawRocket(c, x, y, scale * (rc === me ? 1.15 : 1), rc.color, { ghost: rc.kind === 'ghost', flame: state === 'countdown' ? 0.4 : moving ? 1.5 : 0.8, boost: rc.boostUntil > t, t: t + rc.wobble * 100 });
+            drawRocket(c, x, y, scale * (rc === me ? 1.15 : 1), rc.color, { ghost: rc.kind === 'ghost', flame: state === 'countdown' ? 0.4 : moving ? 1.5 : 0.8, boost: rc.boostUntil > t, t: t + rc.wobble * 100, skin: rc.skinObj, trail: rc.trailObj });
             // name tag
             c.font = `700 ${Math.round(11 * scale)}px Rajdhani, sans-serif`;
             c.textAlign = 'center';
@@ -1625,6 +1737,8 @@
         }
     }
 
+    const FIRE_COLS = [[254, 240, 138], [251, 146, 60], [239, 68, 68]];
+    function trailColors(id) { if (!id || id === 'fire' || !window.SRGarage) return FIRE_COLS; const tr = SRGarage.trail(id); return tr.p || FIRE_COLS; }
     function updateParticles(c, dt) {
         const ps = FX.particles;
         if (ps.length > 900) ps.splice(0, ps.length - 900);
@@ -1636,8 +1750,16 @@
             if (p.kind === 'fire') {
                 p.vx *= 0.96;
                 const a = 1 - k;
-                c.fillStyle = p.hue === 'ghost' ? `rgba(196,181,253,${a * 0.8})` : k < 0.25 ? `rgba(254,240,138,${a})` : k < 0.55 ? `rgba(251,146,60,${a})` : `rgba(239,68,68,${a * 0.7})`;
+                if (p.hue === 'ghost') c.fillStyle = `rgba(196,181,253,${a * 0.8})`;
+                else if (p.hue === 'rainbow') c.fillStyle = `hsla(${(p.x * 2 + p.life * 600) % 360},95%,62%,${a})`;
+                else { const cols = trailColors(p.hue), col = k < 0.25 ? cols[0] : k < 0.55 ? cols[1] : cols[2]; c.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${k < 0.55 ? a : a * 0.7})`; }
                 c.beginPath(); c.arc(p.x, p.y, p.size * (1 - k * 0.5), 0, Math.PI * 2); c.fill();
+            } else if (p.kind === 'twinkle') {
+                p.vx *= 0.97;
+                const a = (1 - k) * (0.6 + 0.4 * Math.sin(p.life * 40));
+                c.fillStyle = p.hue === 'rainbow' ? `hsla(${(p.life * 900) % 360},95%,70%,${a})` : `rgba(${trailColors(p.hue)[0].join(',')},${a})`;
+                const r = p.size; c.beginPath(); c.moveTo(p.x, p.y - r * 1.8); c.lineTo(p.x + r * 0.5, p.y); c.lineTo(p.x, p.y + r * 1.8); c.lineTo(p.x - r * 0.5, p.y); c.closePath(); c.fill();
+                c.beginPath(); c.moveTo(p.x - r * 1.8, p.y); c.lineTo(p.x, p.y + r * 0.5); c.lineTo(p.x + r * 1.8, p.y); c.lineTo(p.x, p.y - r * 0.5); c.closePath(); c.fill();
             } else if (p.kind === 'smoke') {
                 p.vx *= 0.97; p.vy *= 0.97;
                 c.fillStyle = `rgba(203,213,225,${(1 - k) * 0.35})`;
@@ -1730,7 +1852,7 @@
         },
         track() {
             if (!this.ch) return;
-            const meta = { name: this.myName, joinedAt: this.joinedAt };
+            const meta = { name: this.myName, joinedAt: this.joinedAt, ...SRGarage.equipped() };
             if (this.isHost) { meta.settings = this.settings; meta.racing = this.racing; meta.quick = this.quick; meta.created = this.quickCreated; if (this.racing && this.startPayload) meta.start = this.startPayload; }
             return this.ch.track(meta);
         },
@@ -1808,7 +1930,7 @@
         // ---------- starting a race ----------
         hostStart() {
             if (!this.isHost || this.racing) return;
-            const humans = this.players.slice(0, MAX_PLAYERS).map(p => ({ id: p.id, name: p.name || 'Racer' }));
+            const humans = this.players.slice(0, MAX_PLAYERS).map(p => ({ id: p.id, name: p.name || 'Racer', skin: p.skin, trail: p.trail }));
             const st = this.settings;
             const nBots = st.bots ? Math.max(0, LANES - humans.length) : 0;
             const payload = { seed: this.code + ':' + Date.now() + ':' + Math.random().toString(36).slice(2, 7), set: st.set, target: st.target, roster: humans, bots: nBots };
@@ -1838,8 +1960,8 @@
             this.startedRace = true;
             const r = rng(hashStr(payload.seed + 'bots'));
             const bNames = botNames(r), skills = shuffle(BOT_SKILLS, r);
-            const field = payload.roster.map((p, i) => ({ id: p.id, name: p.id === CLIENT_ID ? this.myName : p.name, kind: p.id === CLIENT_ID ? 'you' : 'friend', color: COLORS[i % COLORS.length] }));
-            for (let i = 0; i < payload.bots; i++) field.push({ name: bNames[i], kind: 'bot', skill: skills[i % skills.length].label, color: COLORS[(field.length) % COLORS.length] });
+            const field = payload.roster.map((p, i) => ({ id: p.id, name: p.id === CLIENT_ID ? this.myName : p.name, kind: p.id === CLIENT_ID ? 'you' : 'friend', color: COLORS[i % COLORS.length], skin: p.id === CLIENT_ID ? SRGarage.equipped().skin : p.skin, trail: p.id === CLIENT_ID ? SRGarage.equipped().trail : p.trail }));
+            for (let i = 0; i < payload.bots; i++) field.push({ name: bNames[i], kind: 'bot', skill: skills[i % skills.length].label, color: COLORS[(field.length) % COLORS.length], ...SRGarage.botLook(r) });
             TARGET = payload.target;
             const go = () => startRace({ seed: payload.seed, set: payload.set, target: payload.target, field });
             if (!this.quick) { go(); return; }
@@ -2002,6 +2124,7 @@
     $('sr-lb-close').onclick = () => $('sr-lb').classList.add('hidden');
     $('sr-go-btn').onclick = () => submit();
     $('sr-skip-btn').onclick = skip;
+    $('sr-boost-btn').onclick = () => { useBoost(); $('sr-input').focus({ preventScroll: true }); };
     $('sr-review-btn').addEventListener('click', () => {
         const box = $('sr-review'), open = box.classList.toggle('hidden') === false;
         $('sr-review-btn').textContent = open ? '▲ Hide answers' : `📋 Review your answers (${answerLog.length})`;
@@ -2010,7 +2133,8 @@
     $('sr-suggest').addEventListener('click', e => { const b = e.target.closest('.sr-chip'); if (b) submit(suggestions[+b.dataset.i]); });
     $('sr-input').addEventListener('input', () => { SFX.key(); renderSuggest(); });
     $('sr-input').addEventListener('keydown', e => {
-        if (e.key === 'Enter') { e.preventDefault(); submit(); }
+        if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); useBoost(); }
+        else if (e.key === 'Enter') { e.preventDefault(); submit(); }
         else if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) { e.preventDefault(); moveHi(1); }
         else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) { e.preventDefault(); moveHi(-1); }
     });
@@ -2024,6 +2148,11 @@
     (async function init() {
         $('sr-date').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
         setSoundBtn(); renderCallsign(); renderStats();
+        // 🛒 shop / 🛠️ hangar
+        SRGarage.setStats(loadStats); SRGarage.setDrawer(drawRocket); SRGarage.onChange(() => { renderWallet(); renderBoostBtn(); });
+        renderWallet();
+        $('sr-shop-btn').onclick = () => { ac(); SRGarage.open('shop'); };
+        $('sr-hangar-btn').onclick = () => { ac(); SRGarage.open('hangar'); };
         try { await loadMaps(); } catch (e) { $('sr-start-btn').textContent = 'MAPS FAILED TO LOAD'; console.error(e); return; }
         await buildLineup();
         updateStartBtn();
