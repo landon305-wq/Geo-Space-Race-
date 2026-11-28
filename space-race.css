@@ -448,3 +448,7 @@ body {
 .sr-gar-item.legend.locked .sr-gar-prev { filter: saturate(.75) brightness(.85); }
 @keyframes srLgShine { to { background-position: 200% 0; } }
 @keyframes srLgBorder { to { background-position: 0 0, 300% 0; } }
+
+.sr-gar-tag.an { color: #a5f3fc; border-color: rgba(103,232,249,.5); }
+.sr-gar-item.anim { border-color: rgba(103,232,249,.35); }
+.sr-gar-item.anim .sr-gar-prev { background: radial-gradient(ellipse at 50% 50%, #172554, #020617 75%); }

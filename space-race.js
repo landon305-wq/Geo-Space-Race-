@@ -550,7 +550,8 @@
             country: n => ({ type: 'country', target: n, answer: n, pool: 'countries', map: 'world', prompt: 'Name this <b>country</b>', tag: 'WORLD · COUNTRY' }),
             stateCap: n => ({ type: 'stateCap', target: n, answer: A.US_CAPITALS[n], pool: 'stateCapitals', map: 'us', prompt: `What is the capital of <b>${esc(n)}</b>?`, tag: 'USA · CAPITAL' }),
             countryCap: n => ({ type: 'countryCap', target: n, answer: A.WORLD_CAPITALS[n], pool: 'countryCapitals', map: 'world', prompt: `What is the capital of <b>${esc(n)}</b>?`, tag: 'WORLD · CAPITAL' }),
-            capState: n => ({ type: 'capState', target: null, clue: true, answer: n, pool: 'states', map: 'us', prompt: `<b>${esc(A.US_CAPITALS[n])}</b> is the capital of which state?`, tag: 'USA · CAPITAL' })
+            capState: n => ({ type: 'capState', target: null, clue: true, answer: n, pool: 'states', map: 'us', prompt: `<b>${esc(A.US_CAPITALS[n])}</b> is the capital of which state?`, tag: 'USA · CAPITAL' }),
+            capCountry: n => ({ type: 'capCountry', target: null, clue: true, answer: n, pool: 'countries', map: 'world', prompt: `<b>${esc(A.WORLD_CAPITALS[n])}</b> is the capital of which country?`, tag: 'WORLD · CAPITAL' })
         };
         Object.keys(CLUE_INFO).forEach(type => {
             const inf = CLUE_INFO[type];
@@ -614,7 +615,7 @@
         const extras = lvl => [['elimUS', byLvl(elimItems, 'us', lvl)], ['elimUS', byLvl(elimItems, 'us', lvl)], ['elimW', byLvl(elimItems, 'world', lvl)], ['elimW', byLvl(elimItems, 'world', lvl)],
             ['cityBigUS', usBigStates(lvl)], ['cityBigW', wBigCountries(lvl)], ['cityTopUS', byLvl(cityTops, 'us', lvl)], ['cityTopW', byLvl(cityTops, 'world', lvl)],
             ['cityClueUS', byLvl(cityClues, 'us', lvl)], ['cityClueW', byLvl(cityClues, 'world', lvl)], ['cityClueW', byLvl(cityClues, 'world', lvl)]];
-        const TYPE_MAP = { state: 'us', country: 'world', stateCap: 'us', countryCap: 'world', capState: 'us', usMulti: 'us', wMulti: 'world', usLetter: 'us', wLetter: 'world', usEnd: 'us', wEnd: 'world',
+        const TYPE_MAP = { state: 'us', country: 'world', stateCap: 'us', countryCap: 'world', capState: 'us', capCountry: 'world', usMulti: 'us', wMulti: 'world', usLetter: 'us', wLetter: 'world', usEnd: 'us', wEnd: 'world',
             elimUS: 'us', elimW: 'world', cityBigUS: 'us', cityBigW: 'world', cityTopUS: 'us', cityTopW: 'world', cityClueUS: 'us', cityClueW: 'world' };
         Object.keys(CLUE_INFO).forEach(t => { TYPE_MAP[t] = CLUE_INFO[t].map; });
         const mapOf = type => TYPE_MAP[type];
@@ -626,13 +627,13 @@
         const knownCountries = EASY_COUNTRIES.concat(MEDIUM_COUNTRIES);
         // weights: map questions x2, many-answer questions x2, everything else x1
         const tiers = [
-            { count: 5, pick: [['state', EASY_STATES], ['state', EASY_STATES], ['country', EASY_COUNTRIES], ['country', EASY_COUNTRIES], ['stateCap', EASY_STATE_CAPS], ['countryCap', EASY_COUNTRY_CAPS],
+            { count: 5, pick: [['state', EASY_STATES], ['state', EASY_STATES], ['country', EASY_COUNTRIES], ['country', EASY_COUNTRIES], ['stateCap', EASY_STATE_CAPS], ['countryCap', EASY_COUNTRY_CAPS], ['capCountry', capCountries.filter(c => EASY_COUNTRIES.includes(c))],
                 ['usMulti', multis('us', 1)], ['wMulti', multis('world', 1)], ['wMulti', multis('world', 1)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS]]
                 .concat(clues(1, US_CLUES), clues(1, W_CLUES), extras(1)) },
-            { count: 8, pick: [['state', allStates], ['state', allStates], ['country', knownCountries], ['country', MEDIUM_COUNTRIES], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates],
+            { count: 8, pick: [['state', allStates], ['state', allStates], ['country', knownCountries], ['country', MEDIUM_COUNTRIES], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates], ['capCountry', capCountries.filter(c => knownCountries.includes(c))],
                 ['usMulti', multis('us', 2)], ['usMulti', multis('us', 2)], ['wMulti', multis('world', 2)], ['wMulti', multis('world', 2)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS], ['usEnd', US_ENDS], ['wEnd', WORLD_ENDS]]
                 .concat(clues(2, US_CLUES), clues(2, W_CLUES), extras(2)) },
-            { count: 27, pick: [['state', hardStates], ['state', allStates], ['country', MEDIUM_COUNTRIES], ['country', knownCountries], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates],
+            { count: 27, pick: [['state', hardStates], ['state', allStates], ['country', MEDIUM_COUNTRIES], ['country', knownCountries], ['stateCap', stateCapStates], ['countryCap', capCountries.filter(c => knownCountries.includes(c))], ['capState', stateCapStates], ['capCountry', capCountries],
                 ['usMulti', multis('us', 3)], ['usMulti', multis('us', 3)], ['wMulti', multis('world', 3)], ['wMulti', multis('world', 3)], ['usLetter', US_LETTERS], ['wLetter', WORLD_LETTERS], ['usEnd', US_ENDS], ['wEnd', WORLD_ENDS]]
                 .concat(clues(3, US_CLUES), clues(2, W_CLUES), extras(3)) }
         ];
@@ -642,6 +643,34 @@
         tiers[2].count += Math.max(0, TARGET - DAILY_TARGET) * 2;
         const used = new Set(), deck = [];
         let lastType = '';
+        const qidOf = (type, item) => type + ':' + (item.id || (Array.isArray(item) ? item[0] : item));
+        if (avoid) {
+            // practice races: pick only questions you haven't seen lately. Each question type is chosen with a
+            // weight that grows with how many fresh questions it still has, so small groups don't repeat.
+            // If a tier runs dry, it borrows from the harder tiers.
+            const freshPick = picks => picks.map(([type, list]) => [type, list.filter(it => it && !avoid.has(qidOf(type, it)))]).filter(([, l]) => l.length);
+            const pools = tiers.map(tr => freshPick(tr.pick));
+            tiers.forEach((tier, ti) => {
+                for (let i = 0; i < tier.count; i++) {
+                    let done = false;
+                    for (let ring = ti; ring < tiers.length + 1 && !done; ring++) {
+                        const opts = (ring < tiers.length ? pools[ring] : tiers[2].pick.map(([t, l]) => [t, l.slice()])).filter(([, l]) => l.length);
+                        for (let tries = 0; tries < 40 && opts.length && !done; tries++) {
+                            const wts = opts.map(([t, l]) => Math.sqrt(l.length) * (t === lastType ? 0.15 : 1));
+                            let x = r() * wts.reduce((a, b) => a + b, 0), k = 0;
+                            while (x > wts[k] && k < wts.length - 1) { x -= wts[k]; k++; }
+                            const [type, list] = opts[k];
+                            const idx = Math.floor(r() * list.length), item = list[idx];
+                            list.splice(idx, 1);
+                            const key = keyOf(type, item);
+                            if (used.has(key)) continue;
+                            used.add(key); const qq = mk[type](item); qq.qid = qidOf(type, item); deck.push(qq); lastType = type; done = true;
+                        }
+                    }
+                }
+            });
+            return deck;
+        }
         for (const tier of tiers) {
             for (let i = 0; i < tier.count; i++) {
                 for (let tries = 0; tries < 60; tries++) {
@@ -758,7 +787,7 @@
         });
     }
     // ---------- questions you've seen lately (so practice races feel fresh) ----------
-    const SEEN_KEY = 'sr_seen_q', SEEN_MAX = 260;
+    const SEEN_KEY = 'sr_seen_q', SEEN_MAX = 2500;
     function loadSeen() { try { return JSON.parse(localStorage.getItem(SEEN_KEY) || '[]'); } catch (e) { return []; } }
     function rememberSeen() {
         const shown = deck.slice(0, qIndex).map(x => x.qid).filter(Boolean);
@@ -902,7 +931,9 @@
 
     function raceTime() { return state === 'countdown' || state === 'lobby' ? 0 : now() - raceStart; }
 
+    let qShownAt = 0;
     function nextQuestion(first) {
+        qShownAt = now();
         q = deck[qIndex++] || deck[(qIndex++) % deck.length];
         $('sr-prompt').innerHTML = q.prompt;
         $('sr-prompt').classList.remove('pop'); void $('sr-prompt').offsetWidth; $('sr-prompt').classList.add('pop');
@@ -962,7 +993,7 @@
         $('sr-boost-n').textContent = boostAllowed() ? left : '–';
         b.classList.toggle('hidden', !boostAllowed() && SRGarage.boosts === 0);
         b.classList.toggle('none', !boostAllowed() || left <= 0);
-        b.title = !boostAllowed() ? 'Boosts are off in the official daily race' : SRGarage.boosts === 0 ? 'No boosts. Buy them in the 🛒 Shop' : left <= 0 ? `Max ${SRGarage.BOOSTS_PER_RACE} boosts per race` : 'Boost: skip with no penalty and get 1 correct (Shift+Enter)';
+        b.title = !boostAllowed() ? 'Boosts are off in the official daily race' : SRGarage.boosts === 0 ? 'No boosts. Buy them in the 🛒 Shop' : left <= 0 ? `Max ${SRGarage.BOOSTS_PER_RACE} boosts per race` : 'Boost: skip with no penalty and get 1 correct (press Enter with an empty box)';
     }
     function useBoost() {
         if (state !== 'racing' || !q || now() < stalledUntil) return;
@@ -1399,8 +1430,109 @@
         if (shape === 'sleek') { c.moveTo(-15, -4.5); c.lineTo(6, -5.5); c.quadraticCurveTo(24, -3.5, 31, 0); c.quadraticCurveTo(24, 3.5, 6, 5.5); c.lineTo(-15, 4.5); }
         else if (shape === 'heavy') { c.moveTo(tail, -7.5); c.lineTo(6, -8.5); c.quadraticCurveTo(22, -8, 24, 0); c.quadraticCurveTo(22, 8, 6, 8.5); c.lineTo(tail, 7.5); }
         else if (shape === 'shuttle') { c.moveTo(-16, -5.5); c.lineTo(12, -5.5); c.quadraticCurveTo(23, -4.5, 25, 0); c.quadraticCurveTo(23, 4.5, 12, 5.5); c.lineTo(-16, 5.5); }
+        else if (shape === 'saucer') { c.ellipse(4, 1.5, 21, 6, 0, 0, Math.PI * 2); }
         else { c.moveTo(-15, -6); c.lineTo(8, -6.5); c.quadraticCurveTo(22, -5, 26, 0); c.quadraticCurveTo(22, 5, 8, 6.5); c.lineTo(-15, 6); }
         c.closePath();
+    }
+    // ✨ animated SHOP rockets
+    function shopFx(c, fx, layer, t, sk, shape, tail) {
+        const T = t / 1000;
+        if (fx === 'neon' && layer === 'front') {
+            const h = (T * 90) % 360;
+            [[3, 0.25], [1.1, 1]].forEach(([w, a]) => { c.strokeStyle = `hsla(${h},100%,65%,${a})`; c.lineWidth = w; c.shadowColor = `hsl(${h},100%,60%)`; c.shadowBlur = 14; bodyPath(c, shape, tail); c.stroke(); });
+            c.strokeStyle = `hsla(${(h + 180) % 360},100%,70%,0.9)`; c.lineWidth = 0.8; c.shadowColor = c.strokeStyle;
+            c.beginPath(); c.moveTo(-6, -5); c.lineTo(-20, -12); c.lineTo(-15, -5); c.moveTo(-6, 5); c.lineTo(-20, 12); c.lineTo(-15, 5); c.stroke();
+        }
+        if (fx === 'candy' && layer === 'front') {
+            c.save(); bodyPath(c, shape, tail); c.clip();
+            c.fillStyle = 'rgba(220,38,38,0.85)';
+            const off = (T * 12) % 8;
+            for (let k = -40; k < 40; k += 8) { c.beginPath(); c.moveTo(k + off, -10); c.lineTo(k + off + 4, -10); c.lineTo(k + off - 6, 10); c.lineTo(k + off - 10, 10); c.closePath(); c.fill(); }
+            const sh = c.createLinearGradient(0, -7, 0, 7); sh.addColorStop(0, 'rgba(255,255,255,0.55)'); sh.addColorStop(0.4, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(0,0,0,0.2)');
+            c.fillStyle = sh; c.fillRect(-20, -10, 50, 20); c.restore();
+        }
+        if (fx === 'frost') {
+            if (layer === 'back') {
+                const g = c.createRadialGradient(4, 0, 3, 4, 0, 30); g.addColorStop(0, 'rgba(186,230,253,0.35)'); g.addColorStop(1, 'rgba(186,230,253,0)');
+                c.fillStyle = g; c.beginPath(); c.arc(4, 0, 30, 0, Math.PI * 2); c.fill();
+                c.fillStyle = '#e0f2fe';
+                for (let k = 0; k < 8; k++) { const a = T * 0.8 + k * 0.785, rr = 16 + 6 * Math.sin(T * 2 + k); c.globalAlpha = 0.5 + 0.5 * Math.sin(T * 3 + k); c.fillRect(4 + Math.cos(a) * rr * 1.4, Math.sin(a) * rr * 0.8, 1.1, 1.1); }
+                c.globalAlpha = 1;
+            } else {
+                c.strokeStyle = 'rgba(255,255,255,0.85)'; c.lineWidth = 0.45; c.shadowColor = '#7dd3fc'; c.shadowBlur = 6;
+                [[-9, -1.5, 2.6], [2, 2.5, 2], [12, -1, 2.2]].forEach(([fx2, fy, r]) => { for (let i = 0; i < 3; i++) { const a = i * Math.PI / 3 + T * 0.5; c.beginPath(); c.moveTo(fx2 - Math.cos(a) * r, fy - Math.sin(a) * r); c.lineTo(fx2 + Math.cos(a) * r, fy + Math.sin(a) * r); c.stroke(); } });
+            }
+        }
+        if (fx === 'magma') {
+            const p = 0.6 + 0.4 * Math.sin(T * 4);
+            if (layer === 'back') {
+                const g = c.createRadialGradient(4, 0, 4, 4, 0, 30); g.addColorStop(0, `rgba(239,68,68,${0.3 * p})`); g.addColorStop(1, 'rgba(239,68,68,0)');
+                c.fillStyle = g; c.beginPath(); c.arc(4, 0, 30, 0, Math.PI * 2); c.fill();
+                for (let k = 0; k < 6; k++) { const life = ((T * 0.9 + k / 6) % 1); c.fillStyle = `rgba(251,146,60,${1 - life})`; c.beginPath(); c.arc(-10 + k * 6 - life * 14, -6 - life * 14 + (k % 2) * 3, 1.1 * (1 - life) + 0.3, 0, Math.PI * 2); c.fill(); }
+            } else {
+                c.save(); bodyPath(c, shape, tail); c.clip();
+                c.strokeStyle = `rgba(251,146,60,${0.6 + 0.4 * p})`; c.lineWidth = 1; c.shadowColor = '#f97316'; c.shadowBlur = 8;
+                [[[-16, -3], [-10, 0], [-6, -4], [0, -1], [5, -7]], [[-14, 5], [-7, 2], [-1, 5], [6, 1], [12, 4], [18, -1]], [[8, -8], [11, -3], [16, -5], [21, 0]]].forEach(pts => { c.beginPath(); pts.forEach(([x, y], i) => c[i ? 'lineTo' : 'moveTo'](x, y)); c.stroke(); });
+                c.restore();
+            }
+        }
+        if (fx === 'holo' && layer === 'front') {
+            c.save(); bodyPath(c, shape, tail); c.clip();
+            c.fillStyle = 'rgba(165,243,252,0.35)'; const off = (T * 20) % 3;
+            for (let yy = -10 + off; yy < 10; yy += 3) c.fillRect(-20, yy, 50, 0.7);
+            c.restore();
+            if ((t % 2300) < 170) {   // glitch!
+                c.globalAlpha = 0.5; c.fillStyle = '#22d3ee'; c.save(); c.translate(-2.5, -1); bodyPath(c, shape, tail); c.fill(); c.restore();
+                c.fillStyle = '#e879f9'; c.save(); c.translate(2.5, 1); bodyPath(c, shape, tail); c.fill(); c.restore(); c.globalAlpha = 1;
+            }
+            c.strokeStyle = 'rgba(103,232,249,0.9)'; c.lineWidth = 0.6; c.shadowColor = '#22d3ee'; c.shadowBlur = 10; bodyPath(c, shape, tail); c.stroke();
+        }
+        if (fx === 'dragon') {
+            if (layer === 'back') {
+                c.fillStyle = sk.accent;
+                for (let k = 0; k < 6; k++) { const x = -12 + k * 5, h = 4 + Math.sin(T * 6 + k) * 0.8; c.beginPath(); c.moveTo(x - 2, -5.2); c.lineTo(x + 0.5, -5.2 - h); c.lineTo(x + 2.5, -5.2); c.fill(); }
+                c.beginPath(); c.moveTo(20, -3); c.lineTo(17, -11); c.lineTo(15, -4); c.fill();
+            } else {
+                c.save(); bodyPath(c, shape, tail); c.clip();
+                c.strokeStyle = 'rgba(0,0,0,0.35)'; c.lineWidth = 0.5;
+                for (let x = -16; x < 28; x += 3.2) for (let y = -6; y < 7; y += 2.6) { c.beginPath(); c.arc(x + ((Math.round(y / 2.6) % 2) ? 1.6 : 0), y, 1.6, 0, Math.PI); c.stroke(); }
+                c.restore();
+                const e = 0.6 + 0.4 * Math.sin(T * 5);   // glowing eye
+                c.fillStyle = `rgba(250,204,21,${e})`; c.shadowColor = '#f59e0b'; c.shadowBlur = 10; c.beginPath(); c.ellipse(17, -1.5, 2, 1, 0, 0, Math.PI * 2); c.fill();
+                c.fillStyle = '#000'; c.shadowBlur = 0; c.fillRect(16.8, -2.4, 0.5, 1.8);
+            }
+        }
+        if (fx === 'ufo') {
+            if (layer === 'back') {   // tractor beam
+                const a = 0.18 + 0.12 * Math.sin(T * 6);
+                const g = c.createLinearGradient(0, 5, 0, 30); g.addColorStop(0, `rgba(134,239,172,${a + 0.2})`); g.addColorStop(1, 'rgba(134,239,172,0)');
+                c.fillStyle = g; c.beginPath(); c.moveTo(-3, 6); c.lineTo(11, 6); c.lineTo(18, 30); c.lineTo(-10, 30); c.closePath(); c.fill();
+            } else {
+                // glass dome
+                const dg = c.createLinearGradient(0, -12, 0, 0); dg.addColorStop(0, 'rgba(224,242,254,0.95)'); dg.addColorStop(1, 'rgba(56,189,248,0.55)');
+                c.fillStyle = dg; c.beginPath(); c.ellipse(4, -1.5, 9, 8, 0, Math.PI, Math.PI * 2); c.fill();
+                c.fillStyle = '#4ade80'; c.beginPath(); c.arc(4, -4, 2.6, 0, Math.PI * 2); c.fill();   // the pilot
+                c.fillStyle = '#000'; c.beginPath(); c.ellipse(3, -4.5, 0.7, 1, 0.3, 0, Math.PI * 2); c.ellipse(5, -4.5, 0.7, 1, -0.3, 0, Math.PI * 2); c.fill();
+                // chasing rim lights
+                for (let k = 0; k < 9; k++) {
+                    const x = -13 + k * 4.25, on = Math.floor(T * 10) % 3 === k % 3;
+                    c.fillStyle = on ? ['#fde047', '#f472b6', '#22d3ee'][k % 3] : 'rgba(255,255,255,0.35)';
+                    c.shadowColor = c.fillStyle; c.shadowBlur = on ? 8 : 0; c.beginPath(); c.arc(x, 2.2, 1.2, 0, Math.PI * 2); c.fill();
+                }
+                c.shadowBlur = 0;
+            }
+        }
+        if (fx === 'reactor') {
+            if (layer === 'back') {
+                for (let k = 0; k < 3; k++) { const life = (T * 0.8 + k / 3) % 1; c.strokeStyle = `rgba(167,243,208,${(1 - life) * 0.7})`; c.lineWidth = 1.4 * (1 - life) + 0.3; c.shadowColor = '#34d399'; c.shadowBlur = 8; c.beginPath(); c.ellipse(4, 0, 8 + life * 30, 5 + life * 18, 0, 0, Math.PI * 2); c.stroke(); }
+                c.shadowBlur = 0;
+            } else {
+                const p = 0.65 + 0.35 * Math.sin(T * 7);
+                const g = c.createRadialGradient(4, 0, 0.5, 4, 0, 7 * p + 3); g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, '#6ee7b7'); g.addColorStop(1, 'rgba(16,185,129,0)');
+                c.fillStyle = g; c.beginPath(); c.arc(4, 0, 10, 0, Math.PI * 2); c.fill();
+                c.strokeStyle = `rgba(110,231,183,${p})`; c.lineWidth = 0.6; c.beginPath(); c.arc(4, 0, 4.2, T * 3, T * 3 + 4); c.stroke();
+            }
+        }
     }
     // ★ LEGENDARY effects, drawn behind the rocket (back) or on top of it (front)
     function legendFx(c, fx, layer, t, sk, shape, tail) {
@@ -1572,8 +1704,9 @@
         c.save();
         c.translate(x, y); c.scale(scale, scale);
         if (ghost) { c.globalAlpha = 0.78 + 0.14 * Math.sin(t / 90); c.shadowColor = 'rgba(167,139,250,0.9)'; c.shadowBlur = 12; }
-        const legend = !ghost && sk.legend ? sk.fx : null;
+        const legend = !ghost && sk.legend ? sk.fx : null, anim = !ghost && sk.anim ? sk.fx : null;
         if (legend) { c.save(); legendFx(c, legend, 'back', t, sk, shape, shape === 'heavy' ? -17 : -15); c.restore(); }
+        if (anim) { c.save(); shopFx(c, anim, 'back', t, sk, shape, shape === 'heavy' ? -17 : -15); c.restore(); }
         // flame
         const fl = (boost ? 1.8 : 1) * flame * (0.85 + 0.25 * Math.sin(t / 30) + Math.random() * 0.12);
         const tail = shape === 'heavy' ? -17 : -15, fw = shape === 'heavy' ? 7 : 5;
@@ -1600,6 +1733,8 @@
             c.beginPath(); c.moveTo(6, -5); c.lineTo(-14, -15); c.lineTo(-16, -5); c.closePath(); c.fill();
             c.beginPath(); c.moveTo(6, 5); c.lineTo(-14, 15); c.lineTo(-16, 5); c.closePath(); c.fill();
             c.beginPath(); c.moveTo(-8, -3); c.lineTo(-17, -10); c.lineTo(-15, -3); c.closePath(); c.fill();
+        } else if (shape === 'saucer') {
+            // no fins on a flying saucer
         } else {
             c.beginPath(); c.moveTo(-12, -6); c.lineTo(-19, -13); c.lineTo(-6, -6); c.closePath(); c.fill();
             c.beginPath(); c.moveTo(-12, 6); c.lineTo(-19, 13); c.lineTo(-6, 6); c.closePath(); c.fill();
@@ -1652,6 +1787,7 @@
         if (shape === 'sleek') { c.moveTo(18, -4.3); c.quadraticCurveTo(26, -3, 31, 0); c.quadraticCurveTo(26, 3, 18, 4.3); }
         else if (shape === 'heavy') { c.moveTo(15, -8.2); c.quadraticCurveTo(22, -8, 24, 0); c.quadraticCurveTo(22, 8, 15, 8.2); }
         else if (shape === 'shuttle') { c.moveTo(18, -5); c.quadraticCurveTo(23, -4.5, 25, 0); c.quadraticCurveTo(23, 4.5, 18, 5); }
+        else if (shape === 'saucer') { c.ellipse(4, 3.2, 19, 2.4, 0, 0, Math.PI * 2); }
         else { c.moveTo(14, -5.6); c.quadraticCurveTo(22, -5, 26, 0); c.quadraticCurveTo(22, 5, 14, 5.6); }
         c.closePath(); c.fill();
         if (shape === 'heavy') { c.fillRect(-11, -8.2, 3, 16.4); c.fillRect(-5, -8.4, 1.6, 16.8); }
@@ -1662,11 +1798,13 @@
         if (!ghost && sk.fx === 'glow') { c.shadowColor = sk.win; c.shadowBlur = 8; }
         if (shape === 'shuttle') { c.beginPath(); c.ellipse(14, -1.5, 3.2, 1.6, 0, 0, Math.PI * 2); c.fill(); }
         else if (shape === 'heavy') { [[1, 0], [8, 0]].forEach(([wx, wy]) => { c.beginPath(); c.arc(wx, wy, 3, 0, Math.PI * 2); c.fill(); }); }
+        else if (shape === 'saucer') { /* the dome is drawn by its effect */ }
         else { c.beginPath(); c.arc(shape === 'sleek' ? 6 : 3, 0, shape === 'sleek' ? 2.6 : 3.2, 0, Math.PI * 2); c.fill(); }
         c.shadowBlur = 0;
         c.fillStyle = 'rgba(255,255,255,0.8)';
-        if (shape !== 'shuttle') { c.beginPath(); c.arc(shape === 'sleek' ? 5.2 : 2, -1, 1, 0, Math.PI * 2); c.fill(); }
+        if (shape !== 'shuttle' && shape !== 'saucer') { c.beginPath(); c.arc(shape === 'sleek' ? 5.2 : 2, -1, 1, 0, Math.PI * 2); c.fill(); }
         if (legend) { c.save(); legendFx(c, legend, 'front', t, sk, shape, tail); c.restore(); }
+        if (anim) { c.save(); shopFx(c, anim, 'front', t, sk, shape, tail); c.restore(); }
         if (legend === 'diamond') {   // twinkling glints
             [[20, -3, 0], [-6, 5, 1.3], [8, -6, 2.6]].forEach(([gx, gy, ph]) => {
                 const k = Math.max(0, Math.sin(t / 260 + ph)); if (k < 0.2) return;
@@ -2332,6 +2470,7 @@
     $('sr-input').addEventListener('input', () => { SFX.key(); renderSuggest(); });
     $('sr-input').addEventListener('keydown', e => {
         if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); useBoost(); }
+        else if (e.key === 'Enter' && !e.target.value.trim() && !e.repeat) { e.preventDefault(); if (now() - qShownAt > 350) useBoost(); }   // Enter on an empty box = ⚡ boost
         else if (e.key === 'Enter') { e.preventDefault(); submit(); }
         else if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) { e.preventDefault(); moveHi(1); }
         else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) { e.preventDefault(); moveHi(-1); }

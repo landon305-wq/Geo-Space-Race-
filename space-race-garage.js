@@ -28,6 +28,15 @@
         { id: 'nebula',    name: 'Nebula',        shape: 'heavy',   body: ['#c4b5fd', '#7c3aed', '#312e81'], accent: '#f472b6', win: '#fbcfe8', fx: 'stars', price: 4000 },
         { id: 'chrome',    name: 'Chrome Comet',  shape: 'sleek',   body: ['#ffffff', '#94a3b8', '#e2e8f0'], accent: '#38bdf8', win: '#0284c7', fx: 'chrome', price: 6000 },
         { id: 'golden',    name: 'Golden Eagle',  shape: 'classic', body: ['#fef9c3', '#facc15', '#a16207'], accent: '#b45309', win: '#fef3c7', fx: 'gold', price: 10000 },
+        // ✨ animated shop rockets
+        { id: 'candy',     name: 'Candy Cane',    anim: true, fx: 'candy',   shape: 'classic', body: ['#ffffff', '#f8fafc', '#e2e8f0'], accent: '#16a34a', win: '#bbf7d0', price: 3000 },
+        { id: 'neon',      name: 'Neon Rider',    anim: true, fx: 'neon',    shape: 'sleek',   body: ['#1e1b4b', '#0f0a2e', '#020617'], accent: '#f0abfc', win: '#67e8f9', price: 4000 },
+        { id: 'frostbite', name: 'Frostbite',     anim: true, fx: 'frost',   shape: 'sleek',   body: ['#f0f9ff', '#bae6fd', '#38bdf8'], accent: '#e0f2fe', win: '#0369a1', price: 5000 },
+        { id: 'magma',     name: 'Magma Core',    anim: true, fx: 'magma',   shape: 'heavy',   body: ['#57534e', '#292524', '#0c0a09'], accent: '#ea580c', win: '#fdba74', price: 7500 },
+        { id: 'hologram',  name: 'Hologram',      anim: true, fx: 'holo',    shape: 'classic', body: ['rgba(165,243,252,0.55)', 'rgba(34,211,238,0.35)', 'rgba(14,116,144,0.55)'], accent: 'rgba(103,232,249,0.8)', win: '#ecfeff', price: 9000 },
+        { id: 'dragon',    name: 'Dragon',        anim: true, fx: 'dragon',  shape: 'sleek',   body: ['#86efac', '#16a34a', '#14532d'], accent: '#b91c1c', win: '#14532d', price: 12000 },
+        { id: 'ufo',       name: 'Flying Saucer', anim: true, fx: 'ufo',     shape: 'saucer',  body: ['#f1f5f9', '#94a3b8', '#334155'], accent: '#64748b', win: '#38bdf8', price: 15000 },
+        { id: 'reactor',   name: 'Pulse Reactor', anim: true, fx: 'reactor', shape: 'shuttle', body: ['#ecfdf5', '#6ee7b7', '#065f46'], accent: '#047857', win: '#a7f3d0', price: 20000 },
         // challenge rockets
         { id: 'rookie',    name: 'Rookie',        shape: 'classic', body: ['#ffedd5', '#fb923c', '#c2410c'], accent: '#1e3a8a', win: '#bfdbfe', challenge: 'races5' },
         { id: 'champion',  name: 'Champion',      shape: 'sleek',   body: ['#fee2e2', '#dc2626', '#7f1d1d'], accent: '#facc15', win: '#fde047', fx: 'glow', challenge: 'wins10' },
@@ -192,7 +201,7 @@
         if (tab === 'challenges') { body.innerHTML = challengesHtml(); paintPreviews(); return; }
         const list = tab === 'rockets' ? SKINS : TRAILS;
         // shop: things for sale you don't own yet · hangar: everything you own + challenge rewards
-        const items = mode === 'shop' ? list.filter(i => i.price > 0) : list.filter(i => owns(i) || i.challenge);
+        const items = mode === 'shop' ? list.filter(i => i.price > 0).sort((a, b) => a.price - b.price) : list.filter(i => owns(i) || i.challenge);
         body.innerHTML = (mode === 'hangar' ? `<div class="sr-gar-hint">Pick what you fly. Locked items unlock from 🏅 challenges or the 🛒 shop.</div>` : `<div class="sr-gar-hint">Win races to earn cash: 1st ${money(PAYOUT[0])} · 2nd ${money(PAYOUT[1])} · 3rd ${money(PAYOUT[2])} · 4th ${money(PAYOUT[3])} · others ${money(LAST_PAY)}. First race each day: +${money(DAILY_BONUS)}.</div>`)
             + `<div class="sr-gar-grid">${items.map(i => cardHtml(i, tab === 'rockets')).join('')}</div>`;
         paintPreviews();
@@ -207,15 +216,15 @@
             const c = CHALLENGES[item.challenge], v = Math.min(c.get(S()) || 0, c.goal);
             foot = `<div class="sr-gar-lock">🔒 ${esc(c.label)}</div><div class="sr-gar-bar"><i style="width:${(v / c.goal * 100).toFixed(1)}%"></i></div><div class="sr-gar-prog">${c.money ? money(v) : v} / ${c.money ? money(c.goal) : c.goal}</div>`;
         } else foot = `<button class="sr-btn ${G.cash >= item.price ? 'sr-btn-main' : 'sr-btn-ghost'} sr-gar-btn" data-act="buy" data-id="${item.id}">${money(item.price)}</button>`;
-        return `<div class="sr-gar-item${equipped ? ' eq' : ''}${own ? '' : ' locked'}${item.legend ? ' legend' : ''}">
+        return `<div class="sr-gar-item${equipped ? ' eq' : ''}${own ? '' : ' locked'}${item.legend ? ' legend' : ''}${item.anim ? ' anim' : ''}">
             <canvas class="sr-gar-prev" data-${isSkin ? 'skin' : 'trail'}="${item.id}" width="220" height="110"></canvas>
-            <div class="sr-gar-name">${esc(item.name)}${item.legend ? ' <span class="sr-gar-tag lg">★ LEGENDARY</span>' : item.challenge ? ' <span class="sr-gar-tag">CHALLENGE</span>' : ''}</div>
+            <div class="sr-gar-name">${esc(item.name)}${item.legend ? ' <span class="sr-gar-tag lg">★ LEGENDARY</span>' : item.challenge ? ' <span class="sr-gar-tag">CHALLENGE</span>' : item.anim ? ' <span class="sr-gar-tag an">✨ ANIMATED</span>' : ''}</div>
             ${foot}</div>`;
     }
     function boostsHtml() {
         return `<div class="sr-gar-boost">
             <div class="sr-gar-boost-icon">⚡</div>
-            <div class="sr-gar-boost-txt"><b>BOOST</b><br>Skip any question with <b>no penalty</b>, and it counts as <b>1 correct answer</b>. Up to ${BOOSTS_PER_RACE} per race. Press the ⚡ button (or <b>Shift+Enter</b>, or type <b>boost</b>) during a race. (Not allowed in the official daily race, so the leaderboard stays fair.)</div>
+            <div class="sr-gar-boost-txt"><b>BOOST</b><br>Skip any question with <b>no penalty</b>, and it counts as <b>1 correct answer</b>. Up to ${BOOSTS_PER_RACE} per race. Press <b>Enter with an empty box</b> (or the ⚡ button) during a race. (Not allowed in the official daily race, so the leaderboard stays fair.)</div>
             <div class="sr-gar-have">You have <b>${G.boosts}</b></div>
             <div class="sr-gar-boost-btns">
                 <button class="sr-btn ${G.cash >= BOOST_PRICE ? 'sr-btn-main' : 'sr-btn-ghost'}" data-act="boost1">1 boost · ${money(BOOST_PRICE)}</button>
@@ -242,7 +251,7 @@
             // a few drifting stars
             c.fillStyle = 'rgba(226,232,240,0.5)';
             for (let i = 0; i < 9; i++) { const x = (i * 53 + t / 25) % W, y = (i * 37) % H; c.fillRect(W - x, y, 1.4, 1.4); }
-            drawFn(c, W * (sk.legend ? 0.56 : 0.6), H * 0.5 + Math.sin(t / 400 + W) * 3, H / (sk.legend ? 50 : 36), '#38bdf8', { skin: sk, trail: tr, flame: 0.75, t });
+            drawFn(c, W * (sk.legend ? 0.56 : 0.6), H * 0.5 + Math.sin(t / 400 + W) * 3, H / (sk.legend ? 50 : sk.anim ? 42 : 36), '#38bdf8', { skin: sk, trail: tr, flame: 0.75, t });
         });
     }
     function loop() { paintPreviews(); anim = requestAnimationFrame(loop); }
