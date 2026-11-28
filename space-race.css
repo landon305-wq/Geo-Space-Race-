@@ -456,3 +456,28 @@ body {
 /* launch pad: racers' rockets waiting in the room */
 .sr-room-pad { display: block; width: 100%; height: clamp(210px, 34vh, 290px); margin: 10px 0 12px; border-radius: 14px;
     background: radial-gradient(ellipse at 20% 50%, rgba(30,27,75,.9), rgba(2,6,23,.95) 70%); border: 1px solid rgba(56,189,248,.25); }
+
+/* 🔥 daily deals */
+.sr-deals { margin: 0 0 12px; padding: 10px 12px; border-radius: 14px; text-align: left;
+    background: linear-gradient(135deg, rgba(234,88,12,.18), rgba(219,39,119,.14)); border: 1px solid rgba(251,146,60,.45); }
+.sr-deals-head { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: .8rem; letter-spacing: 2px; color: #fdba74; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.sr-deals-timer { font-family: 'Rajdhani', sans-serif; letter-spacing: .5px; color: var(--muted); font-size: .9rem; font-weight: 600; }
+.sr-deals-timer b { color: var(--text); }
+.sr-deals-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.sr-deal-chip { cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .95rem; padding: 5px 10px; border-radius: 10px;
+    color: var(--text); background: rgba(2,6,23,.6); border: 1px solid rgba(251,146,60,.35); }
+.sr-deal-chip b { color: #fb923c; }
+.sr-deal-chip.star { border-color: var(--gold); box-shadow: 0 0 12px rgba(251,191,36,.3); }
+.sr-deal-chip.star b { color: var(--gold); }
+.sr-deal-chip.boost b { color: #fde047; }
+.sr-deal-chip:hover { border-color: #fb923c; }
+.sr-gar-item { position: relative; }
+.sr-gar-item.sale { border-color: rgba(251,146,60,.55); }
+.sr-gar-item.dotd { border-color: var(--gold); box-shadow: 0 0 18px rgba(251,191,36,.3); }
+.sr-gar-ribbon { position: absolute; top: 6px; right: 6px; z-index: 2; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: .7rem; letter-spacing: 1px;
+    padding: 4px 8px; border-radius: 8px; color: #1c0a00; background: linear-gradient(135deg, #fdba74, #f97316); box-shadow: 0 0 12px rgba(249,115,22,.5); }
+.sr-gar-item.dotd .sr-gar-ribbon { background: linear-gradient(135deg, #fde68a, #f59e0b); }
+.sr-gar-btn s, .sr-gar-boost-btns s { opacity: .6; font-weight: 600; margin-right: 2px; }
+.sr-gar-item.flash { animation: srDealFlash 1.2s ease 2; }
+@keyframes srDealFlash { 50% { box-shadow: 0 0 0 3px #fb923c, 0 0 30px rgba(251,146,60,.6); } }
+.sr-sale-tag { display: inline-block; margin-left: 4px; padding: 1px 5px; border-radius: 6px; font-size: .6rem; color: #1c0a00; background: #fb923c; letter-spacing: .5px; }

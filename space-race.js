@@ -2565,6 +2565,7 @@
         SRGarage.setStats(loadStats); SRGarage.setDrawer(drawRocket); SRGarage.onChange(() => { renderWallet(); renderBoostBtn(); });
         renderWallet();
         $('sr-shop-btn').onclick = () => { ac(); SRGarage.open('shop'); };
+        $('sr-shop-btn').innerHTML = '🛒 Shop <span class="sr-sale-tag">SALE</span>';
         $('sr-hangar-btn').onclick = () => { ac(); SRGarage.open('hangar'); };
         try { await loadMaps(); } catch (e) { $('sr-start-btn').textContent = 'MAPS FAILED TO LOAD'; console.error(e); return; }
         await buildLineup();

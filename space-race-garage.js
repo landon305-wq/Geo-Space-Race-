@@ -132,6 +132,40 @@
     function newUnlocksSinceStart() { return allItems().filter(i => i.challenge && owns(i) && !ownedAtStart.includes(i.id)); }
     const allItems = () => SKINS.concat(TRAILS);
 
+    // ---------- daily deals: a new set of discounts every day (the same for everyone) ----------
+    const localDay = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    const hashStr = str => { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+    const mulberry = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    let dealCache = null;
+    function deals() {
+        const day = localDay();
+        if (dealCache && dealCache.day === day) return dealCache;
+        const r = mulberry(hashStr('sr-deals:' + day));
+        const pool = allItems().filter(i => i.price > 0).map(i => [r(), i]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+        const off = {}, list = [];
+        // ⭐ deal of the day: 25% off · plus 3 smaller sales: 10 to 20% off
+        off[pool[0].id] = 25; list.push({ item: pool[0], pct: 25, star: true });
+        pool.slice(1, 4).forEach(i => { const pct = [10, 15, 20][Math.floor(r() * 3)]; off[i.id] = pct; list.push({ item: i, pct }); });
+        const dow = new Date().getDay();
+        const boostOff = dow === 0 || dow === 6 ? 15 : r() < 0.35 ? 10 : 0;   // weekend boost sale, sometimes a weekday one
+        dealCache = { day, off, list, boostOff, weekend: dow === 0 || dow === 6 };
+        return dealCache;
+    }
+    const round50 = n => n < 1000 ? Math.max(10, Math.round(n / 10) * 10) : Math.round(n / 50) * 50;   // tidy sale prices
+    const priceOf = item => (deals().off[item.id] ? round50(item.price * (1 - deals().off[item.id] / 100)) : item.price);
+    const boostCost = pack => { const base = pack ? BOOST_PACK.price : BOOST_PRICE, o = deals().boostOff; return o ? round50(base * (1 - o / 100)) : base; };
+    function endsIn() {
+        const d = new Date(), mid = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+        const m = Math.max(0, Math.floor((mid - d) / 60000)), h = Math.floor(m / 60);
+        return h ? `${h}h ${m % 60}m` : `${m % 60}m`;
+    }
+    function dealsHtml() {
+        const D = deals();
+        const chip = ({ item, pct, star }) => `<button class="sr-deal-chip${star ? ' star' : ''}" data-goto="${item.id}">${star ? '⭐ DEAL OF THE DAY: ' : ''}${esc(item.name)} <b>-${pct}%</b></button>`;
+        return `<div class="sr-deals"><div class="sr-deals-head">🔥 TODAY'S DEALS <span class="sr-deals-timer">new deals in <b id="sr-deals-left">${endsIn()}</b></span></div>
+            <div class="sr-deals-row">${D.list.map(chip).join('')}${D.boostOff ? `<button class="sr-deal-chip boost" data-goto="boosts">⚡ ${D.weekend ? 'WEEKEND ' : ''}BOOST SALE <b>-${D.boostOff}%</b></button>` : ''}</div></div>`;
+    }
+
     // ---------- boosts ----------
     function canBoost() { return G.boosts > 0 && (G.usedThisRace || 0) < BOOSTS_PER_RACE; }
     function useBoost() { if (!canBoost()) return false; G.boosts--; G.usedThisRace = (G.usedThisRace || 0) + 1; G.boostsUsed++; save(); return true; }
@@ -165,20 +199,28 @@
             const m = e.target.closest('[data-mode]'); if (m) { mode = m.dataset.mode; tab = 'rockets'; return render(); }
             const tb = e.target.closest('[data-tab]'); if (tb) { tab = tb.dataset.tab; return render(); }
             const act = e.target.closest('[data-act]'); if (act) return action(act.dataset.act, act.dataset.id);
+            const go = e.target.closest('[data-goto]');
+            if (go) {
+                const id = go.dataset.goto;
+                tab = id === 'boosts' ? 'boosts' : SKINS.some(sk => sk.id === id) ? 'rockets' : 'trails'; render();
+                const card = overlay.querySelector(`.sr-gar-item [data-id="${id}"]`);
+                if (card) { const it = card.closest('.sr-gar-item'); it.scrollIntoView({ behavior: 'smooth', block: 'center' }); it.classList.remove('flash'); void it.offsetWidth; it.classList.add('flash'); }
+            }
         });
         document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay && !overlay.classList.contains('hidden')) close(); });
     }
     function action(act, id) {
         if (act === 'boost1' || act === 'boostpack') {
-            const n = act === 'boost1' ? 1 : BOOST_PACK.n, price = act === 'boost1' ? BOOST_PRICE : BOOST_PACK.price;
+            const n = act === 'boost1' ? 1 : BOOST_PACK.n, price = boostCost(act !== 'boost1');
             if (G.cash < price) return toast(`You need ${money(price - G.cash)} more`);
             G.cash -= price; G.boosts += n; save(); toast(`⚡ +${n} boost${n > 1 ? 's' : ''}!`, true); return render();
         }
         const item = allItems().find(i => i.id === id); if (!item) return;
         const isSkin = SKINS.includes(item);
         if (act === 'buy') {
-            if (G.cash < item.price) return toast(`You need ${money(item.price - G.cash)} more`);
-            G.cash -= item.price; G.owned.push(item.id);
+            const cost = priceOf(item);
+            if (G.cash < cost) return toast(`You need ${money(cost - G.cash)} more`);
+            G.cash -= cost; G.owned.push(item.id);
             if (isSkin) G.skin = item.id; else G.trail = item.id;
             save(); toast(`🎉 ${item.name} unlocked and equipped!`, true); return render();
         }
@@ -197,12 +239,12 @@
         if (!tabs.some(t => t[0] === tab)) tab = 'rockets';
         overlay.querySelector('#sr-gar-tabs').innerHTML = tabs.map(([k, l]) => `<button data-tab="${k}" class="${k === tab ? 'on' : ''}">${l}</button>`).join('');
         const body = overlay.querySelector('#sr-gar-body');
-        if (tab === 'boosts') { body.innerHTML = boostsHtml(); return; }
+        if (tab === 'boosts') { body.innerHTML = dealsHtml() + boostsHtml(); return; }
         if (tab === 'challenges') { body.innerHTML = challengesHtml(); paintPreviews(); return; }
         const list = tab === 'rockets' ? SKINS : TRAILS;
         // shop: things for sale you don't own yet · hangar: everything you own + challenge rewards
         const items = mode === 'shop' ? list.filter(i => i.price > 0).sort((a, b) => a.price - b.price) : list.filter(i => owns(i) || i.challenge);
-        body.innerHTML = (mode === 'hangar' ? `<div class="sr-gar-hint">Pick what you fly. Locked items unlock from 🏅 challenges or the 🛒 shop.</div>` : `<div class="sr-gar-hint">Win races to earn cash: 1st ${money(PAYOUT[0])} · 2nd ${money(PAYOUT[1])} · 3rd ${money(PAYOUT[2])} · 4th ${money(PAYOUT[3])} · others ${money(LAST_PAY)}. First race each day: +${money(DAILY_BONUS)}.</div>`)
+        body.innerHTML = (mode === 'hangar' ? `<div class="sr-gar-hint">Pick what you fly. Locked items unlock from 🏅 challenges or the 🛒 shop.</div>` : dealsHtml() + `<div class="sr-gar-hint">Win races to earn cash: 1st ${money(PAYOUT[0])} · 2nd ${money(PAYOUT[1])} · 3rd ${money(PAYOUT[2])} · 4th ${money(PAYOUT[3])} · others ${money(LAST_PAY)}. First race each day: +${money(DAILY_BONUS)}.</div>`)
             + `<div class="sr-gar-grid">${items.map(i => cardHtml(i, tab === 'rockets')).join('')}</div>`;
         paintPreviews();
     }
@@ -215,20 +257,25 @@
         else if (item.challenge) {
             const c = CHALLENGES[item.challenge], v = Math.min(c.get(S()) || 0, c.goal);
             foot = `<div class="sr-gar-lock">🔒 ${esc(c.label)}</div><div class="sr-gar-bar"><i style="width:${(v / c.goal * 100).toFixed(1)}%"></i></div><div class="sr-gar-prog">${c.money ? money(v) : v} / ${c.money ? money(c.goal) : c.goal}</div>`;
-        } else foot = `<button class="sr-btn ${G.cash >= item.price ? 'sr-btn-main' : 'sr-btn-ghost'} sr-gar-btn" data-act="buy" data-id="${item.id}">${money(item.price)}</button>`;
-        return `<div class="sr-gar-item${equipped ? ' eq' : ''}${own ? '' : ' locked'}${item.legend ? ' legend' : ''}${item.anim ? ' anim' : ''}">
+        } else {
+            const cost = priceOf(item), sale = cost < item.price;
+            foot = `<button class="sr-btn ${G.cash >= cost ? 'sr-btn-main' : 'sr-btn-ghost'} sr-gar-btn" data-act="buy" data-id="${item.id}">${sale ? `<s>${money(item.price)}</s> ` : ''}${money(cost)}</button>`;
+        }
+        const pct = !own && deals().off[item.id], star = pct && deals().list[0].item === item;
+        return `<div class="sr-gar-item${equipped ? ' eq' : ''}${own ? '' : ' locked'}${item.legend ? ' legend' : ''}${item.anim ? ' anim' : ''}${pct ? ' sale' : ''}${star ? ' dotd' : ''}">${pct ? `<div class="sr-gar-ribbon">${star ? '⭐ ' : ''}-${pct}%</div>` : ''}
             <canvas class="sr-gar-prev" data-${isSkin ? 'skin' : 'trail'}="${item.id}" width="220" height="110"></canvas>
             <div class="sr-gar-name">${esc(item.name)}${item.legend ? ' <span class="sr-gar-tag lg">★ LEGENDARY</span>' : item.challenge ? ' <span class="sr-gar-tag">CHALLENGE</span>' : item.anim ? ' <span class="sr-gar-tag an">✨ ANIMATED</span>' : ''}</div>
             ${foot}</div>`;
     }
     function boostsHtml() {
+        const o = deals().boostOff, b1 = boostCost(false), bp = boostCost(true), was = (n, v) => o ? `<s>${money(n)}</s> ${money(v)}` : money(v);
         return `<div class="sr-gar-boost">
             <div class="sr-gar-boost-icon">⚡</div>
             <div class="sr-gar-boost-txt"><b>BOOST</b><br>Skip any question with <b>no penalty</b>, and it counts as <b>1 correct answer</b>. Up to ${BOOSTS_PER_RACE} per race. Press <b>Enter with an empty box</b> (or the ⚡ button) during a race. (Not allowed in the official daily race, so the leaderboard stays fair.)</div>
             <div class="sr-gar-have">You have <b>${G.boosts}</b></div>
             <div class="sr-gar-boost-btns">
-                <button class="sr-btn ${G.cash >= BOOST_PRICE ? 'sr-btn-main' : 'sr-btn-ghost'}" data-act="boost1">1 boost · ${money(BOOST_PRICE)}</button>
-                <button class="sr-btn ${G.cash >= BOOST_PACK.price ? 'sr-btn-main' : 'sr-btn-ghost'}" data-act="boostpack">${BOOST_PACK.n} boosts · ${money(BOOST_PACK.price)} <small>(save ${money(BOOST_PRICE * BOOST_PACK.n - BOOST_PACK.price)})</small></button>
+                <button class="sr-btn ${G.cash >= b1 ? 'sr-btn-main' : 'sr-btn-ghost'}" data-act="boost1">1 boost · ${was(BOOST_PRICE, b1)}</button>
+                <button class="sr-btn ${G.cash >= bp ? 'sr-btn-main' : 'sr-btn-ghost'}" data-act="boostpack">${BOOST_PACK.n} boosts · ${was(BOOST_PACK.price, bp)} <small>(save ${money(b1 * BOOST_PACK.n - bp)})</small></button>
             </div></div>`;
     }
     function challengesHtml() {
@@ -254,7 +301,13 @@
             drawFn(c, W * (sk.legend ? 0.56 : 0.6), H * 0.5 + Math.sin(t / 400 + W) * 3, H / (sk.legend ? 50 : sk.anim ? 42 : 36), '#38bdf8', { skin: sk, trail: tr, flame: 0.75, t });
         });
     }
-    function loop() { paintPreviews(); anim = requestAnimationFrame(loop); }
+    let lastTick = 0;
+    function loop() {
+        paintPreviews();
+        const t = performance.now();
+        if (t - lastTick > 15000) { lastTick = t; const el = overlay && overlay.querySelector('#sr-deals-left'); if (el) { if (dealCache && dealCache.day !== localDay()) render(); else el.textContent = endsIn(); } }
+        anim = requestAnimationFrame(loop);
+    }
 
     // the lobby's wallet line
     function walletHtml() { return `<span title="Cash">💰 <b>${money(G.cash)}</b></span> <span class="sr-wallet-sep">·</span> <span title="Boosts">⚡ <b>${G.boosts}</b></span>`; }
@@ -267,7 +320,7 @@
         // random cosmetics for computer racers (seeded so everyone in a room sees the same)
         botLook: r => ({ skin: SKINS[Math.floor(r() * 9)].id, trail: TRAILS[Math.floor(r() * 5)].id }),
         setStats: fn => { statsFn = fn; }, setDrawer: fn => { drawFn = fn; }, onChange: fn => { onChange = fn; },
-        raceStarting, raceEnded, newUnlocksSinceStart, canBoost, useBoost, open, close, walletHtml, money,
+        deals, raceStarting, raceEnded, newUnlocksSinceStart, canBoost, useBoost, open, close, walletHtml, money,
         _reset: () => { G = fresh(); save(); },
     };
 })();
