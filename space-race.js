@@ -1152,7 +1152,7 @@
     function payout(place) {
         const humans = raceMode === 'room' ? racers.filter(rc => rc.kind === 'you' || rc.kind === 'friend').length : 1;
         const misses = answerLog.filter(e => !e.ok).length;
-        const res = SRGarage.raceEnded({ place, dnf: !!me.dnf, humans, misses, official: isOfficial, day: DAY });
+        const res = SRGarage.raceEnded({ place, dnf: !!me.dnf, humans, misses, official: isOfficial, day: DAY, finish: me.finish, target: TARGET });
         const un = SRGarage.newUnlocksSinceStart();
         const el = $('sr-res-cash');
         el.innerHTML = `<div class="sr-cash-earn">💰 +${SRGarage.money(res.base)}<span>${me.dnf ? 'last place' : ordinal(place) + ' place'}</span></div>`

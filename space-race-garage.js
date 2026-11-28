@@ -85,7 +85,7 @@
         rare1000:     { label: 'Find 1,000 💎 rare answers',                goal: 1000,   get: s => s.rare },
         wins250:      { label: 'Win 250 races',                            goal: 250,    get: s => s.wins },
         streak40:     { label: 'Get a 40-answer streak',                   goal: 40,     get: s => s.bestStreak },
-        fast35:       { label: 'Finish a 15-point race in under 0:35',     goal: 1,      get: s => (s.best && s.best < 35000 ? 1 : 0) },
+        fast35:       { label: 'Finish a 15-point race in under 0:35 without boosts', goal: 1, get: s => (s.bestNoBoost && s.bestNoBoost < 35000 ? 1 : 0) },
         races1000:    { label: 'Finish 1,000 races',                       goal: 1000,   get: s => s.races },
         humanwins100: { label: 'Win 100 races against real people',        goal: 100,    get: s => s.humanWins },
         earn250k:     { label: 'Earn $250,000 in total',                   goal: 250000, get: s => s.earned, money: true },
@@ -100,7 +100,7 @@
 
     let statsFn = () => ({});                       // space-race.js supplies its stats (races, wins, rare, best…)
     let drawFn = null;                              // space-race.js supplies drawRocket
-    const S = () => Object.assign({}, statsFn(), { humanWins: G.humanWins, perfectWins: G.perfectWins, dailyDays: G.dailyDays.length, earned: G.earned });
+    const S = () => Object.assign({}, statsFn(), { bestNoBoost: G.bestNoBoost || 0, humanWins: G.humanWins, perfectWins: G.perfectWins, dailyDays: G.dailyDays.length, earned: G.earned });
 
     const skin = id => SKINS.find(s => s.id === id) || SKINS[0];
     const trail = id => TRAILS.find(t => t.id === id) || TRAILS[0];
@@ -121,6 +121,8 @@
         if (!info.dnf && info.place === 1 && info.humans >= 2) G.humanWins++;
         if (!info.dnf && info.place === 1 && info.misses === 0) G.perfectWins++;
         if (info.official && !G.dailyDays.includes(info.day)) G.dailyDays.push(info.day);
+        // fastest 15-point race with NO boosts (for the Supernova challenge)
+        if (!info.dnf && info.target === 15 && !(G.usedThisRace > 0) && isFinite(info.finish) && info.finish > 0 && (!G.bestNoBoost || info.finish < G.bestNoBoost)) G.bestNoBoost = Math.round(info.finish);
         save();
         const unlocked = allItems().filter(i => owns(i) && !before.includes(i.id) && i.challenge);
         return { base, bonus, total, cash: G.cash, unlocked };
