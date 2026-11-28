@@ -452,3 +452,7 @@ body {
 .sr-gar-tag.an { color: #a5f3fc; border-color: rgba(103,232,249,.5); }
 .sr-gar-item.anim { border-color: rgba(103,232,249,.35); }
 .sr-gar-item.anim .sr-gar-prev { background: radial-gradient(ellipse at 50% 50%, #172554, #020617 75%); }
+
+/* launch pad: racers' rockets waiting in the room */
+.sr-room-pad { display: block; width: 100%; height: clamp(210px, 34vh, 290px); margin: 10px 0 12px; border-radius: 14px;
+    background: radial-gradient(ellipse at 20% 50%, rgba(30,27,75,.9), rgba(2,6,23,.95) 70%); border: 1px solid rgba(56,189,248,.25); }

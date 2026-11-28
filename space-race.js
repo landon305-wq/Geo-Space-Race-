@@ -2144,6 +2144,76 @@
     const CODE_LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';   // no I or O, so codes are easy to read out loud
     const MAX_PLAYERS = 6;
     const QUICK_WAIT_MS = 15000;
+    // ==========================================
+    // LAUNCH PAD: the waiting room shows everyone's rockets. New racers fly in to their lane.
+    // ==========================================
+    const Pad = {
+        ents: new Map(), raf: 0, launching: 0, stars: null,
+        // list: [{ id, name, skin, trail, color, me, bot }]
+        sync(list) {
+            const t = now(), seen = new Set();
+            list.forEach((r, i) => {
+                seen.add(r.id);
+                let e = this.ents.get(r.id);
+                if (!e) {
+                    e = { enterT: t + (r.bot ? i * 120 : 0), wob: Math.random() * 6 };
+                    this.ents.set(r.id, e);
+                    if (this.ents.size > 1 || r.bot) setTimeout(() => { if (soundOn) { noise(0.5, 0.08, 2500, 300); tone(300, 0.4, 'sawtooth', 0.03, 500); } }, Math.max(0, e.enterT - t));
+                }
+                Object.assign(e, r, { slot: i, skinObj: SRGarage.skin(r.skin || 'classic'), trailObj: SRGarage.trail(r.trail || 'fire'), gone: 0 });
+            });
+            this.ents.forEach((e, id) => { if (!seen.has(id) && !e.gone) e.gone = t; });
+            if (!this.raf) this.raf = requestAnimationFrame(() => this.frame());
+        },
+        reset() { this.ents.clear(); this.launching = 0; },
+        frame() {
+            this.raf = 0;
+            const cv = $('sr-room-pad');
+            if (!cv || !$('sr-room').classList.contains('active')) return;
+            const dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+            if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+            const c = cv.getContext('2d'), t = now();
+            c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
+            // drifting stars
+            if (!this.stars) this.stars = Array.from({ length: 60 }, () => ({ x: Math.random(), y: Math.random(), z: 0.3 + Math.random() * 0.7 }));
+            const speed = this.launching ? 0.25 + 0.6 * Math.min(1, (t - this.launching) / 3000) : 0.03;
+            this.stars.forEach(st => { st.x -= speed * st.z * 0.016; if (st.x < 0) { st.x += 1; st.y = Math.random(); } c.fillStyle = `rgba(226,232,240,${0.25 + 0.5 * st.z})`; c.fillRect(st.x * W, st.y * H, 1.3 * st.z + (this.launching ? speed * 20 * st.z : 0), 1.3 * st.z); });
+            const lanes = LANES, top = 16, laneH = (H - top - 4) / lanes, scale = Math.min(1.45, laneH / 27);
+            // empty pads
+            for (let i = 0; i < lanes; i++) {
+                const y = top + laneH * (i + 0.5);
+                c.strokeStyle = 'rgba(56,189,248,0.12)'; c.setLineDash([5, 9]); c.lineDashOffset = -t / 40; c.beginPath(); c.moveTo(14, y); c.lineTo(W - 14, y); c.stroke(); c.setLineDash([]);
+                if (![...this.ents.values()].some(e => e.slot === i && !e.gone)) {
+                    c.fillStyle = 'rgba(148,163,184,0.35)'; c.font = `600 ${Math.round(11 * scale)}px Rajdhani, sans-serif`; c.textAlign = 'center';
+                    c.fillText('waiting for a racer' + '.'.repeat(1 + Math.floor(t / 500) % 3), W * 0.5, y + 4);
+                }
+            }
+            let busy = false;
+            this.ents.forEach((e, id) => {
+                if (e.gone && t - e.gone > 700) { this.ents.delete(id); return; }
+                const y = top + laneH * (e.slot + 0.5) + Math.sin(t / 500 + e.wob) * 2;
+                const homeX = W * (0.42 + (e.slot % 2) * 0.06);
+                const k = clamp((t - e.enterT) / 1100, 0, 1), ease = 1 - Math.pow(1 - k, 3);
+                let x = lerp(-60, homeX, ease);
+                if (e.gone) x = homeX + Math.pow((t - e.gone) / 700, 2) * W;
+                if (this.launching) x += Math.pow(Math.max(0, t - this.launching) / 1000, 2) * 6 + (Math.random() - 0.5) * 1.5;
+                if (t < e.enterT) return;
+                if (k < 1 || e.gone) busy = true;
+                c.save();
+                if (e.me) { const g = c.createRadialGradient(x, y, 2, x, y, 30 * scale); g.addColorStop(0, 'rgba(56,189,248,0.28)'); g.addColorStop(1, 'rgba(56,189,248,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, 30 * scale, 0, Math.PI * 2); c.fill(); }
+                const flame = k < 1 ? 1.8 : this.launching ? 0.8 + Math.min(1.6, (t - this.launching) / 1500) : 0.45;
+                drawRocket(c, x, y, scale * (e.me ? 1.12 : 1), e.color || '#38bdf8', { flame, boost: k < 1, t: t + e.wob * 100, skin: e.skinObj, trail: e.trailObj });
+                c.font = `700 ${Math.round(11 * scale)}px Rajdhani, sans-serif`; c.textAlign = 'center';
+                c.fillStyle = e.me ? '#7dd3fc' : e.bot ? 'rgba(226,232,240,0.7)' : '#f8fafc';
+                c.fillText((e.me ? '⭐ ' : '') + (e.name || 'Racer') + (e.me ? ' (you)' : ''), x, y - 15 * scale);
+                const sk = e.skinObj;
+                if (sk && sk.id !== 'classic') { c.font = `600 ${Math.round(9 * scale)}px Rajdhani, sans-serif`; c.fillStyle = sk.legend ? '#fde68a' : 'rgba(148,163,184,0.85)'; c.textAlign = 'left'; c.fillText((sk.legend ? '★ ' : '') + sk.name, x + 32 * scale, y + 4); }
+                c.restore();
+            });
+            this.raf = requestAnimationFrame(() => this.frame());
+        }
+    };
+
     const Room = {
         code: null, ch: null, quick: false, joinedAt: 0, players: [], hostId: null,
         settings: { set: 'mixed', target: 15, bots: true }, racing: false, roster: null,
@@ -2229,6 +2299,7 @@
             if (!this.code) return;
             $('sr-room-title').textContent = this.quick ? '⚡ QUICK MATCH' : '🔒 PRIVATE ROOM';
             if (this.intro) return;   // MATCH FOUND! 3-2-1 is on screen
+            Pad.launching = 0;
             $('sr-room-code').textContent = this.quick ? 'ONLINE' : this.code; $('sr-room-code').classList.remove('mf-small', 'mf-pop');
             document.querySelector('.sr-room-code-label').textContent = this.quick ? 'PUBLIC RACE' : 'ROOM CODE';
             $('sr-room-share').classList.toggle('hidden', this.quick);
@@ -2239,6 +2310,8 @@
                 <span class="nm">${esc(p.name || 'Racer')}${p.id === CLIENT_ID ? ' (you)' : ''}</span>
                 <span class="tag ${i === 0 ? 'tag-ghost' : 'tag-you'}">${i === 0 ? '👑 HOST' : 'READY'}</span></div>`).join('') || '<div class="sr-muted">Connecting…</div>';
             this._sig = sig;
+            Pad.sync(humans.map((p, i) => ({ id: p.id, name: p.id === CLIENT_ID ? this.myName : p.name, skin: p.id === CLIENT_ID ? SRGarage.equipped().skin : p.skin, trail: p.id === CLIENT_ID ? SRGarage.equipped().trail : p.trail, color: COLORS[i % COLORS.length], me: p.id === CLIENT_ID })));
+            $('sr-room-players').classList.toggle('hidden', this.quick); $('sr-room-players').previousElementSibling.classList.toggle('hidden', this.quick);
             // settings: host can change them, everyone else sees them
             const st = this.settings;
             document.querySelectorAll('#sr-room-settings [data-set]').forEach(b => { b.classList.toggle('active', b.dataset.set === st.set); b.disabled = !this.isHost; });
@@ -2307,6 +2380,8 @@
             const big = $('sr-room-code'), label = document.querySelector('.sr-room-code-label');
             const flash = (text, small) => { big.textContent = text; big.classList.toggle('mf-small', !!small); big.classList.remove('mf-pop'); void big.offsetWidth; big.classList.add('mf-pop'); };
             this.intro = true; label.textContent = 'GET READY'; flash('MATCH FOUND!', true); SFX.rare();
+            Pad.sync(field.map((f, i) => ({ id: f.id || 'bot' + i, name: f.name, skin: f.skin, trail: f.trail, color: f.color, me: f.kind === 'you', bot: f.kind === 'bot' })));
+            setTimeout(() => { if (this.code === code) Pad.launching = now(); }, 1500);
             ['3', '2', '1'].forEach((n, i) => setTimeout(() => { if (this.code === code) { flash(n); SFX.beep(); } }, 1500 + i * 900));
             setTimeout(() => { this.intro = false; if (this.code === code && this.startedRace) go(); }, 1500 + 3 * 900);
         },
@@ -2353,6 +2428,7 @@
             clearInterval(this.tickTimer); clearTimeout(this.quickTimer);
             if (this.ch) { try { await this.ch.untrack(); sb.removeChannel(this.ch); } catch (e) {} }
             if (this.lobbyCh) { try { await this.lobbyCh.untrack(); sb.removeChannel(this.lobbyCh); } catch (e) {} }
+            Pad.reset();
             this.ch = null; this.lobbyCh = null; this.code = null; this.quick = false; this.players = []; this.racing = false; this.startedRace = false; this.startPayload = null; this.intro = false;
             try { history.replaceState(null, '', 'space-race.html'); } catch (e) {}
             if (silent) return;
